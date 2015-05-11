@@ -13,13 +13,13 @@ APC项目欢迎任何人提交代码，如果你想对此项目做出贡献，�
 ### 使用命令行
 
 * 转到或新建你的开发目录。
-* 运行'git clone git://github.com/APCDevPowered/AssemblyProgramCraft.git'，这会创建一个名为AssemblyProgramCraft的文件夹，并包含所有必要的文件。
+* 运行'git clone https://github.com/APCDevPowered/AssemblyProgramCraft.git'，这会创建一个名为AssemblyProgramCraft的文件夹，并包含所有必要的文件。
 
 ### 使用Git Extensions
 
 * 转到或新建你的开发目录。
 * 右键空白处选择'GitExt Clone...'。
-* 在要克隆的档案库处填入'git://github.com/APCDevPowered/AssemblyProgramCraft.git'。
+* 在要克隆的档案库处填入'https://github.com/APCDevPowered/AssemblyProgramCraft.git'。
 * 点击'克隆'。
 
 ## 设置开发环境
