@@ -1,0 +1,16 @@
+[
+{
+  "modid": "AssemblyProgramCraft",
+  "name": "AssemblyProgramCraft",
+  "description": "VCPU-32~~",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "http://www.mcbbs.net/thread-197233-1-1.html",
+  "updateUrl": "",
+  "authorList": ["yuxuanchiadm"],
+  "credits": "Created by Cthuwork Team",
+  "logoFile": "logo.png",
+  "screenshots": [],
+  "dependencies": []
+}
+]

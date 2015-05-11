@@ -1,0 +1,18 @@
+# Master language file
+
+item.item_vcpu_32_computer_cmos_chip.name=CMOS芯片
+item.item_vcpu_32_debugger.name=VCPU-32调试器
+item.item_bios_writer.name=电擦写BIOS设备
+item.item_port_setting_tool.name=外设端口分配器
+
+tile.block_vcpu_32_computer.name=基于VCPU-32的电脑
+tile.block_vcpu_32_computer_connector.name=数据接口
+tile.block_vcpu_32_computer_wire.name=数据线
+tile.block_external_device_300_byte_storage.name=300Bytes存储器
+tile.block_external_device_keyboard.name=键盘
+tile.block_external_device_monitor.name=显示器
+tile.block_external_device_number_monitor.name=数值显示器
+tile.block_external_device_console_screen.name=控制台文本屏幕显示器
+tile.block_expansion_console_screen.name=扩展控制台文本屏幕显示器
+tile.block_external_device_redstone_controller.name=红石控制器
+tile.block_external_device_note_box.name=音符播放器
