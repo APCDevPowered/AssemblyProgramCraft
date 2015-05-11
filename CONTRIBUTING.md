@@ -30,3 +30,16 @@ APC项目欢迎任何人提交代码，如果你想对此项目做出贡献，�
 * 运行Eclipse，并切换工作目录到'AssemblyProgramCraft/eclipse/'下。
 * 点击菜单栏的'Help'->'Eclipse Marketplaces...'，并输入'JavaCC'然后搜索。
 * 下载'JavaCC Eclipse Plug-in'，这个插件将用于编译APC基于JavaCC的词法分析器。
+* 右键项目'Minecraft'->'Properties'，选择'Resource'->'Text file encoding'->'Other'，选择UTF-8编码。
+
+## 提交规则
+
+* 所有提交的代码均必须使用UTF-8编码。
+* 代码使用CRLF换行。
+* 提交信息需要为1行，且以Add、Remove、Update、Fix等打头。
+* 任何添加新功能的改动必须另建分支，主分支的代码应在任何时候都能编译，并能运行。
+* 所有代码应提供必要的注释和Javadoc。
+* 换行格式遵循Forge的换行格式，在'{'前应换行。
+* 不要使TAB，使用4个空格来缩进。
+* 不要添加多于的空格。
+* 没有80字符换行要求和超长换行要求。
