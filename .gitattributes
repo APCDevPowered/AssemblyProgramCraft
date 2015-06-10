@@ -1,0 +1,122 @@
+# Program code files
+# Java
+*.java text eol=crlf
+# Groovy
+*.groovy text eol=crlf
+# Scala
+*.scala text eol=crlf
+# Clojure
+*.clj text eol=crlf
+# Scheme
+*.scm text eol=crlf
+# Common
+*.lisp text eol=crlf Lisp
+# C
+*.c text eol=crlf
+# CPlusPlus
+*.cpp text eol=crlf
+# CSharp
+*.cs text eol=crlf
+# VisualBasic
+*.vb text eol=crlf
+# JavaScript
+*.js text eol=crlf
+# Python
+*.py text eol=crlf
+# Pascal
+*.pas text eol=crlf
+# Ruby
+*.rb text eol=crlf
+# Smalltalk
+*.st text eol=crlf
+# ObjectiveC
+*.m text eol=crlf
+# PHP
+*.php text eol=crlf
+# ASP
+*.asp text eol=crlf
+# JSP
+*.jsp text eol=crlf
+# Perl
+*.prl text eol=crlf
+# Perl
+*.pl text eol=crlf
+# Shell
+*.sh text eol=crlf
+# Batch
+*.bat text eol=crlf
+# SQL
+*.sql text eol=crlf
+# XML
+*.xml text eol=crlf
+# AssemblyProgramCraft
+*.apc text eol=crlf
+
+# Webpage code files
+# HTML
+*.html text eol=crlf
+# XHTML
+*.xhtml text eol=crlf
+
+# JavaCC code files
+*.jj text eol=crlf
+*.jjt text eol=crlf
+*.jtb text eol=crlf
+
+# Project build files
+# Makefile
+makefile text eol=crlf
+# Ant
+build.xml text eol=crlf
+# Maven
+pom.xml text eol=crlf
+# Gradle
+build.gradle text eol=crlf
+
+# Gradle wapper files
+gradlew text eol=crlf
+gradlew.bat text eol=crlf
+
+# Json text files
+*.json text eol=crlf
+
+# Markdown text files
+*.md text eol=crlf
+
+# General text files
+*.txt txt
+LICENSE text eol=crlf
+*.properties text eol=crlf
+modid.info text eol=crlf
+*.lang text eol=crlf
+
+# Picture binary files
+*.png binary
+*.jpg binary
+*.git binary
+*.psd binary
+*.sai binary
+
+# Musci binary files
+*.flac binary
+*.ogg binary
+*.mp3 binary
+*.wma binary
+*.wav binary
+*.rm binary
+*.real binary
+*.ape binary
+*.midi binary
+
+# Video binary files
+*.asf binary
+*.avi binary
+*.wmv binary
+*.mpg binary
+*.mp4 binary
+*.3gp binary
+*.rm binary
+*.rmvb binary
+*.flv binary
+*.f4v binary
+*.mkv binary

@@ -3,7 +3,6 @@
 package yuxuanchiadm.apc.vcpu32.asm.parser;
 
 /** Token Manager Error. */
-@SuppressWarnings("all")
 public class TokenMgrError extends Error
 {
 
@@ -145,4 +144,4 @@ public class TokenMgrError extends Error
     this(LexicalError(EOFSeen, lexState, errorLine, errorColumn, errorAfter, curChar), reason);
   }
 }
-/* JavaCC - OriginalChecksum=74ae8cf7096345da7ad905d0d80798e1 (do not edit this line) */
+/* JavaCC - OriginalChecksum=f5d681e700dc8f278a3a9a2190cb4b82 (do not edit this line) */

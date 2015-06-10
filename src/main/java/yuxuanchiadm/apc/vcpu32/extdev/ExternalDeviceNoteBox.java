@@ -1,6 +1,6 @@
 package yuxuanchiadm.apc.vcpu32.extdev;
 
-import yuxuanchiadm.apc.apc.tileEntity.TileEntityExternalDeviceNoteBox;
+import yuxuanchiadm.apc.apc.common.tileEntity.TileEntityExternalDeviceNoteBox;
 import yuxuanchiadm.apc.vcpu32.vm.AbstractExternalDevice;
 
 public class ExternalDeviceNoteBox extends AbstractExternalDevice

@@ -6,7 +6,6 @@ package yuxuanchiadm.apc.vcpu32.asm.parser;
  * Describes the input token stream.
  */
 
-@SuppressWarnings("all")
 public class Token implements java.io.Serializable {
 
   /**
@@ -129,4 +128,4 @@ public class Token implements java.io.Serializable {
   }
 
 }
-/* JavaCC - OriginalChecksum=0aa2df640443f04daa11c6bbf802bf59 (do not edit this line) */
+/* JavaCC - OriginalChecksum=bd6cf9d8b70a7a032b57665b8bf9f2b7 (do not edit this line) */

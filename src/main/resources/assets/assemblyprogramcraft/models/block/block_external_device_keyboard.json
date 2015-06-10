@@ -1,0 +1,23 @@
+{
+	"ambientocclusion": false,
+    "textures": {
+        "particle": "assemblyprogramcraft:blocks/block_vcpu_32_computer_top",
+        "front": "assemblyprogramcraft:blocks/block_external_device_keyboard_front",
+        "side": "assemblyprogramcraft:blocks/block_external_device_keyboard_side",
+        "top": "assemblyprogramcraft:blocks/block_external_device_keyboard_top",
+        "bottom": "assemblyprogramcraft:blocks/block_external_device_keyboard_bottom"
+    },
+    "elements": [
+        {   "from": [ 0, 0, 8.5 ], 
+            "to": [ 16, 2, 16 ], 
+            "faces": {
+                "north": { "texture": "#front", "uv": [ 0, 16, 16, 14 ] },
+                "east": { "texture": "#side", "uv": [ 16, 14, 8.5, 16 ] },
+                "south": { "texture": "#front", "uv": [ 0, 14, 16, 16 ] },
+                "west": { "texture": "#side", "uv": [ 8.5, 14, 16, 16 ] },
+                "up": { "texture": "#top", "uv": [ 16, 7.5, 0, 0 ] },
+                "down": { "texture": "#bottom", "uv": [ 0, 0, 16, 7.5 ] }
+            }
+        }
+    ]
+}

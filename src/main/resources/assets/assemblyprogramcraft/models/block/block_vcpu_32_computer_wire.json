@@ -1,0 +1,35 @@
+{
+    "textures": {
+        "particle": "assemblyprogramcraft:blocks/block_vcpu_32_computer_wire_front",
+        "front": "assemblyprogramcraft:blocks/block_vcpu_32_computer_wire_front",
+        "top": "assemblyprogramcraft:blocks/block_vcpu_32_computer_wire_top",
+        "side": "assemblyprogramcraft:blocks/block_vcpu_32_computer_wire_side"
+    },
+    "elements": [
+        {   "from": [ 0, 0, 0 ], 
+            "to": [ 16, 4, 16 ], 
+            "faces": {
+                "north": { "texture": "#front", "uv": [ 0, 12, 16, 16 ] },
+                "east": { "texture": "#front", "uv": [ 0, 12, 16, 16 ] },
+                "south": { "texture": "#front", "uv": [ 0, 12, 16, 16 ] },
+                "west": { "texture": "#front", "uv": [ 0, 12, 16, 16 ] },
+                "up": { "texture": "#top", "uv": [ 0, 0, 16, 16 ] },
+                "down": { "texture": "#top", "uv": [ 0, 0, 16, 16 ] }
+            }
+        },
+        {   "from": [ 5, 0, 0 ], 
+            "to": [ 11, 4, 16 ], 
+            "faces": {
+                "east": { "texture": "#side", "uv": [ 0, 12, 16, 16 ] },
+                "west": { "texture": "#side", "uv": [ 0, 12, 16, 16 ] }
+            }
+        },
+        {   "from": [ 0, 0, 5 ], 
+            "to": [ 16, 4, 11 ], 
+            "faces": {
+                "north": { "texture": "#side", "uv": [ 0, 12, 16, 16 ] },
+                "south": { "texture": "#side", "uv": [ 0, 12, 16, 16 ] }
+            }
+        }
+    ]
+}

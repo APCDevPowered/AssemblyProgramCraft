@@ -1,6 +1,7 @@
 package yuxuanchiadm.apc.vcpu32.extdev;
 
-import yuxuanchiadm.apc.apc.tileEntity.TileEntityExternalDeviceRedstoneController;
+import net.minecraft.util.EnumFacing;
+import yuxuanchiadm.apc.apc.common.tileEntity.TileEntityExternalDeviceRedstoneController;
 import yuxuanchiadm.apc.vcpu32.vm.AbstractExternalDevice;
 
 public class ExternalDeviceRedstoneController extends AbstractExternalDevice
@@ -42,7 +43,7 @@ public class ExternalDeviceRedstoneController extends AbstractExternalDevice
         }
         if(idx >= 0 && idx <= 5)
         {
-            return redstoneController.getRedstoneInputPower(idx);
+            return redstoneController.getRedstoneInputPower(EnumFacing.getFront(idx));
         }
         else if(idx >= 6 && idx <= 11)
         {

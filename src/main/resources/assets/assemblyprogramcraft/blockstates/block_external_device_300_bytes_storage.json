@@ -1,0 +1,7 @@
+{
+    "variants": {
+        "normal": [
+            { "model": "assemblyprogramcraft:block_external_device_300_bytes_storage" }
+        ]
+    }
+}

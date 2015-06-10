@@ -1,0 +1,23 @@
+{
+    "ambientocclusion": false,
+    "textures": {
+        "particle": "assemblyprogramcraft:blocks/block_expansion_console_screen_front",
+        "front": "assemblyprogramcraft:blocks/block_expansion_console_screen_front",
+        "side": "assemblyprogramcraft:blocks/block_expansion_console_screen_side",
+        "back": "assemblyprogramcraft:blocks/block_expansion_console_screen_back",
+        "top": "assemblyprogramcraft:blocks/block_expansion_console_screen_top"
+    },
+    "elements": [
+        {   "from": [ 0, 0, 0 ], 
+            "to": [ 16, 16, 4 ], 
+            "faces": {
+                "north": { "texture": "#front", "uv": [ 0, 0, 16, 16 ] },
+                "east": { "texture": "#side", "uv": [ 0, 0, 4, 16 ] },
+                "south": { "texture": "#back", "uv": [ 0, 0, 16, 16 ] },
+                "west": { "texture": "#side", "uv": [ 0, 0, 4, 16 ] },
+                "up": { "texture": "#top", "uv": [ 0, 12, 16, 16 ] },
+                "down": { "texture": "#top", "uv": [ 0, 12, 16, 16 ] }
+            }
+        }
+    ]
+}

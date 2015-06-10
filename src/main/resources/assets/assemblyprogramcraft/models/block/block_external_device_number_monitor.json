@@ -1,0 +1,22 @@
+{
+	"ambientocclusion": false,
+    "textures": {
+        "particle": "assemblyprogramcraft:blocks/block_external_device_number_monitor_front",
+        "front": "assemblyprogramcraft:blocks/block_external_device_number_monitor_front",
+        "side": "assemblyprogramcraft:blocks/block_external_device_number_monitor_side",
+        "top": "assemblyprogramcraft:blocks/block_external_device_number_monitor_top"
+    },
+    "elements": [
+        {   "from": [ 0, 1, 0 ], 
+            "to": [ 16, 14, 4 ], 
+            "faces": {
+                "north": { "texture": "#front", "uv": [ 0, 2, 16, 15 ] },
+                "east": { "texture": "#side", "uv": [ 0, 2, 4, 15 ] },
+                "south": { "texture": "#front", "uv": [ 0, 2, 16, 15 ] },
+                "west": { "texture": "#side", "uv": [ 0, 2, 4, 15 ] },
+                "up": { "texture": "#top", "uv": [ 0, 12, 16, 16 ] },
+                "down": { "texture": "#top", "uv": [ 0, 12, 16, 16 ] }
+            }
+        }
+    ]
+}

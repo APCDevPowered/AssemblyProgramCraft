@@ -1,6 +1,6 @@
 package yuxuanchiadm.apc.vcpu32.extdev;
 
-import yuxuanchiadm.apc.apc.tileEntity.TileEntityExternalDeviceNumberMonitor;
+import yuxuanchiadm.apc.apc.common.tileEntity.TileEntityExternalDeviceNumberMonitor;
 import yuxuanchiadm.apc.vcpu32.vm.AbstractExternalDevice;
 
 public class ExternalDeviceNumberMonitor extends AbstractExternalDevice

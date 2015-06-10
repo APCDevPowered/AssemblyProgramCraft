@@ -7,7 +7,6 @@ package yuxuanchiadm.apc.vcpu32.asm.parser;
  * contain only ASCII characters (without unicode processing).
  */
 
-@SuppressWarnings("all")
 public class SimpleCharStream
 {
 /** Whether parser is static. */
@@ -469,4 +468,4 @@ public class SimpleCharStream
   }
 
 }
-/* JavaCC - OriginalChecksum=3c57b59c60fbb26d532d647ab45df405 (do not edit this line) */
+/* JavaCC - OriginalChecksum=ed907ba99c9215f549ca2fc928ec03d4 (do not edit this line) */

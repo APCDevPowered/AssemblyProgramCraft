@@ -11,7 +11,6 @@ package yuxuanchiadm.apc.vcpu32.asm.parser;
  * You can modify this class to customize your error reporting
  * mechanisms so long as you retain the public fields.
  */
-@SuppressWarnings("all")
 public class ParseException extends Exception {
 
   /**
@@ -185,4 +184,4 @@ public class ParseException extends Exception {
    }
 
 }
-/* JavaCC - OriginalChecksum=eefe99bab1b22aba74c6e5a87a9688a1 (do not edit this line) */
+/* JavaCC - OriginalChecksum=4138114c49d9c5ac4b3f4e716eb3ae44 (do not edit this line) */

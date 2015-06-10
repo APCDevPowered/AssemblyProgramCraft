@@ -2,7 +2,7 @@ package yuxuanchiadm.apc.vcpu32.extdev;
 
 import java.util.Arrays;
 
-import yuxuanchiadm.apc.apc.tileEntity.TileEntityExternalDeviceConsoleScreen;
+import yuxuanchiadm.apc.apc.common.tileEntity.TileEntityExternalDeviceConsoleScreen;
 import yuxuanchiadm.apc.vcpu32.vm.AbstractExternalDevice;
 
 public class ExternalDeviceConsoleScreen extends AbstractExternalDevice

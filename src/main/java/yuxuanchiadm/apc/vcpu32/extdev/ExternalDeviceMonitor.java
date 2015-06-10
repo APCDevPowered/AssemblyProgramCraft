@@ -2,7 +2,7 @@ package yuxuanchiadm.apc.vcpu32.extdev;
 
 import java.util.Arrays;
 
-import yuxuanchiadm.apc.apc.tileEntity.TileEntityExternalDeviceMonitor;
+import yuxuanchiadm.apc.apc.common.tileEntity.TileEntityExternalDeviceMonitor;
 import yuxuanchiadm.apc.vcpu32.vm.AbstractExternalDevice;
 
 public class ExternalDeviceMonitor extends AbstractExternalDevice

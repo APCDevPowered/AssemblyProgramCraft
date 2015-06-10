@@ -109,4 +109,8 @@ public class IntTools
         }
         return Math.min(max, Math.max(min, i));
     }
+    public static int cycleInt(int i, int scope)
+    {
+        return i < 0 ? (i % scope) + scope : i % scope;
+    }
 }

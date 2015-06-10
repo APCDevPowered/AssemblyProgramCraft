@@ -1,0 +1,23 @@
+{
+    "ambientocclusion": false,
+    "textures": {
+        "particle": "assemblyprogramcraft:blocks/block_vcpu_32_computer_front",
+        "back": "assemblyprogramcraft:blocks/block_vcpu_32_computer_back",
+        "side": "assemblyprogramcraft:blocks/block_vcpu_32_computer_side",
+        "front": "assemblyprogramcraft:blocks/block_vcpu_32_computer_front",
+        "top": "assemblyprogramcraft:blocks/block_vcpu_32_computer_top"
+    },
+    "elements": [
+        {   "from": [ 4, 0, 4 ],
+            "to": [ 12, 12, 16 ],
+            "faces": {
+                "down": { "texture": "#top", "uv": [ 4, 16, 12, 4 ] },
+                "up": { "texture": "#top", "uv": [ 4, 4, 12, 16 ] },
+                "north": { "texture": "#front", "uv": [ 4, 4, 12, 16 ] },
+                "south": { "texture": "#back", "uv": [ 4, 4, 12, 16 ] },
+                "west": { "texture": "#side", "uv": [ 4, 4, 16, 16 ] },
+                "east": { "texture": "#side", "uv": [ 16, 4, 4, 16 ] }
+            }
+        }
+    ]
+}

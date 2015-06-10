@@ -1,0 +1,8 @@
+{
+    "variants": {
+        "facing=north": { "model": "assemblyprogramcraft:block_external_device_console_screen" },
+        "facing=south": { "model": "assemblyprogramcraft:block_external_device_console_screen", "y": 180 },
+        "facing=west": { "model": "assemblyprogramcraft:block_external_device_console_screen", "y": 270 },
+        "facing=east": { "model": "assemblyprogramcraft:block_external_device_console_screen", "y": 90 }
+    }
+}

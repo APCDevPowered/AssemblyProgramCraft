@@ -6,8 +6,9 @@ import yuxuanchiadm.apc.vcpu32.asm.parser.visitor.*;
 import yuxuanchiadm.apc.vcpu32.asm.parser.syntaxtree.*;
 
 
-@SuppressWarnings("all")
 public class VCPU32Parser implements VCPU32ParserConstants {
+
+  /* --- User code --- */
 
   public static AbstractSyntaxTree parser(String sourceCode) throws ParseException{
     VCPU32Parser parser = new VCPU32Parser(new StringReader(sourceCode));

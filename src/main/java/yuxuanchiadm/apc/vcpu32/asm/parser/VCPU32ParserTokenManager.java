@@ -5,7 +5,6 @@ import yuxuanchiadm.apc.vcpu32.asm.parser.visitor.*;
 import yuxuanchiadm.apc.vcpu32.asm.parser.syntaxtree.*;
 
 /** Token Manager. */
-@SuppressWarnings("all")
 public class VCPU32ParserTokenManager implements VCPU32ParserConstants
 {
 

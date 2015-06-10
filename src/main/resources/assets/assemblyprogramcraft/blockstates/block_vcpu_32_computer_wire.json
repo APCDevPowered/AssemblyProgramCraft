@@ -1,0 +1,5 @@
+{
+    "variants": {
+        "normal": { "model": "assemblyprogramcraft:block_vcpu_32_computer_wire" }
+    }
+}

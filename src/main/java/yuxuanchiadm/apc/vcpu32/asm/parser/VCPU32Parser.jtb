@@ -1,12 +1,20 @@
 /**
  * JavaCC VCPU32Parser file created by yuxuanchiadm
- */options{    JDK_VERSION = "1.7";
-    UNICODE_INPUT = true;    STATIC = false;
+ */
+options
+{
+    JDK_VERSION = "1.7";
+    UNICODE_INPUT = true;
+    STATIC = false;
     DEBUG_PARSER = false;
     TOKEN_FACTORY = "yuxuanchiadm.apc.vcpu32.asm.TokenFactory";
     
     JTB_P = "yuxuanchiadm.apc.vcpu32.asm.parser";
-    JTB_F = true;}PARSER_BEGIN(VCPU32Parser)package yuxuanchiadm.apc.vcpu32.asm.parser;
+    JTB_F = true;
+}
+
+PARSER_BEGIN(VCPU32Parser)
+package yuxuanchiadm.apc.vcpu32.asm.parser;
 
 import java.io.StringReader;
 
@@ -19,10 +27,14 @@ public class VCPU32Parser
         VCPU32Parser parser = new VCPU32Parser(new StringReader(sourceCode));
         return parser.AbstractSyntaxTree();
     }
-}PARSER_END(VCPU32Parser)
-SPECIAL_TOKEN :{
+}
+PARSER_END(VCPU32Parser)
+
+SPECIAL_TOKEN :
+{
     < Space : (" "|"\r"|"\n"|"\t")+ >
-|   < Annotate : ";" (~["\n","\r"])* >}
+|   < Annotate : ";" (~["\n","\r"])* >
+}
 
 //Identifier
 TOKEN :
@@ -77,8 +89,8 @@ TOKEN :
 |   < Dec : ("-")? ((["1"-"9"] (["0"-"9"])*)|"0") >
 |   < Oct : "0" (["0"-"7"])+ >
 |   < Bin : ("0"|"1")+ "B" >
-|   < Char : "'" (("\\"("b"|"f"|"n"|"r"|"t"|"\""|"'"|"\\"|"u"(["0"-"9","a"-"f","A"-"F"]){4}))|~["\\","'"]) "'" >
-|   < String : "\""(("\\"("b"|"f"|"n"|"r"|"t"|"\""|"'"|"\\"|"u"(["0"-"9","a"-"f","A"-"F"]){4}))|~["\\","\""])* "\"" >
+|   < Char : "'"(("\\"("b"|"f"|"n"|"r"|"t"|"\""|"'"|"\\"|"u"(["0"-"9","a"-"f","A"-"F"]){4}))|~["\\","'"])"'" >
+|   < String : "\""(("\\"("b"|"f"|"n"|"r"|"t"|"\""|"'"|"\\"|"u"(["0"-"9","a"-"f","A"-"F"]){4}))|~["\\","\""])*"\"" >
 |   < Label : <Id> >
 |   < LabelBegin : ":" >
 |   < MemBegin : "[" >

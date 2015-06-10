@@ -1,0 +1,8 @@
+{
+    "variants": {
+        "facing=north": { "model": "assemblyprogramcraft:block_vcpu_32_computer" },
+        "facing=south": { "model": "assemblyprogramcraft:block_vcpu_32_computer", "y": 180 },
+        "facing=west": { "model": "assemblyprogramcraft:block_vcpu_32_computer", "y": 270 },
+        "facing=east": { "model": "assemblyprogramcraft:block_vcpu_32_computer", "y": 90 }
+    }
+}
