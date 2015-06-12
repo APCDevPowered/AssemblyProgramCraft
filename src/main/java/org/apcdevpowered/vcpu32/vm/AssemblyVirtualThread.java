@@ -21,7 +21,7 @@ import net.minecraft.nbt.NBTTagList;
 public class AssemblyVirtualThread
 {
     //程序指针寄存器
-    private int PC;
+    private int PC = -1;
     //调用栈帧
     private Stack<AVThreadStackFrame> stack = new Stack<AVThreadStackFrame>();
     private String threadName;
@@ -66,7 +66,6 @@ public class AssemblyVirtualThread
         this.startRAM = startRAM;
         this.vm = vm;
         this.threadName = threadName;
-        this.PC = startRAM;
         this.threadSuspendHandlerList = new HandlerAllocateList<Void>();
         this.defaultThreadSuspendHandler = createThreadSuspendHandler();
     }
@@ -125,7 +124,7 @@ public class AssemblyVirtualThread
     {
         if(!isRunning && !isTerminated)
         {
-            stack.push(new AVThreadStackFrame());
+            enterMainMethod(startRAM);
             thread.start();
             isRunning = true;
             return true;
@@ -787,6 +786,97 @@ public class AssemblyVirtualThread
             return 0;
         }
         return parLength;
+    }
+    protected void enterMainMethod(int enterAddress)
+    {
+        enterMethod(enterAddress, 0, -1);
+    }
+    protected void enterMethod(int enterAddress)
+    {
+        enterMethod(enterAddress, 0, getRegisterValue(REG_PC));
+    }
+    protected void enterMethod(int enterAddress, int parLength)
+    {
+        enterMethod(enterAddress, parLength, getRegisterValue(REG_PC));
+    }
+    protected void enterMethod(int enterAddress, int parLength, int returnAddress)
+    {
+        AVThreadStackFrame stackFrame = new AVThreadStackFrame();
+        stackFrame.enterAddress = enterAddress;
+        stackFrame.parLength = parLength;
+        stackFrame.returnAddress = returnAddress;
+        if(parLength > 0)
+        {
+            int[] tmp = new int[parLength];
+            for(int i = 0;i < parLength;i++)
+            {
+                tmp[tmp.length - 1 - i] = popInCurrentStackFrame();
+                if(thread.timeToQuit == true)
+                {
+                    return;
+                }
+            }
+            stack.push(stackFrame);
+            for(int i = 0;i < tmp.length;i++)
+            {
+                pushInCurrentStackFrame(tmp[i]);
+                if(thread.timeToQuit == true)
+                {
+                    return;
+                }
+            }
+        }
+        else
+        {
+            stack.push(stackFrame);
+        }
+        setRegisterValue(REG_PC, enterAddress);
+        if(thread.timeToQuit == true)
+        {
+            return;
+        }
+    }
+    protected void exitMethod()
+    {
+        exitMethod(0);
+    }
+    protected void exitMethod(int parLength)
+    {
+        int returnAddress = getCurrentStackFrameReturnAddress();
+        if(thread.timeToQuit == true)
+        {
+            return;
+        }
+        if(parLength > 0)
+        {
+            int[] tmp = new int[parLength];
+            for(int i = 0;i < parLength;i++)
+            {
+                tmp[tmp.length - 1 - i] = popInCurrentStackFrame();
+                if(thread.timeToQuit == true)
+                {
+                    return;
+                }
+            }
+            stack.pop().isInvalid = true;
+            for(int i = 0;i < tmp.length;i++)
+            {
+                pushInCurrentStackFrame(tmp[i]);
+                if(thread.timeToQuit == true)
+                {
+                    return;
+                }
+            }
+        }
+        else
+        {
+            stack.pop().isInvalid = true;
+        }
+        setRegisterValue(REG_PC, returnAddress);
+        if(thread.timeToQuit == true)
+        {
+            return;
+        }
     }
     public AVThreadStackFrame getStackFrame(int stackFrameIndex)
     {
@@ -2798,20 +2888,12 @@ public class AssemblyVirtualThread
                             {
                                 break interrupt;
                             }
-                            AVThreadStackFrame stackFrame = new AVThreadStackFrame();
-                            stackFrame.returnAddress = getRegisterValue(REG_PC);
                             int enterAddress = ((Integer)par1value).intValue();
-                            stackFrame.enterAddress = enterAddress;
+                            enterMethod(enterAddress);
                             if(timeToQuit == true)
                             {
                                 break interrupt;
                             }
-                            setRegisterValue(REG_PC, enterAddress);
-                            if(timeToQuit == true)
-                            {
-                                break interrupt;
-                            }
-                            stack.push(stackFrame);
                         }
                         else if(parCount == 2)
                         {
@@ -2820,19 +2902,7 @@ public class AssemblyVirtualThread
                             {
                                 break interrupt;
                             }
-                            AVThreadStackFrame stackFrame = new AVThreadStackFrame();
-                            stackFrame.returnAddress = getRegisterValue(REG_PC);
                             int enterAddress = ((Integer)par1value).intValue();
-                            stackFrame.enterAddress = enterAddress;
-                            if(timeToQuit == true)
-                            {
-                                break interrupt;
-                            }
-                            setRegisterValue(REG_PC, enterAddress);
-                            if(timeToQuit == true)
-                            {
-                                break interrupt;
-                            }
                             int parLength = ((Integer)par2value).intValue();
                             if(parLength < 0)
                             {
@@ -2840,24 +2910,10 @@ public class AssemblyVirtualThread
                             }
                             else
                             {
-                                stackFrame.parLength = parLength;
-                                int[] tmp = new int[parLength];
-                                for(int i = 0;i < parLength;i++)
+                                enterMethod(enterAddress, parLength);
+                                if(timeToQuit == true)
                                 {
-                                    tmp[tmp.length - 1 - i] = popInCurrentStackFrame();
-                                    if(timeToQuit == true)
-                                    {
-                                        break interrupt;
-                                    }
-                                }
-                                stack.push(stackFrame);
-                                for(int i = 0;i < tmp.length;i++)
-                                {
-                                    pushInCurrentStackFrame(tmp[i]);
-                                    if(timeToQuit == true)
-                                    {
-                                        break interrupt;
-                                    }
+                                    break interrupt;
                                 }
                             }
                         }
@@ -2879,26 +2935,15 @@ public class AssemblyVirtualThread
                             {
                                 break interrupt;
                             }
-                            setRegisterValue(REG_PC, returnAddress);
+                            exitMethod();
                             if(timeToQuit == true)
                             {
                                 break interrupt;
                             }
-                            stack.pop().isInvalid = true;
                         }
                         else if(parCount == 1)
                         {
                             checkType(optInfo,new boolean[]{false,true,true,true,false,true},new boolean[]{true,false,false,false,false,false},new boolean[]{true,false,false,false,false,false},new boolean[]{true,false,false,false,false,false});
-                            if(timeToQuit == true)
-                            {
-                                break interrupt;
-                            }
-                            int returnAddress = getCurrentStackFrameReturnAddress();
-                            if(timeToQuit == true)
-                            {
-                                break interrupt;
-                            }
-                            setRegisterValue(REG_PC, returnAddress);
                             if(timeToQuit == true)
                             {
                                 break interrupt;
@@ -2910,23 +2955,10 @@ public class AssemblyVirtualThread
                             }
                             else
                             {
-                                int[] tmp = new int[parLength];
-                                for(int i = 0;i < parLength;i++)
+                                exitMethod(parLength);
+                                if(timeToQuit == true)
                                 {
-                                    tmp[tmp.length - 1 - i] = popInCurrentStackFrame();
-                                    if(timeToQuit == true)
-                                    {
-                                        break interrupt;
-                                    }
-                                }
-                                stack.pop().isInvalid = true;
-                                for(int i = 0;i < tmp.length;i++)
-                                {
-                                    pushInCurrentStackFrame(tmp[i]);
-                                    if(timeToQuit == true)
-                                    {
-                                        break interrupt;
-                                    }
+                                    break interrupt;
                                 }
                             }
                         }
