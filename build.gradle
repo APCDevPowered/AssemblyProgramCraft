@@ -9,13 +9,16 @@ buildscript {
             name = "sonatype"
             url = "https://oss.sonatype.org/content/repositories/snapshots/"
         }
+		jcenter()
     }
     dependencies {
         classpath 'net.minecraftforge.gradle:ForgeGradle:1.2-SNAPSHOT'
+		classpath "org.jfrog.buildinfo:build-info-extractor-gradle:3.1.1"
     }
 }
 
 apply plugin: 'forge'
+apply plugin: "com.jfrog.artifactory"
 
 def versionMajor = 1
 def versionMinor = 2
