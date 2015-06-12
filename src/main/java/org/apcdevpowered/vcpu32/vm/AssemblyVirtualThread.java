@@ -13,10 +13,10 @@ import org.apcdevpowered.util.collection.HandlerAllocateList;
 import org.apcdevpowered.util.integer.IntTools;
 import org.apcdevpowered.util.unsigned.UnsignedTools;
 import org.apcdevpowered.vcpu32.vm.debugger.impl.ThreadReferenceImpl;
+import static org.apcdevpowered.vcpu32.vm.Registers.*;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
-import static org.apcdevpowered.vcpu32.vm.Registers.*;
 
 public class AssemblyVirtualThread
 {
@@ -54,11 +54,11 @@ public class AssemblyVirtualThread
     private Object lockMonitorLock = new Object(); 
     private Object waitMonitorLock = new Object();
     
-    public AssemblyVirtualThread(VirtualMachine vm)
+    protected AssemblyVirtualThread(VirtualMachine vm)
     {
         this.vm = vm;
     }
-    public AssemblyVirtualThread(VirtualMachine vm, int startRAM, String threadName, int handlerValue)
+    protected AssemblyVirtualThread(VirtualMachine vm, int startRAM, String threadName, int handlerValue)
     {
         this.thread = new VMThread();
         this.thread.setPriority(Thread.MIN_PRIORITY);
@@ -200,14 +200,14 @@ public class AssemblyVirtualThread
             return false;
         }
     }
-    public void addChild(AssemblyVirtualThread avt)
+    protected void addChild(AssemblyVirtualThread avt)
     {
         synchronized(childThreadList)
         {
             childThreadList.add(avt);
         }
     }
-    public void removeChild(AssemblyVirtualThread ChildThread)
+    protected void removeChild(AssemblyVirtualThread ChildThread)
     {
         synchronized(childThreadList)
         {
@@ -395,15 +395,15 @@ public class AssemblyVirtualThread
             }
         }
     }
-    public synchronized void suspendThread()
+    protected synchronized void suspendThread()
     {
         suspendThread(defaultThreadSuspendHandler);
     }
-    public synchronized void resumeThread()
+    protected synchronized void resumeThread()
     {
         resumeThread(defaultThreadSuspendHandler);
     }
-    public synchronized void notifyVMSuspend()
+    protected synchronized void notifyVMSuspend()
     {
         if(!isRunning)
         {
@@ -450,7 +450,7 @@ public class AssemblyVirtualThread
             break;
         }
     }
-    public void checkType(int[] optInfo, boolean[] par1Types, boolean[] par2Types, boolean[] par3Types, boolean[] par4Types)
+    private void checkType(int[] optInfo, boolean[] par1Types, boolean[] par2Types, boolean[] par3Types, boolean[] par4Types)
     {
         if(par1Types[optInfo[1]] == false)
         {
@@ -473,12 +473,12 @@ public class AssemblyVirtualThread
             halt();
         }
     }
-    public void setParentThread(AssemblyVirtualThread parentavt)
+    protected void setParentThread(AssemblyVirtualThread parentavt)
     {
         parentThread = parentavt;
     }
     //********工具函数定义开始********
-    public void getOptInfo(int opt, int optInfo[])
+    public static void getOptInfo(int opt, int optInfo[])
     {
         optInfo[0] = BitTools.copyBit(opt, 0, 0, 0, 12);
         optInfo[1] = BitTools.copyBit(opt, 29, 0, 0, 3);
@@ -487,7 +487,7 @@ public class AssemblyVirtualThread
         optInfo[4] = BitTools.copyBit(opt, 20, 0, 0, 3);
         optInfo[5] = BitTools.copyBit(opt, 12, 0, 0, 8);
     }
-    public int getParCount(int[] optInfo)
+    public static int getParCount(int[] optInfo)
     {
         int count = 0;
         if(optInfo[1] != 0)
@@ -508,7 +508,7 @@ public class AssemblyVirtualThread
         }
         return count;
     }
-    public String getStringValue(int RAMIdx)
+    protected String getStringValue(int RAMIdx)
     {
         if(RAMIdx >= vm.ram.getSize() || RAMIdx < 0)
         {
@@ -521,15 +521,15 @@ public class AssemblyVirtualThread
             return getVM().ram.readStringFromAddress(RAMIdx);
         }
     }
-    public int getRAMREGValue(int register)
+    protected int getRAMREGValue(int register)
     {
         return getRAMValue(getRegisterValue(register));
     }
-    public void setRAMREGValue(int register, int value)
+    protected void setRAMREGValue(int register, int value)
     {
         setRAMValue(getRegisterValue(register),value);
     }
-    public int getRAMValue(int RAMIdx)
+    protected int getRAMValue(int RAMIdx)
     {
         if(RAMIdx >= vm.ram.getSize() || RAMIdx < 0)
         {
@@ -542,7 +542,7 @@ public class AssemblyVirtualThread
             return getVM().ram.getValue(RAMIdx);
         }
     }
-    public void setRAMValue(int RAMIdx, int value)
+    protected void setRAMValue(int RAMIdx, int value)
     {
         if(RAMIdx >= vm.ram.getSize() || RAMIdx < 0)
         {
@@ -554,7 +554,7 @@ public class AssemblyVirtualThread
             getVM().ram.setValue(RAMIdx, value);
         }
     }
-    public int getRegisterValue(int register)
+    protected int getRegisterValue(int register)
     {
         if(register == 1)
         {
@@ -607,7 +607,7 @@ public class AssemblyVirtualThread
             return 0;
         }
     }
-    public void setRegisterValue(int register, int value)
+    protected void setRegisterValue(int register, int value)
     {
         if(register == REG_A)
         {
@@ -659,7 +659,7 @@ public class AssemblyVirtualThread
             halt();
         }
     }
-    public Object getObjectValue(int type, int idx)
+    protected Object getObjectValue(int type, int idx)
     {
         if(type == 1)
         {
@@ -688,7 +688,7 @@ public class AssemblyVirtualThread
             return 0;
         }
     }
-    public void setObjectValue(int type, int idx, int value)
+    protected void setObjectValue(int type, int idx, int value)
     {
         if(type == 1)
         {
@@ -708,7 +708,7 @@ public class AssemblyVirtualThread
             halt();
         }
     }
-    public void pushInCurrentStackFrame(int num)
+    protected void pushInCurrentStackFrame(int num)
     {
         if(stack.isEmpty())
         {
@@ -718,7 +718,7 @@ public class AssemblyVirtualThread
         }
         stack.peek().push(num);
     }
-    public int popInCurrentStackFrame()
+    protected int popInCurrentStackFrame()
     {
         if(stack.isEmpty())
         {
@@ -734,7 +734,7 @@ public class AssemblyVirtualThread
         }
         return stack.peek().pop();
     }
-    public void dupInCurrentStackFrame(int num)
+    protected void dupInCurrentStackFrame(int num)
     {
         if(stack.isEmpty())
         {
@@ -744,7 +744,7 @@ public class AssemblyVirtualThread
         }
         stack.peek().dup(num);
     }
-    public void swapInCurrentStackFrame()
+    protected void swapInCurrentStackFrame()
     {
         if(stack.isEmpty())
         {
@@ -754,7 +754,7 @@ public class AssemblyVirtualThread
         }
         stack.peek().swap();
     }
-    public int getCurrentStackFrameReturnAddress()
+    protected int getCurrentStackFrameReturnAddress()
     {
         if(stack.isEmpty())
         {
@@ -771,7 +771,7 @@ public class AssemblyVirtualThread
         }
         return returnAddress;
     }
-    public int getCurrentStackFrameParLength()
+    protected int getCurrentStackFrameParLength()
     {
         if(stack.isEmpty())
         {
