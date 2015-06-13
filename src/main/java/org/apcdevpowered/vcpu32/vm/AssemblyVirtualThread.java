@@ -187,7 +187,7 @@ public class AssemblyVirtualThread
             }
         }
     }
-    public synchronized boolean load()
+    public synchronized boolean loadedStart()
     {
         if(isRunning && !thread.isAlive())
         {

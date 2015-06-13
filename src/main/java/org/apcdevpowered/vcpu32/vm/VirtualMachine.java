@@ -1,12 +1,15 @@
 package org.apcdevpowered.vcpu32.vm;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import org.apcdevpowered.vcpu32.asm.ProgramPackage;
 import org.apcdevpowered.vcpu32.vm.debugger.impl.ThreadReferenceImpl;
 import org.apcdevpowered.vcpu32.vm.debugger.impl.VirtualMachineReferenceImpl;
@@ -20,15 +23,10 @@ import org.apcdevpowered.vcpu32.vm.debugger.impl.request.ThreadDeathRequestImpl;
 import org.apcdevpowered.vcpu32.vm.debugger.impl.request.ThreadStartRequestImpl;
 import org.apcdevpowered.vcpu32.vm.debugger.impl.request.VMDeathRequestImpl;
 
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
-
 public class VirtualMachine
 {
     public static final String VERSION = "1.0.0";
-    
     public AdvancedRAMArray ram;
-    
     private ProgramPackage programPak;
     private ProgramPackage biosPak;
     private List<Integer> closedThreadList;
@@ -38,7 +36,6 @@ public class VirtualMachine
     private Map<Integer, Monitor> monitorList;
     private volatile boolean isRunning;
     private volatile boolean isSuspend;
-    
     private Object suspendLock = new Object();
     private List<Integer> unsuspendedThreadHandlerList = new ArrayList<Integer>();
     
@@ -47,16 +44,16 @@ public class VirtualMachine
         devicesList = new HashMap<Integer, AbstractExternalDevice>();
         ram = new AdvancedRAMArray(this, 65536);
         closedThreadList = new ArrayList<Integer>();
-        avtList = new HashMap<Integer,AssemblyVirtualThread>();
+        avtList = new HashMap<Integer, AssemblyVirtualThread>();
         closedMonitorList = new ArrayList<Integer>();
         monitorList = new HashMap<Integer, Monitor>();
     }
     protected int getDeviceType(int port)
     {
-        synchronized(devicesList)
+        synchronized (devicesList)
         {
             AbstractExternalDevice devices = devicesList.get(port);
-            if(devices == null)
+            if (devices == null)
             {
                 return 0;
             }
@@ -65,14 +62,14 @@ public class VirtualMachine
     }
     protected int inputValueFormDevices(int port, int idx)
     {
-        synchronized(devicesList)
+        synchronized (devicesList)
         {
             AbstractExternalDevice devices = devicesList.get(port);
-            if(devices == null)
+            if (devices == null)
             {
                 return 0;
             }
-            synchronized(devices.uselock)
+            synchronized (devices.uselock)
             {
                 return devices.getMemoryValue(idx);
             }
@@ -80,52 +77,52 @@ public class VirtualMachine
     }
     protected int[] inputsValueFormDevices(int port, int idx, int length)
     {
-        synchronized(devicesList)
+        synchronized (devicesList)
         {
             AbstractExternalDevice devices = devicesList.get(port);
-            if(devices == null)
+            if (devices == null)
             {
                 return null;
             }
-            synchronized(devices.uselock)
+            synchronized (devices.uselock)
             {
-                return devices.getMemoryValues(idx,length);
+                return devices.getMemoryValues(idx, length);
             }
         }
     }
     protected void outputValueToDevices(int port, int idx, int value)
     {
-        synchronized(devicesList)
+        synchronized (devicesList)
         {
             AbstractExternalDevice devices = devicesList.get(port);
-            if(devices != null)
+            if (devices != null)
             {
-                synchronized(devices.uselock)
+                synchronized (devices.uselock)
                 {
-                    devices.setMemoryValue(idx,value);
+                    devices.setMemoryValue(idx, value);
                 }
             }
         }
     }
     protected void outputsValueToDevices(int port, int idx, int[] values)
     {
-        synchronized(devicesList)
+        synchronized (devicesList)
         {
             AbstractExternalDevice devices = devicesList.get(port);
-            if(devices != null)
+            if (devices != null)
             {
-                synchronized(devices.uselock)
+                synchronized (devices.uselock)
                 {
-                    devices.setMemoryValues(idx,values);
+                    devices.setMemoryValues(idx, values);
                 }
             }
         }
     }
     public void clearExternalDevices()
     {
-        synchronized(devicesList)
+        synchronized (devicesList)
         {
-            for(Entry<Integer, AbstractExternalDevice> entry : devicesList.entrySet())
+            for (Entry<Integer, AbstractExternalDevice> entry : devicesList.entrySet())
             {
                 entry.getValue().shutDown();
             }
@@ -134,13 +131,13 @@ public class VirtualMachine
     }
     public boolean addExternalDevices(AbstractExternalDevice devices, int port)
     {
-        synchronized(devicesList)
+        synchronized (devicesList)
         {
-            if(devices == null)
+            if (devices == null)
             {
                 return false;
             }
-            if(devicesList.get(port) != null)
+            if (devicesList.get(port) != null)
             {
                 return false;
             }
@@ -151,10 +148,10 @@ public class VirtualMachine
     }
     public boolean resetExternalDevices(int port)
     {
-        synchronized(devicesList)
+        synchronized (devicesList)
         {
             AbstractExternalDevice devices = devicesList.get(port);
-            if(devices == null)
+            if (devices == null)
             {
                 return false;
             }
@@ -164,10 +161,10 @@ public class VirtualMachine
     }
     public boolean removeExternalDevices(int port)
     {
-        synchronized(devicesList)
+        synchronized (devicesList)
         {
             AbstractExternalDevice devices = devicesList.get(port);
-            if(devices == null)
+            if (devices == null)
             {
                 return false;
             }
@@ -178,30 +175,30 @@ public class VirtualMachine
     }
     public boolean loadBIOS(ProgramPackage biosPak)
     {
-        if(this.biosPak != null)
+        if (this.biosPak != null)
         {
             this.biosPak = null;
         }
-        if(biosPak == null)
+        if (biosPak == null)
         {
             return true;
         }
-        if(biosPak.isBIOS == false)
+        if (biosPak.isBIOS == false)
         {
             System.out.println("试图装载非BIOS程序为BIOS程序");
             return false;
         }
-        if(biosPak.startRAM != 7168)
+        if (biosPak.startRAM != 7168)
         {
             System.out.println("BIOS程序启动地址不在指定位置");
             return false;
         }
-        if(biosPak.staticRAMEnd > 1024)
+        if (biosPak.staticRAMEnd > 1024)
         {
             System.out.println("BIOS程序过于庞大");
             return false;
         }
-        if(biosPak.startStaticRAM < 7168 + biosPak.programEnd && biosPak.startStaticRAM + (biosPak.staticRAMEnd - biosPak.programEnd) >= 8192)
+        if (biosPak.startStaticRAM < 7168 + biosPak.programEnd && biosPak.startStaticRAM + (biosPak.staticRAMEnd - biosPak.programEnd) >= 8192)
         {
             System.out.println("BIOS程序静态储存区过大或不在BIOS预留内存范围内");
             return false;
@@ -211,30 +208,30 @@ public class VirtualMachine
     }
     public boolean loadProgram(ProgramPackage programPak)
     {
-        if(this.programPak != null)
+        if (this.programPak != null)
         {
             this.programPak = null;
         }
-        if(programPak == null)
+        if (programPak == null)
         {
             return true;
         }
-        if(programPak.isBIOS == true)
+        if (programPak.isBIOS == true)
         {
             System.out.println("试图装载BIOS程序为模块程序");
             return false;
         }
-        if(biosPak == null)
+        if (biosPak == null)
         {
             System.out.println("你必须先加载BIOS到虚拟机");
             return false;
         }
-        if(programPak.programEnd + programPak.startRAM > 3072)
+        if (programPak.programEnd + programPak.startRAM > 3072)
         {
             System.out.println("程序过于庞大");
             return false;
         }
-        if(programPak.startStaticRAM < 3072 && programPak.startStaticRAM + (programPak.staticRAMEnd - programPak.programEnd) >= 7167)
+        if (programPak.startStaticRAM < 3072 && programPak.startStaticRAM + (programPak.staticRAMEnd - programPak.programEnd) >= 7167)
         {
             System.out.println("程序静态储存区过大或不在静态储存区内存范围内");
             return false;
@@ -254,27 +251,27 @@ public class VirtualMachine
     }
     public synchronized boolean startVM(boolean loadProgram)
     {
-        if(isRunning)
+        if (isRunning)
         {
             return false;
         }
-        if(biosPak == null)
+        if (biosPak == null)
         {
             System.out.println("在启动虚拟机前必须加载BIOS和程序");
             return false;
         }
-        synchronized(devicesList)
+        synchronized (devicesList)
         {
-            Iterator<Entry<Integer,AbstractExternalDevice>> deviceiterator = devicesList.entrySet().iterator();
-            while(deviceiterator.hasNext())
+            Iterator<Entry<Integer, AbstractExternalDevice>> deviceiterator = devicesList.entrySet().iterator();
+            while (deviceiterator.hasNext())
             {
                 deviceiterator.next().getValue().start();
             }
         }
         loadBIOSBytes();
-        if(loadProgram == true)
+        if (loadProgram == true)
         {
-            if(programPak == null)
+            if (programPak == null)
             {
                 System.out.println("虚拟机没有找到程序");
                 return false;
@@ -291,64 +288,64 @@ public class VirtualMachine
     }
     public synchronized boolean shutdownVM()
     {
-        if(!isRunning)
+        if (!isRunning)
         {
             return false;
         }
-        if(!isSuspend)
+        if (!isSuspend)
         {
             suspendVM();
         }
         isRunning = false;
         List<EventImpl> events = new ArrayList<EventImpl>();
         events.add(new VMDeathEventImpl(getReference(), null));
-        synchronized(enabledVMDeathRequestList)
+        synchronized (enabledVMDeathRequestList)
         {
-            for(VMDeathRequestImpl request : enabledVMDeathRequestList)
+            for (VMDeathRequestImpl request : enabledVMDeathRequestList)
             {
                 events.add(new VMDeathEventImpl(getReference(), request));
             }
         }
         getReference().eventQueue().addEventSet(new EventSetImpl(getReference(), events));
         Map<Integer, AssemblyVirtualThread> avtList;
-        synchronized(suspendLock)
+        synchronized (suspendLock)
         {
-            synchronized(this.avtList)
+            synchronized (this.avtList)
             {
                 avtList = new HashMap<Integer, AssemblyVirtualThread>(this.avtList);
-                for(Entry<Integer, AssemblyVirtualThread> entry : avtList.entrySet())
+                for (Entry<Integer, AssemblyVirtualThread> entry : avtList.entrySet())
                 {
                     entry.getValue().shutdown();
                 }
             }
         }
-        for(AssemblyVirtualThread avThread : avtList.values())
+        for (AssemblyVirtualThread avThread : avtList.values())
         {
             avThread.join();
         }
-        synchronized(devicesList)
+        synchronized (devicesList)
         {
-            Iterator<Entry<Integer,AbstractExternalDevice>> deviceIterator = devicesList.entrySet().iterator();
-            while(deviceIterator.hasNext())
+            Iterator<Entry<Integer, AbstractExternalDevice>> deviceIterator = devicesList.entrySet().iterator();
+            while (deviceIterator.hasNext())
             {
                 deviceIterator.next().getValue().shutDown();
             }
         }
-        synchronized(monitorList)
+        synchronized (monitorList)
         {
             Iterator<Entry<Integer, Monitor>> monitorIterator = monitorList.entrySet().iterator();
-            while(monitorIterator.hasNext())
+            while (monitorIterator.hasNext())
             {
                 monitorIterator.next().getValue().shutdown();
             }
             monitorList.clear();
         }
         ram.clear();
-        synchronized(closedThreadList)
+        synchronized (closedThreadList)
         {
             closedThreadList.clear();
         }
-        synchronized(closedMonitorList)
+        synchronized (closedMonitorList)
         {
             closedMonitorList.clear();
         }
@@ -357,7 +354,7 @@ public class VirtualMachine
     }
     public synchronized boolean resetVM()
     {
-        if(!shutdownVM())
+        if (!shutdownVM())
         {
             return false;
         }
@@ -367,25 +364,25 @@ public class VirtualMachine
     }
     public synchronized void suspendVM()
     {
-        if(isRunning)
+        if (isRunning)
         {
-            synchronized(suspendLock)
+            synchronized (suspendLock)
             {
-                if(isSuspend)
+                if (isSuspend)
                 {
                     return;
                 }
                 isSuspend = true;
-                while(!unsuspendedThreadHandlerList.isEmpty())
+                while (!unsuspendedThreadHandlerList.isEmpty())
                 {
-                    synchronized(avtList)
+                    synchronized (avtList)
                     {
-                        for(AssemblyVirtualThread thread : avtList.values())
+                        for (AssemblyVirtualThread thread : avtList.values())
                         {
                             thread.notifyVMSuspend();
                         }
                     }
-                    if(!unsuspendedThreadHandlerList.isEmpty())
+                    if (!unsuspendedThreadHandlerList.isEmpty())
                     {
                         try
                         {
@@ -393,7 +390,6 @@ public class VirtualMachine
                         }
                         catch (InterruptedException e)
                         {
-                            
                         }
                     }
                 }
@@ -402,20 +398,20 @@ public class VirtualMachine
     }
     public synchronized void resumeVM()
     {
-        if(isRunning)
+        if (isRunning)
         {
-            synchronized(suspendLock)
+            synchronized (suspendLock)
             {
-                if(!isSuspend)
+                if (!isSuspend)
                 {
                     return;
                 }
                 isSuspend = false;
-                synchronized(avtList)
+                synchronized (avtList)
                 {
-                    for(AssemblyVirtualThread thread : avtList.values())
+                    for (AssemblyVirtualThread thread : avtList.values())
                     {
-                        unsuspendedThreadHandlerList.add((Integer)thread.getThreadHandler());
+                        unsuspendedThreadHandlerList.add((Integer) thread.getThreadHandler());
                         thread.resumeThread();
                     }
                 }
@@ -424,11 +420,11 @@ public class VirtualMachine
     }
     protected void notifyThreadSuspend(int threadHandler)
     {
-        synchronized(suspendLock)
+        synchronized (suspendLock)
         {
-            if(isSuspend)
+            if (isSuspend)
             {
-                unsuspendedThreadHandlerList.remove((Integer)threadHandler);
+                unsuspendedThreadHandlerList.remove((Integer) threadHandler);
                 suspendLock.notifyAll();
             }
         }
@@ -447,14 +443,14 @@ public class VirtualMachine
     }
     protected int createVMThread(int startRAM, String threadName)
     {
-        synchronized(suspendLock)
+        synchronized (suspendLock)
         {
-            synchronized(avtList)
+            synchronized (avtList)
             {
-                synchronized(closedThreadList)
+                synchronized (closedThreadList)
                 {
                     int handler;
-                    if(closedThreadList.size() != 0)
+                    if (closedThreadList.size() != 0)
                     {
                         handler = closedThreadList.remove(0);
                     }
@@ -462,17 +458,17 @@ public class VirtualMachine
                     {
                         handler = avtList.size();
                     }
-                    if(threadName == null)
+                    if (threadName == null)
                     {
                         threadName = "Thread" + handler;
                     }
                     AssemblyVirtualThread avt = new AssemblyVirtualThread(this, startRAM, threadName, handler);
                     avtList.put(handler, avt);
-                    synchronized(suspendLock)
+                    synchronized (suspendLock)
                     {
-                        unsuspendedThreadHandlerList.add((Integer)handler);
+                        unsuspendedThreadHandlerList.add((Integer) handler);
                     }
-                    synchronized(threadReferenceList)
+                    synchronized (threadReferenceList)
                     {
                         threadReferenceList.add(avt.getReference());
                     }
@@ -488,31 +484,31 @@ public class VirtualMachine
     }
     protected boolean startVMThread(int threadHandler, int parentThreadHanler)
     {
-        synchronized(avtList)
+        synchronized (avtList)
         {
             AssemblyVirtualThread avt = avtList.get(threadHandler);
             AssemblyVirtualThread parentavt = (parentThreadHanler >= 0 ? avtList.get(parentThreadHanler) : null);
-            if(avt == null)
+            if (avt == null)
             {
                 return false;
             }
-            if(parentThreadHanler >= 0 && parentavt == null)
+            if (parentThreadHanler >= 0 && parentavt == null)
             {
                 return false;
             }
-            if(avt.isRunning())
+            if (avt.isRunning())
             {
                 return false;
             }
-            if(parentThreadHanler >= 0)
+            if (parentThreadHanler >= 0)
             {
                 avt.setParentThread(parentavt);
                 parentavt.addChild(avt);
             }
             List<EventImpl> events = new ArrayList<EventImpl>();
-            synchronized(enabledThreadStartRequestList)
+            synchronized (enabledThreadStartRequestList)
             {
-                for(ThreadStartRequestImpl request : enabledThreadStartRequestList)
+                for (ThreadStartRequestImpl request : enabledThreadStartRequestList)
                 {
                     events.add(new ThreadStartEventImpl(getReference(), request, avt.getReference()));
                 }
@@ -524,26 +520,26 @@ public class VirtualMachine
     }
     protected AssemblyVirtualThread getVMThread(int threadHandler)
     {
-        synchronized(avtList)
+        synchronized (avtList)
         {
             return avtList.get(threadHandler);
         }
     }
-    protected List<AssemblyVirtualThread> getVMThreadList()
+    public List<AssemblyVirtualThread> getVMThreadList()
     {
-        synchronized(avtList)
+        synchronized (avtList)
         {
-            return new ArrayList<AssemblyVirtualThread>(avtList.values());
+            return Collections.unmodifiableList(new ArrayList<AssemblyVirtualThread>(avtList.values()));
         }
     }
     protected boolean shutdownThread(int threadHandler)
     {
-        synchronized(suspendLock)
+        synchronized (suspendLock)
         {
-            synchronized(avtList)
+            synchronized (avtList)
             {
                 AssemblyVirtualThread thread = avtList.get(threadHandler);
-                if(thread != null)
+                if (thread != null)
                 {
                     thread.shutdown();
                     return true;
@@ -554,30 +550,30 @@ public class VirtualMachine
     }
     protected boolean removeFromThreadList(int threadHandler)
     {
-        synchronized(suspendLock)
+        synchronized (suspendLock)
         {
-            synchronized(avtList)
+            synchronized (avtList)
             {
-                if(avtList.containsKey(threadHandler))
+                if (avtList.containsKey(threadHandler))
                 {
                     AssemblyVirtualThread avt = avtList.remove(threadHandler);
-                    synchronized(threadReferenceList)
+                    synchronized (threadReferenceList)
                     {
                         threadReferenceList.remove(avt.getReference());
                     }
-                    synchronized(suspendLock)
+                    synchronized (suspendLock)
                     {
-                        unsuspendedThreadHandlerList.remove((Integer)threadHandler);
+                        unsuspendedThreadHandlerList.remove((Integer) threadHandler);
                         suspendLock.notifyAll();
                     }
-                    synchronized(closedThreadList)
+                    synchronized (closedThreadList)
                     {
                         closedThreadList.add(threadHandler);
                     }
                     List<EventImpl> events = new ArrayList<EventImpl>();
-                    synchronized(enabledThreadDeathRequestList)
+                    synchronized (enabledThreadDeathRequestList)
                     {
-                        for(ThreadDeathRequestImpl request : enabledThreadDeathRequestList)
+                        for (ThreadDeathRequestImpl request : enabledThreadDeathRequestList)
                         {
                             events.add(new ThreadDeathEventImpl(getReference(), request, avt.getReference()));
                         }
@@ -591,11 +587,11 @@ public class VirtualMachine
     }
     protected int createMonitor()
     {
-        synchronized(monitorList)
+        synchronized (monitorList)
         {
-            synchronized(closedMonitorList)
+            synchronized (closedMonitorList)
             {
-                if(closedMonitorList.size() != 0)
+                if (closedMonitorList.size() != 0)
                 {
                     int handler = closedMonitorList.remove(0);
                     Monitor monitor = new Monitor(this, handler);
@@ -614,24 +610,24 @@ public class VirtualMachine
     }
     protected Monitor getMonitor(int monitorHandler)
     {
-        synchronized(monitorList)
+        synchronized (monitorList)
         {
             return monitorList.get(monitorHandler);
         }
     }
     protected int deleteMonitor(int monitorHandler)
     {
-        synchronized(monitorList)
+        synchronized (monitorList)
         {
-            if(monitorList.containsKey(monitorHandler))
+            if (monitorList.containsKey(monitorHandler))
             {
                 Monitor monitor = monitorList.get(monitorHandler);
-                synchronized(monitor)
+                synchronized (monitor)
                 {
-                    if(monitor.isMonitorIdle())
+                    if (monitor.isMonitorIdle())
                     {
                         monitorList.remove(monitorHandler);
-                        synchronized(closedMonitorList)
+                        synchronized (closedMonitorList)
                         {
                             closedMonitorList.add(monitorHandler);
                         }
@@ -649,11 +645,11 @@ public class VirtualMachine
     protected List<Monitor> getOwnMonitorList(AssemblyVirtualThread avThread)
     {
         List<Monitor> ownMonitorList = new ArrayList<Monitor>();
-        synchronized(monitorList)
+        synchronized (monitorList)
         {
-            for(Monitor monitor : monitorList.values())
+            for (Monitor monitor : monitorList.values())
             {
-                if(monitor.getHoldsLockThread() == avThread)
+                if (monitor.getHoldsLockThread() == avThread)
                 {
                     ownMonitorList.add(monitor);
                 }
@@ -663,65 +659,66 @@ public class VirtualMachine
     }
     protected void notifyMonitorsThreadDeath(AssemblyVirtualThread avThread)
     {
-        synchronized(monitorList)
+        synchronized (monitorList)
         {
-            for(Monitor monitor : monitorList.values())
+            for (Monitor monitor : monitorList.values())
             {
                 monitor.onThreadDeath(avThread);
             }
         }
     }
+    public List<Monitor> getMonitorList()
+    {
+        synchronized (monitorList)
+        {
+            return Collections.unmodifiableList(new ArrayList<Monitor>(monitorList.values()));
+        }
+    }
     public synchronized void writeDataToNBT(NBTTagCompound nbtTagCompound)
     {
         boolean needSuspend = !isSuspend;
-        if(needSuspend)
+        if (needSuspend)
         {
             suspendVM();
         }
-        
         nbtTagCompound.setBoolean("isRunning", this.isRunning);
-        
-        if(programPak != null)
+        if (programPak != null)
         {
             NBTTagCompound programPakNbtTagCompound = new NBTTagCompound();
             programPak.writeToNBT(programPakNbtTagCompound);
             nbtTagCompound.setTag("programPak", (programPakNbtTagCompound));
         }
-        
-        if(biosPak != null)
+        if (biosPak != null)
         {
             NBTTagCompound biosPakNbtTagCompound = new NBTTagCompound();
             biosPak.writeToNBT(biosPakNbtTagCompound);
             nbtTagCompound.setTag("biosPak", biosPakNbtTagCompound);
         }
-        
-        if(ram != null)
+        if (ram != null)
         {
             NBTTagCompound ramNbtTagCompound = new NBTTagCompound();
             ram.writeToNBT(ramNbtTagCompound);
             nbtTagCompound.setTag("ram", ramNbtTagCompound);
         }
-        
-        if(closedThreadList != null)
+        if (closedThreadList != null)
         {
-            synchronized(closedThreadList)
+            synchronized (closedThreadList)
             {
                 int[] temp1 = new int[closedThreadList.size()];
-                for(int i = 0 ; i < closedThreadList.size() ; i++)
+                for (int i = 0; i < closedThreadList.size(); i++)
                 {
                     temp1[i] = closedThreadList.get(i);
                 }
                 nbtTagCompound.setIntArray("closedThreadList", temp1);
             }
         }
-        
-        if(avtList != null)
+        if (avtList != null)
         {
-            synchronized(avtList)
+            synchronized (avtList)
             {
                 NBTTagList avtListNbtTagList = new NBTTagList();
                 Iterator<AssemblyVirtualThread> avtListIterator = avtList.values().iterator();
-                while(avtListIterator.hasNext())
+                while (avtListIterator.hasNext())
                 {
                     NBTTagCompound avtNbtTagCompound = new NBTTagCompound();
                     avtListIterator.next().writeToNBT(avtNbtTagCompound);
@@ -730,14 +727,13 @@ public class VirtualMachine
                 nbtTagCompound.setTag("avtList", avtListNbtTagList);
             }
         }
-        
-        if(monitorList != null)
+        if (monitorList != null)
         {
-            synchronized(monitorList)
+            synchronized (monitorList)
             {
                 NBTTagList monitorListNbtTagList = new NBTTagList();
                 Iterator<Monitor> monitorListIterator = monitorList.values().iterator();
-                while(monitorListIterator.hasNext())
+                while (monitorListIterator.hasNext())
                 {
                     NBTTagCompound avtNbtTagCompound = new NBTTagCompound();
                     monitorListIterator.next().writeToNBT(avtNbtTagCompound);
@@ -746,65 +742,58 @@ public class VirtualMachine
                 nbtTagCompound.setTag("monitorList", monitorListNbtTagList);
             }
         }
-        
-        if(needSuspend)
+        if (needSuspend)
         {
             resumeVM();
         }
     }
-    public synchronized Object[] readDataFormNBT(NBTTagCompound nbtTagCompound)
+    public synchronized void readDataFormNBT(NBTTagCompound nbtTagCompound)
     {
-        if(isRunning == true)
+        if (isRunning == true)
         {
             throw new IllegalStateException();
         }
         isRunning = nbtTagCompound.getBoolean("isRunning");
-        
-        if(nbtTagCompound.hasKey("programPak"))
+        if (nbtTagCompound.hasKey("programPak"))
         {
             programPak = new ProgramPackage();
             programPak.readFromNBT(nbtTagCompound.getCompoundTag("programPak"));
         }
-        
-        if(nbtTagCompound.hasKey("biosPak"))
+        if (nbtTagCompound.hasKey("biosPak"))
         {
             biosPak = new ProgramPackage();
             biosPak.readFromNBT(nbtTagCompound.getCompoundTag("biosPak"));
         }
-        
         ram = new AdvancedRAMArray(this);
         ram.readFromNBT(nbtTagCompound.getCompoundTag("ram"));
-        
-        synchronized(closedThreadList)
+        synchronized (closedThreadList)
         {
             int[] temp1;
             temp1 = nbtTagCompound.getIntArray("closedThreadList");
-            for(int i = 0 ; i < temp1.length ; i++)
+            for (int i = 0; i < temp1.length; i++)
             {
                 closedThreadList.add(temp1[i]);
             }
         }
-        
-        synchronized(avtList)
+        synchronized (avtList)
         {
             NBTTagList avtListNbtTagList = nbtTagCompound.getTagList("avtList", 10);
-            for(int i = 0;i < avtListNbtTagList.tagCount();i++)
+            for (int i = 0; i < avtListNbtTagList.tagCount(); i++)
             {
                 NBTTagCompound avtNbtTagCompound = avtListNbtTagList.getCompoundTagAt(i);
                 AssemblyVirtualThread avt = new AssemblyVirtualThread(this);
                 avt.readFromNBT(avtNbtTagCompound);
                 avtList.put(avt.getThreadHandler(), avt);
-                synchronized(threadReferenceList)
+                synchronized (threadReferenceList)
                 {
                     threadReferenceList.add(avt.getReference());
                 }
             }
         }
-        
-        synchronized(monitorList)
+        synchronized (monitorList)
         {
             NBTTagList monitorListNbtTagList = nbtTagCompound.getTagList("monitorList", 10);
-            for(int i = 0;i < monitorListNbtTagList.tagCount();i++)
+            for (int i = 0; i < monitorListNbtTagList.tagCount(); i++)
             {
                 NBTTagCompound monitorNbtTagCompound = monitorListNbtTagList.getCompoundTagAt(i);
                 Monitor monitor = new Monitor(this);
@@ -812,8 +801,6 @@ public class VirtualMachine
                 monitorList.put(monitor.getMonitorHandler(), monitor);
             }
         }
-        
-        return new Object[]{avtList, monitorList};
     }
     public String getVersion()
     {
@@ -828,11 +815,11 @@ public class VirtualMachine
     
     public void setVMDeathRequestState(VMDeathRequestImpl request, boolean isEnable)
     {
-        synchronized(enabledVMDeathRequestList)
+        synchronized (enabledVMDeathRequestList)
         {
-            if(isEnable)
+            if (isEnable)
             {
-                if(!enabledVMDeathRequestList.contains(request))
+                if (!enabledVMDeathRequestList.contains(request))
                 {
                     enabledVMDeathRequestList.add(request);
                 }
@@ -848,11 +835,11 @@ public class VirtualMachine
     
     public void setThreadStartRequestState(ThreadStartRequestImpl request, boolean isEnable)
     {
-        synchronized(enabledThreadStartRequestList)
+        synchronized (enabledThreadStartRequestList)
         {
-            if(isEnable)
+            if (isEnable)
             {
-                if(!enabledThreadStartRequestList.contains(request))
+                if (!enabledThreadStartRequestList.contains(request))
                 {
                     enabledThreadStartRequestList.add(request);
                 }
@@ -868,11 +855,11 @@ public class VirtualMachine
     
     public void setThreadDeathRequestState(ThreadDeathRequestImpl request, boolean isEnable)
     {
-        synchronized(enabledThreadDeathRequestList)
+        synchronized (enabledThreadDeathRequestList)
         {
-            if(isEnable)
+            if (isEnable)
             {
-                if(!enabledThreadDeathRequestList.contains(request))
+                if (!enabledThreadDeathRequestList.contains(request))
                 {
                     enabledThreadDeathRequestList.add(request);
                 }
@@ -886,24 +873,22 @@ public class VirtualMachine
     
     private Object referenceInitLock = new Object();
     private VirtualMachineReferenceImpl reference;
-    
     private List<ThreadReferenceImpl> threadReferenceList = new ArrayList<ThreadReferenceImpl>();
     
     public VirtualMachineReferenceImpl getReference()
     {
-        synchronized(referenceInitLock)
+        synchronized (referenceInitLock)
         {
-            if(reference == null)
+            if (reference == null)
             {
                 reference = new VirtualMachineReferenceImpl(this);
             }
             return reference;
         }
     }
-    
     public List<ThreadReferenceImpl> getThreadReferenceList()
     {
-        synchronized(threadReferenceList)
+        synchronized (threadReferenceList)
         {
             return new ArrayList<ThreadReferenceImpl>(threadReferenceList);
         }

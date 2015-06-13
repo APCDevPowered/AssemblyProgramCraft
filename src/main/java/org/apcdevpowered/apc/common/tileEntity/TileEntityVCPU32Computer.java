@@ -3,9 +3,9 @@ package org.apcdevpowered.apc.common.tileEntity;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
 
+import net.minecraftforge.fml.common.network.internal.FMLNetworkHandler;
 import org.apcdevpowered.apc.client.listener.TickEventListener;
 import org.apcdevpowered.apc.client.listener.TickEventListener.IGamePauseListener;
 import org.apcdevpowered.apc.common.AssemblyProgramCraft;
@@ -24,8 +24,6 @@ import org.apcdevpowered.vcpu32.asm.ProgramPackage;
 import org.apcdevpowered.vcpu32.vm.AssemblyVirtualThread;
 import org.apcdevpowered.vcpu32.vm.Monitor;
 import org.apcdevpowered.vcpu32.vm.VirtualMachine;
-
-import net.minecraftforge.fml.common.network.internal.FMLNetworkHandler;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
@@ -407,37 +405,29 @@ public class TileEntityVCPU32Computer extends TileEntity implements IInventory, 
             VirtualMachine vm = new VirtualMachine();
             synchronized (vm)
             {
-                Object object[] = VMDataHelper.readFormNBT(par1NBTTagCompound.getCompoundTag("VirtualMachineData"), vm);
-                this.vm = (VirtualMachine) object[0];
+                VMDataHelper.readFormNBT(par1NBTTagCompound.getCompoundTag("VirtualMachineData"), vm);
+                this.vm = vm;
                 if (this.vm.isRunning() == true)
                 {
-                    @SuppressWarnings("unchecked")
-                    Map<Integer, AssemblyVirtualThread> avtList = (Map<Integer, AssemblyVirtualThread>) object[1];
+                    List<AssemblyVirtualThread> avtList = vm.getVMThreadList();
                     {
-                        Iterator<Entry<Integer, AssemblyVirtualThread>> iterator = avtList.entrySet().iterator();
-                        while (iterator.hasNext())
+                        for (AssemblyVirtualThread avt : avtList)
                         {
-                            AssemblyVirtualThread avt = iterator.next().getValue();
                             avt.loadThreadRelation();
                         }
                     }
-                    @SuppressWarnings("unchecked")
-                    Map<Integer, Monitor> monitorList = (Map<Integer, Monitor>) object[2];
+                    List<Monitor> monitorList = vm.getMonitorList();
                     {
-                        Iterator<Entry<Integer, Monitor>> iterator = monitorList.entrySet().iterator();
-                        while (iterator.hasNext())
+                        for (Monitor monitor : monitorList)
                         {
-                            Monitor monitor = iterator.next().getValue();
                             monitor.loadMonitorRelation();
                         }
                     }
-                    Iterator<AssemblyVirtualThread> iterator = avtList.values().iterator();
-                    while (iterator.hasNext())
+                    for (AssemblyVirtualThread avt : avtList)
                     {
-                        AssemblyVirtualThread avt = iterator.next();
                         if (avt.isRunning() == true)
                         {
-                            avt.load();
+                            avt.loadedStart();
                         }
                     }
                     vmIsRunning = true;
