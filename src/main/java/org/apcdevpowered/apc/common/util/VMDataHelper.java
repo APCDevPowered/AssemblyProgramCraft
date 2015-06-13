@@ -1,8 +1,7 @@
 package org.apcdevpowered.apc.common.util;
 
-import org.apcdevpowered.vcpu32.vm.VirtualMachine;
-
 import net.minecraft.nbt.NBTTagCompound;
+import org.apcdevpowered.vcpu32.vm.VirtualMachine;
 
 public class VMDataHelper
 {
@@ -25,16 +24,9 @@ public class VMDataHelper
      *            NBT node read form.
      * @param vm
      *            The VirtualMachine write to.
-     * @return {@code object[0]} is VirtualMachine. {@code object[1]} is
-     *         AssemblyVirtualThread list. {@code object[2]} is Monitor list.
      */
-    public static Object[] readFormNBT(NBTTagCompound nbttagcompound, VirtualMachine vm)
+    public static void readFormNBT(NBTTagCompound nbttagcompound, VirtualMachine vm)
     {
-        Object vmObject[] = vm.readDataFormNBT(nbttagcompound);
-        Object object[] = new Object[3];
-        object[0] = vm;
-        object[1] = vmObject[0];
-        object[2] = vmObject[1];
-        return object;
+        vm.readDataFormNBT(nbttagcompound);
     }
 }
