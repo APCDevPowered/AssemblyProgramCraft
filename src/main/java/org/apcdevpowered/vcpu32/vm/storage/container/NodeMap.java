@@ -12,7 +12,7 @@ public final class NodeMap extends NodeContainer<NodeMap>
     private Map<String, NodeElement> elementMap = new HashMap<String, NodeElement>();
     
     @Override
-    public void addElement(ElementKey<NodeMap> key, NodeElement component)
+    public final void addElement(ElementKey<NodeMap> key, NodeElement component)
     {
         NodeMapElementKey mapKey = key.castKey(NodeMapElementKey.class);
         synchronized (elementMap)
@@ -21,7 +21,7 @@ public final class NodeMap extends NodeContainer<NodeMap>
         }
     }
     @Override
-    public boolean hasElement(ElementKey<NodeMap> key)
+    public final boolean hasElement(ElementKey<NodeMap> key)
     {
         NodeMapElementKey mapKey = key.castKey(NodeMapElementKey.class);
         synchronized (elementMap)
@@ -30,7 +30,7 @@ public final class NodeMap extends NodeContainer<NodeMap>
         }
     }
     @Override
-    public NodeElement getElement(ElementKey<NodeMap> key)
+    public final NodeElement getElement(ElementKey<NodeMap> key)
     {
         NodeMapElementKey mapKey = key.castKey(NodeMapElementKey.class);
         synchronized (elementMap)
@@ -39,7 +39,7 @@ public final class NodeMap extends NodeContainer<NodeMap>
         }
     }
     @Override
-    public boolean removeElement(ElementKey<NodeMap> key)
+    public final boolean removeElement(ElementKey<NodeMap> key)
     {
         NodeMapElementKey mapKey = key.castKey(NodeMapElementKey.class);
         synchronized (elementMap)
@@ -53,7 +53,7 @@ public final class NodeMap extends NodeContainer<NodeMap>
         }
     }
     @Override
-    public int countElement()
+    public final int countElement()
     {
         synchronized (elementMap)
         {

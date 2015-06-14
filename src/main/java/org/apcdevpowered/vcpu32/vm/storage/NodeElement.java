@@ -2,12 +2,16 @@ package org.apcdevpowered.vcpu32.vm.storage;
 
 import org.apcdevpowered.vcpu32.vm.storage.container.NodeArray;
 import org.apcdevpowered.vcpu32.vm.storage.container.NodeMap;
+import org.apcdevpowered.vcpu32.vm.storage.exception.ElementTypeMismatchException;
 
 public abstract class NodeElement
 {
     private ElementKey<?> key;
     private NodeContainer<?> parent;
     
+    protected NodeElement()
+    {
+    }
     public final NodeContainer<?> getParent()
     {
         return parent;

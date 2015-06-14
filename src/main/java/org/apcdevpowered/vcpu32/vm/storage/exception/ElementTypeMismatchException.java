@@ -1,4 +1,6 @@
-package org.apcdevpowered.vcpu32.vm.storage;
+package org.apcdevpowered.vcpu32.vm.storage.exception;
+
+import org.apcdevpowered.vcpu32.vm.storage.NodeElement;
 
 public class ElementTypeMismatchException extends Exception
 {

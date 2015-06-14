@@ -10,7 +10,7 @@ public final class NodeArray extends NodeContainer<NodeArray>
     private DynamicSparseArray<NodeElement> elementArray = new DynamicSparseArray<NodeElement>();
     
     @Override
-    public void addElement(ElementKey<NodeArray> key, NodeElement component)
+    public final void addElement(ElementKey<NodeArray> key, NodeElement component)
     {
         NodeArrayElementKey arrayKey = key.castKey(NodeArrayElementKey.class);
         synchronized (elementArray)
@@ -19,7 +19,7 @@ public final class NodeArray extends NodeContainer<NodeArray>
         }
     }
     @Override
-    public boolean hasElement(ElementKey<NodeArray> key)
+    public final boolean hasElement(ElementKey<NodeArray> key)
     {
         NodeArrayElementKey arrayKey = key.castKey(NodeArrayElementKey.class);
         synchronized (elementArray)
@@ -28,7 +28,7 @@ public final class NodeArray extends NodeContainer<NodeArray>
         }
     }
     @Override
-    public NodeElement getElement(ElementKey<NodeArray> key)
+    public final NodeElement getElement(ElementKey<NodeArray> key)
     {
         NodeArrayElementKey arrayKey = key.castKey(NodeArrayElementKey.class);
         synchronized (elementArray)
@@ -37,7 +37,7 @@ public final class NodeArray extends NodeContainer<NodeArray>
         }
     }
     @Override
-    public boolean removeElement(ElementKey<NodeArray> key)
+    public final boolean removeElement(ElementKey<NodeArray> key)
     {
         NodeArrayElementKey arrayKey = key.castKey(NodeArrayElementKey.class);
         synchronized (elementArray)
@@ -51,7 +51,7 @@ public final class NodeArray extends NodeContainer<NodeArray>
         }
     }
     @Override
-    public int countElement()
+    public final int countElement()
     {
         synchronized (elementArray)
         {

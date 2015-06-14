@@ -1,5 +1,7 @@
 package org.apcdevpowered.vcpu32.vm.storage;
 
+import org.apcdevpowered.vcpu32.vm.storage.scalar.NodeScalarByte;
+
 public abstract class ScalarType<S extends NodeScalar<S>>
 {
     public static abstract class ScalarTypeNumber<S extends NodeScalar<S>> extends ScalarType<S>
@@ -45,7 +47,7 @@ public abstract class ScalarType<S extends NodeScalar<S>>
         }
     }
     
-    public static final ScalarTypeNaturalNumber SCALAR_TYPE_BYTE;
+    public static final ScalarTypeNaturalNumber<NodeScalarByte> SCALAR_TYPE_BYTE;
     public static final ScalarTypeNaturalNumber SCALAR_TYPE_SHORT;
     public static final ScalarTypeNaturalNumber SCALAR_TYPE_INTEGER;
     public static final ScalarTypeNaturalNumber SCALAR_TYPE_LONG;
@@ -63,7 +65,7 @@ public abstract class ScalarType<S extends NodeScalar<S>>
     
     static
     {
-        SCALAR_TYPE_BYTE = new ScalarTypeNaturalNumber(1);
+        SCALAR_TYPE_BYTE = new ScalarTypeNaturalNumber<NodeScalarByte>(NodeScalarByte.class, 1);
         SCALAR_TYPE_SHORT = new ScalarTypeNaturalNumber(2);
         SCALAR_TYPE_INTEGER = new ScalarTypeNaturalNumber(4);
         SCALAR_TYPE_LONG = new ScalarTypeNaturalNumber(8);
