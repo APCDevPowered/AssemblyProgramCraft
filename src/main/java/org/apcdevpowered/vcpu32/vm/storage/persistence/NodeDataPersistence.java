@@ -1,10 +1,23 @@
 package org.apcdevpowered.vcpu32.vm.storage.persistence;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apcdevpowered.util.io.StreamHelper;
+import org.apcdevpowered.vcpu32.vm.storage.NodeElement;
 import org.apcdevpowered.vcpu32.vm.storage.exception.UnsupportedVersionException;
-import org.apcdevpowered.vcpu32.vm.storage.persistence.version.MadokaoNodeDataPersistenceImpl;
+import org.apcdevpowered.vcpu32.vm.storage.persistence.version.madokao.MadokaoNodeDataPersistenceImpl;
 
 public abstract class NodeDataPersistence
 {
+    private static final Logger logger = LogManager.getLogger();
+    private static final SimpleDateFormat timestampFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    private static final int magicNumber = 0x1D048596;
     private static NodeDataPersistence[] impls = new NodeDataPersistence[VersionNaming.getCurrentVersion() + 1];
     private final int version;
     
@@ -16,6 +29,59 @@ public abstract class NodeDataPersistence
     {
         return version;
     }
+    public abstract <E extends NodeElement> E readElement(InputStream stream, Class<E> clazz) throws IOException;
+    public final NodeElement readElement(InputStream stream) throws IOException
+    {
+        return readElement(stream, NodeElement.class);
+    }
+    public abstract void writeElement(OutputStream stream, NodeElement element) throws IOException;
+    public static <E extends NodeElement> E loadNode(InputStream stream, Class<E> clazz) throws IOException, UnsupportedVersionException
+    {
+        logger.trace("Loading persistence data.");
+        if (stream == null || clazz == null)
+        {
+            throw new NullPointerException();
+        }
+        int magicNumber = StreamHelper.readInt(stream);
+        if (NodeDataPersistence.magicNumber != magicNumber)
+        {
+            throw new IOException("Incorrect magic number 0x" + Integer.toHexString(magicNumber));
+        }
+        int version = StreamHelper.readInt(stream);
+        long timestamp = StreamHelper.readLong(stream);
+        NodeDataPersistence impl = getImpl(version);
+        logger.trace("Loading node data. Version " + version + ". Timestamp " + timestamp + "(" + timestampFormatter.format(new Date(timestamp)) + ").");
+        E element = impl.readElement(stream, clazz);
+        logger.trace("Node data loaded.");
+        return element;
+    }
+    public static NodeElement loadNode(InputStream stream) throws IOException, UnsupportedVersionException
+    {
+        return loadNode(stream, NodeElement.class);
+    }
+    public static void saveNode(OutputStream stream, NodeElement element) throws IOException, UnsupportedVersionException
+    {
+        saveNode(stream, element, VersionNaming.getCurrentVersion(), System.currentTimeMillis());
+    }
+    public static void saveNode(OutputStream stream, NodeElement element, int version) throws IOException, UnsupportedVersionException
+    {
+        saveNode(stream, element, version, System.currentTimeMillis());
+    }
+    public static void saveNode(OutputStream stream, NodeElement element, int version, long timestamp) throws IOException, UnsupportedVersionException
+    {
+        logger.trace("Saving persistence data.");
+        if (stream == null || element == null)
+        {
+            throw new NullPointerException();
+        }
+        NodeDataPersistence impl = getImpl(version);
+        StreamHelper.writeInt(stream, magicNumber);
+        StreamHelper.writeInt(stream, version);
+        StreamHelper.writeLong(stream, timestamp);
+        logger.trace("Saving node data. Version " + version + ". Timestamp " + timestamp + "(" + timestampFormatter.format(new Date(timestamp)) + ").");
+        impl.writeElement(stream, element);
+        logger.trace("Node data saved.");
+    }
     public static NodeDataPersistence getImpl(int version) throws UnsupportedVersionException
     {
         if (version <= 0 || version >= impls.length)
@@ -26,12 +92,13 @@ public abstract class NodeDataPersistence
     }
     private static void registerImpl(int version, NodeDataPersistence impl)
     {
-        if(version <= 0 || version >= impls.length)
+        if (version <= 0 || version >= impls.length)
         {
             throw new IllegalStateException();
         }
         impls[version] = impl;
     }
+    
     static
     {
         registerImpl(1, new MadokaoNodeDataPersistenceImpl());

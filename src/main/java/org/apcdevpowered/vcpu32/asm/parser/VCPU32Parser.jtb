@@ -7,18 +7,18 @@ options
     UNICODE_INPUT = true;
     STATIC = false;
     DEBUG_PARSER = false;
-    TOKEN_FACTORY = "yuxuanchiadm.apc.vcpu32.asm.TokenFactory";
+    TOKEN_FACTORY = "org.apcdevpowered.vcpu32.asm.TokenFactory";
     
-    JTB_P = "yuxuanchiadm.apc.vcpu32.asm.parser";
+    JTB_P = "org.apcdevpowered.vcpu32.asm.parser";
     JTB_F = true;
 }
 
 PARSER_BEGIN(VCPU32Parser)
-package yuxuanchiadm.apc.vcpu32.asm.parser;
+package org.apcdevpowered.vcpu32.asm.parser;
 
 import java.io.StringReader;
 
-import yuxuanchiadm.apc.vcpu32.asm.parser.visitor.*;
+import org.apcdevpowered.vcpu32.asm.parser.visitor.*;
 
 public class VCPU32Parser
 {
