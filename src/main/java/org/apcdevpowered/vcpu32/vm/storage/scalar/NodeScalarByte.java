@@ -3,7 +3,7 @@ package org.apcdevpowered.vcpu32.vm.storage.scalar;
 import org.apcdevpowered.vcpu32.vm.storage.NodeScalar;
 import org.apcdevpowered.vcpu32.vm.storage.ScalarType;
 
-public class NodeScalarByte extends NodeScalar<NodeScalarByte>
+public final class NodeScalarByte extends NodeScalar<NodeScalarByte>
 {
     private byte data;
     

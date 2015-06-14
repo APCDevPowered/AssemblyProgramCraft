@@ -1,5 +1,7 @@
 package org.apcdevpowered.vcpu32.vm.storage;
 
+import org.apcdevpowered.util.reflection.GenericsUtil;
+
 public abstract class NodeScalar<S extends NodeScalar<S>> extends NodeElement
 {
     private final ScalarType<S> type;
@@ -15,5 +17,9 @@ public abstract class NodeScalar<S extends NodeScalar<S>> extends NodeElement
     public final <T extends ScalarType<S>> T getType(Class<T> clazz)
     {
         return clazz.cast(type);
+    }
+    public final S castScalar()
+    {
+        return GenericsUtil.genericUnsafeCast(this);
     }
 }
