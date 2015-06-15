@@ -1,5 +1,7 @@
 package org.apcdevpowered.vcpu32.vm.storage.persistence;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -74,6 +76,14 @@ public abstract class NodeDataPersistence
             throw new IllegalStateException(e);
         }
     }
+    public static <E extends NodeElement> E loadNode(byte[] bytes, Class<E> clazz) throws IOException, ElementTypeMismatchException, UnsupportedVersionException
+    {
+        return loadNode(new ByteArrayInputStream(bytes), clazz);
+    }
+    public static NodeElement loadNode(byte[] bytes) throws IOException, UnsupportedVersionException
+    {
+        return loadNode(new ByteArrayInputStream(bytes));
+    }
     public static void saveNode(OutputStream stream, NodeElement element) throws IOException, UnsupportedVersionException
     {
         saveNode(stream, element, VersionNaming.getCurrentVersion(), System.currentTimeMillis());
@@ -96,6 +106,24 @@ public abstract class NodeDataPersistence
         logger.trace("Saving node data. Version " + version + ". Timestamp " + timestamp + "(" + timestampFormatter.format(new Date(timestamp)) + ").");
         impl.writeElement(stream, element);
         logger.trace("Node data saved.");
+    }
+    public static byte[] saveNode(NodeElement element) throws IOException, UnsupportedVersionException
+    {
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        saveNode(stream, element);
+        return stream.toByteArray();
+    }
+    public static byte[] saveNode(NodeElement element, int version) throws IOException, UnsupportedVersionException
+    {
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        saveNode(stream, element, version);
+        return stream.toByteArray();
+    }
+    public static byte[] saveNode(NodeElement element, int version, long timestamp) throws IOException, UnsupportedVersionException
+    {
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        saveNode(stream, element, version, timestamp);
+        return stream.toByteArray();
     }
     public static NodeDataPersistence getImpl(int version) throws UnsupportedVersionException
     {
