@@ -7,12 +7,12 @@ public final class NodeScalarFloat extends NodeScalar<NodeScalarFloat>
 {
     private float data;
     
-    protected NodeScalarFloat()
+    public NodeScalarFloat()
     {
         super(ScalarType.SCALAR_TYPE_FLOAT);
         setData(0.0F);
     }
-    protected NodeScalarFloat(float data)
+    public NodeScalarFloat(float data)
     {
         super(ScalarType.SCALAR_TYPE_FLOAT);
         setData(data);

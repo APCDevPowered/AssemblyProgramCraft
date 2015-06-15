@@ -1,0 +1,250 @@
+package org.apcdevpowered.vcpu32.vm.storage.container;
+
+import java.util.Collections;
+import java.util.ConcurrentModificationException;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Set;
+import java.util.Map.Entry;
+
+import org.apcdevpowered.vcpu32.vm.storage.ElementKey;
+import org.apcdevpowered.vcpu32.vm.storage.NodeContainer;
+import org.apcdevpowered.vcpu32.vm.storage.NodeElement;
+import org.apcdevpowered.vcpu32.vm.storage.exception.ElementNotFoundException;
+
+public final class NodeContainerMap extends NodeContainer<NodeContainerMap>
+{
+    private transient int modCount;
+    private Map<String, NodeElement> elementMap = new HashMap<String, NodeElement>();
+    
+    @Override
+    public final void addElement(ElementKey<NodeContainerMap> key, NodeElement component)
+    {
+        if (component == null)
+        {
+            throw new NullPointerException();
+        }
+        NodeContainerMapElementKey arrayKey = key.castKey(NodeContainerMapElementKey.class);
+        synchronized (elementMap)
+        {
+            elementMap.put(arrayKey.getKey(), component);
+            modCount++;
+        }
+    }
+    @Override
+    public final boolean hasElement(ElementKey<NodeContainerMap> key)
+    {
+        NodeContainerMapElementKey arrayKey = key.castKey(NodeContainerMapElementKey.class);
+        synchronized (elementMap)
+        {
+            return elementMap.containsKey(arrayKey.getKey());
+        }
+    }
+    @Override
+    public final NodeElement getElement(ElementKey<NodeContainerMap> key) throws ElementNotFoundException
+    {
+        NodeContainerMapElementKey arrayKey = key.castKey(NodeContainerMapElementKey.class);
+        synchronized (elementMap)
+        {
+            NodeElement element = elementMap.get(arrayKey.getKey());
+            if (element == null)
+            {
+                throw new ElementNotFoundException(arrayKey);
+            }
+            return element;
+        }
+    }
+    @Override
+    public final boolean removeElement(ElementKey<NodeContainerMap> key)
+    {
+        NodeContainerMapElementKey arrayKey = key.castKey(NodeContainerMapElementKey.class);
+        synchronized (elementMap)
+        {
+            if (!elementMap.containsKey(arrayKey.getKey()))
+            {
+                return false;
+            }
+            elementMap.remove(arrayKey.getKey());
+            modCount++;
+            return true;
+        }
+    }
+    @Override
+    public final int countElement()
+    {
+        synchronized (elementMap)
+        {
+            return elementMap.size();
+        }
+    }
+    @Override
+    public void clearElement()
+    {
+        synchronized (elementMap)
+        {
+            modCount++;
+            elementMap.clear();
+        }
+    }
+    @Override
+    public Iterator<Entry<ElementKey<NodeContainerMap>, NodeElement>> iterator()
+    {
+        return new NodeContainerMapIterator();
+    }
+    @Override
+    public Set<Entry<ElementKey<NodeContainerMap>, NodeElement>> entrySet()
+    {
+        synchronized (elementMap)
+        {
+           Set<Entry<ElementKey<NodeContainerMap>, NodeElement>> entrySet = new HashSet<Entry<ElementKey<NodeContainerMap>, NodeElement>>();
+           for(Entry<String, NodeElement> entry : elementMap.entrySet())
+           {
+               entrySet.add(new NodeContainerMapEntry(entry.getKey()));
+           }
+           return Collections.unmodifiableSet(entrySet);
+        }
+    }
+    public static NodeContainerMapElementKey makeKey(String key)
+    {
+        return new NodeContainerMapElementKey(key);
+    }
+    
+    public final static class NodeContainerMapElementKey extends ElementKey<NodeContainerMap>
+    {
+        private final String key;
+        
+        private NodeContainerMapElementKey(String key)
+        {
+            super(NodeContainerMap.class);
+            if (key == null)
+            {
+                throw new NullPointerException();
+            }
+            this.key = key;
+        }
+        public String getKey()
+        {
+            return key;
+        }
+    }
+    private final class NodeContainerMapIterator implements Iterator<Entry<ElementKey<NodeContainerMap>, NodeElement>>
+    {
+        private int expectedModCount;
+        private Iterator<Entry<String, NodeElement>> innerIterator;
+        private Entry<ElementKey<NodeContainerMap>, NodeElement> currentEntry;
+        private Entry<ElementKey<NodeContainerMap>, NodeElement> nextEntry;
+        
+        private NodeContainerMapIterator()
+        {
+            synchronized (elementMap)
+            {
+                expectedModCount = modCount;
+                innerIterator = elementMap.entrySet().iterator();
+                if (innerIterator.hasNext())
+                {
+                    nextEntry = new NodeContainerMapEntry(innerIterator.next().getKey());
+                }
+            }
+        }
+        @Override
+        public boolean hasNext()
+        {
+            return nextEntry != null;
+        }
+        @Override
+        public Entry<ElementKey<NodeContainerMap>, NodeElement> next()
+        {
+            return nextEntry();
+        }
+        @Override
+        public void remove()
+        {
+            if (currentEntry == null)
+            {
+                throw new IllegalStateException();
+            }
+            synchronized (elementMap)
+            {
+                if (expectedModCount != modCount)
+                {
+                    throw new ConcurrentModificationException();
+                }
+                innerIterator.remove();
+                modCount++;
+                expectedModCount = modCount;
+            }
+        }
+        private Entry<ElementKey<NodeContainerMap>, NodeElement> nextEntry()
+        {
+            synchronized (elementMap)
+            {
+                if (expectedModCount != modCount)
+                {
+                    throw new ConcurrentModificationException();
+                }
+                Entry<ElementKey<NodeContainerMap>, NodeElement> entry = nextEntry;
+                if (nextEntry == null)
+                {
+                    throw new NoSuchElementException();
+                }
+                if (innerIterator.hasNext())
+                {
+                    nextEntry = new NodeContainerMapEntry(innerIterator.next().getKey());
+                }
+                else
+                {
+                    nextEntry = null;
+                }
+                currentEntry = entry;
+                return currentEntry;
+            }
+        }
+    }
+    private final class NodeContainerMapEntry implements Entry<ElementKey<NodeContainerMap>, NodeElement>
+    {
+        private final ElementKey<NodeContainerMap> key;
+        
+        private NodeContainerMapEntry(String key)
+        {
+            this.key = makeKey(key);
+        }
+        @Override
+        public ElementKey<NodeContainerMap> getKey()
+        {
+            return key;
+        }
+        @Override
+        public NodeElement getValue()
+        {
+            try
+            {
+                return getElement(key);
+            }
+            catch (ElementNotFoundException e)
+            {
+                return null;
+            }
+        }
+        @Override
+        public NodeElement setValue(NodeElement value)
+        {
+            synchronized (elementMap)
+            {
+                NodeElement old;
+                try
+                {
+                    old = getElement(key);
+                }
+                catch (ElementNotFoundException e)
+                {
+                    old = null;
+                }
+                addElement(key, value);
+                return old;
+            }
+        }
+    }
+}

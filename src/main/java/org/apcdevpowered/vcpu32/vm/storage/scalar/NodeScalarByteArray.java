@@ -7,12 +7,12 @@ public final class NodeScalarByteArray extends NodeScalar<NodeScalarByteArray>
 {
     private byte[] data;
     
-    protected NodeScalarByteArray()
+    public NodeScalarByteArray()
     {
         super(ScalarType.SCALAR_TYPE_BYTE_ARRAY);
         setData(new byte[0]);
     }
-    protected NodeScalarByteArray(byte[] data)
+    public NodeScalarByteArray(byte[] data)
     {
         super(ScalarType.SCALAR_TYPE_BYTE_ARRAY);
         setData(data);

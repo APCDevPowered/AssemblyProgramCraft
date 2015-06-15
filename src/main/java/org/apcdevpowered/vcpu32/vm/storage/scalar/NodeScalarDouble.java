@@ -7,12 +7,12 @@ public final class NodeScalarDouble extends NodeScalar<NodeScalarDouble>
 {
     private double data;
     
-    protected NodeScalarDouble()
+    public NodeScalarDouble()
     {
         super(ScalarType.SCALAR_TYPE_DOUBLE);
         setData(0.0D);
     }
-    protected NodeScalarDouble(double data)
+    public NodeScalarDouble(double data)
     {
         super(ScalarType.SCALAR_TYPE_DOUBLE);
         setData(data);

@@ -7,12 +7,12 @@ public final class NodeScalarInteger extends NodeScalar<NodeScalarInteger>
 {
     private int data;
     
-    protected NodeScalarInteger()
+    public NodeScalarInteger()
     {
         super(ScalarType.SCALAR_TYPE_INTEGER);
         setData(0);
     }
-    protected NodeScalarInteger(int data)
+    public NodeScalarInteger(int data)
     {
         super(ScalarType.SCALAR_TYPE_INTEGER);
         setData(data);

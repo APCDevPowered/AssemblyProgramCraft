@@ -9,7 +9,7 @@ public class UnsupportedVersionException extends Exception
     
     public UnsupportedVersionException(int version)
     {
-        super("Unsupported version " + version + ". Current version" + VersionNaming.getCurrentVersion());
+        super("Unsupported version " + version + ". Current version" + VersionNaming.getCurrentVersion() + ".");
         this.version = version;
     }
     public int getVersion()

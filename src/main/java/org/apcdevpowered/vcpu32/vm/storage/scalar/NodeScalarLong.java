@@ -7,12 +7,12 @@ public final class NodeScalarLong extends NodeScalar<NodeScalarLong>
 {
     private long data;
     
-    protected NodeScalarLong()
+    public NodeScalarLong()
     {
         super(ScalarType.SCALAR_TYPE_LONG);
         setData(0L);
     }
-    protected NodeScalarLong(long data)
+    public NodeScalarLong(long data)
     {
         super(ScalarType.SCALAR_TYPE_LONG);
         setData(data);

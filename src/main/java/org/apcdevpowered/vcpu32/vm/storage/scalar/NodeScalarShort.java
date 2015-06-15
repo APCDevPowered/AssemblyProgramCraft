@@ -7,12 +7,12 @@ public final class NodeScalarShort extends NodeScalar<NodeScalarShort>
 {
     private short data;
     
-    protected NodeScalarShort()
+    public NodeScalarShort()
     {
         super(ScalarType.SCALAR_TYPE_SHORT);
         setData((short) 0);
     }
-    protected NodeScalarShort(short data)
+    public NodeScalarShort(short data)
     {
         super(ScalarType.SCALAR_TYPE_SHORT);
         setData(data);

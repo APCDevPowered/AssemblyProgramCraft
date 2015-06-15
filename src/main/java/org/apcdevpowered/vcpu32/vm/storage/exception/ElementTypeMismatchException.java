@@ -10,7 +10,7 @@ public class ElementTypeMismatchException extends Exception
     
     public ElementTypeMismatchException(Class<? extends NodeElement> found, Class<? extends NodeElement> expect)
     {
-        super("Element type mismatch. Found " + found.getSimpleName() + ". Expect " + expect.getSimpleName());
+        super("Element type mismatch. Found " + found.getSimpleName() + ". Expect " + expect.getSimpleName() + ".");
         this.found = found;
         this.expect = expect;
     }

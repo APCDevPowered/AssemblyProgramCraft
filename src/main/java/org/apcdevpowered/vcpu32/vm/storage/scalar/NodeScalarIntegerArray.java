@@ -7,12 +7,12 @@ public final class NodeScalarIntegerArray extends NodeScalar<NodeScalarIntegerAr
 {
     private int[] data;
     
-    protected NodeScalarIntegerArray()
+    public NodeScalarIntegerArray()
     {
         super(ScalarType.SCALAR_TYPE_INTEGER_ARRAY);
         setData(new int[0]);
     }
-    protected NodeScalarIntegerArray(int[] data)
+    public NodeScalarIntegerArray(int[] data)
     {
         super(ScalarType.SCALAR_TYPE_INTEGER_ARRAY);
         setData(data);

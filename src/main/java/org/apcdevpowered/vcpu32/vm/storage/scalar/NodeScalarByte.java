@@ -7,12 +7,12 @@ public final class NodeScalarByte extends NodeScalar<NodeScalarByte>
 {
     private byte data;
     
-    protected NodeScalarByte()
+    public NodeScalarByte()
     {
         super(ScalarType.SCALAR_TYPE_BYTE);
         setData((byte) 0);
     }
-    protected NodeScalarByte(byte data)
+    public NodeScalarByte(byte data)
     {
         super(ScalarType.SCALAR_TYPE_BYTE);
         setData(data);

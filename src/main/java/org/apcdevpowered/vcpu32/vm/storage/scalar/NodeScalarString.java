@@ -7,12 +7,12 @@ public final class NodeScalarString extends NodeScalar<NodeScalarString>
 {
     private String data;
     
-    protected NodeScalarString()
+    public NodeScalarString()
     {
         super(ScalarType.SCALAR_TYPE_STRING);
         setData("");
     }
-    protected NodeScalarString(String data)
+    public NodeScalarString(String data)
     {
         super(ScalarType.SCALAR_TYPE_STRING);
         setData(data);

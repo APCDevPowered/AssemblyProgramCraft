@@ -10,6 +10,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apcdevpowered.util.io.StreamHelper;
 import org.apcdevpowered.vcpu32.vm.storage.NodeElement;
+import org.apcdevpowered.vcpu32.vm.storage.exception.ElementTypeMismatchException;
 import org.apcdevpowered.vcpu32.vm.storage.exception.UnsupportedVersionException;
 import org.apcdevpowered.vcpu32.vm.storage.persistence.version.madokao.MadokaoNodeDataPersistenceImpl;
 
@@ -29,13 +30,20 @@ public abstract class NodeDataPersistence
     {
         return version;
     }
-    public abstract <E extends NodeElement> E readElement(InputStream stream, Class<E> clazz) throws IOException;
+    public abstract <E extends NodeElement> E readElement(InputStream stream, Class<E> clazz) throws IOException, ElementTypeMismatchException;
     public final NodeElement readElement(InputStream stream) throws IOException
     {
-        return readElement(stream, NodeElement.class);
+        try
+        {
+            return readElement(stream, NodeElement.class);
+        }
+        catch (ElementTypeMismatchException e)
+        {
+            throw new IllegalStateException(e);
+        }
     }
     public abstract void writeElement(OutputStream stream, NodeElement element) throws IOException;
-    public static <E extends NodeElement> E loadNode(InputStream stream, Class<E> clazz) throws IOException, UnsupportedVersionException
+    public static <E extends NodeElement> E loadNode(InputStream stream, Class<E> clazz) throws IOException, ElementTypeMismatchException, UnsupportedVersionException
     {
         logger.trace("Loading persistence data.");
         if (stream == null || clazz == null)
@@ -57,7 +65,14 @@ public abstract class NodeDataPersistence
     }
     public static NodeElement loadNode(InputStream stream) throws IOException, UnsupportedVersionException
     {
-        return loadNode(stream, NodeElement.class);
+        try
+        {
+            return loadNode(stream, NodeElement.class);
+        }
+        catch (ElementTypeMismatchException e)
+        {
+            throw new IllegalStateException(e);
+        }
     }
     public static void saveNode(OutputStream stream, NodeElement element) throws IOException, UnsupportedVersionException
     {
