@@ -31,43 +31,47 @@ public abstract class NodeContainer<C extends NodeContainer<C>> extends NodeElem
         return keyType;
     }
     public abstract void addElement(ElementKey<C> key, NodeElement element);
-    public void addElement(ElementKey<C> key, boolean data)
+    public final void addElement(ElementKey<C> key, boolean data)
     {
         addElement(key, new NodeScalarByte(data ? (byte) 1 : (byte) 0));
     }
-    public void addElement(ElementKey<C> key, byte data)
+    public final void addElement(ElementKey<C> key, byte data)
     {
         addElement(key, new NodeScalarByte(data));
     }
-    public void addElement(ElementKey<C> key, short data)
+    public final void addElement(ElementKey<C> key, char data)
+    {
+        addElement(key, new NodeScalarShort((short) data));
+    }
+    public final void addElement(ElementKey<C> key, short data)
     {
         addElement(key, new NodeScalarShort(data));
     }
-    public void addElement(ElementKey<C> key, int data)
+    public final void addElement(ElementKey<C> key, int data)
     {
         addElement(key, new NodeScalarInteger(data));
     }
-    public void addElement(ElementKey<C> key, long data)
+    public final void addElement(ElementKey<C> key, long data)
     {
         addElement(key, new NodeScalarLong(data));
     }
-    public void addElement(ElementKey<C> key, float data)
+    public final void addElement(ElementKey<C> key, float data)
     {
         addElement(key, new NodeScalarFloat(data));
     }
-    public void addElement(ElementKey<C> key, double data)
+    public final void addElement(ElementKey<C> key, double data)
     {
         addElement(key, new NodeScalarDouble(data));
     }
-    public void addElement(ElementKey<C> key, byte[] data)
+    public final void addElement(ElementKey<C> key, byte[] data)
     {
         addElement(key, new NodeScalarByteArray(data));
     }
-    public void addElement(ElementKey<C> key, int[] data)
+    public final void addElement(ElementKey<C> key, int[] data)
     {
         addElement(key, new NodeScalarIntegerArray(data));
     }
-    public void addElement(ElementKey<C> key, String data)
+    public final void addElement(ElementKey<C> key, String data)
     {
         addElement(key, new NodeScalarString(data));
     }
@@ -85,6 +89,10 @@ public abstract class NodeContainer<C extends NodeContainer<C>> extends NodeElem
     public final boolean getBoolean(ElementKey<C> key) throws ElementNotFoundException, ElementTypeMismatchException
     {
         return (getElement(key, NodeScalarByte.class).getData() != 0) ? true : false;
+    }
+    public final char getChar(ElementKey<C> key) throws ElementNotFoundException, ElementTypeMismatchException
+    {
+        return (char) getElement(key, NodeScalarShort.class).getData();
     }
     public final NodeScalar<?> getScalar(ElementKey<C> key) throws ElementNotFoundException, ElementTypeMismatchException
     {

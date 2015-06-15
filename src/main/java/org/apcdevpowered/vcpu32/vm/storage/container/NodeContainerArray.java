@@ -15,6 +15,15 @@ import org.apcdevpowered.vcpu32.vm.storage.NodeContainer;
 import org.apcdevpowered.vcpu32.vm.storage.NodeElement;
 import org.apcdevpowered.vcpu32.vm.storage.exception.ElementNotFoundException;
 import org.apcdevpowered.vcpu32.vm.storage.exception.ElementTypeMismatchException;
+import org.apcdevpowered.vcpu32.vm.storage.scalar.NodeScalarByte;
+import org.apcdevpowered.vcpu32.vm.storage.scalar.NodeScalarByteArray;
+import org.apcdevpowered.vcpu32.vm.storage.scalar.NodeScalarDouble;
+import org.apcdevpowered.vcpu32.vm.storage.scalar.NodeScalarFloat;
+import org.apcdevpowered.vcpu32.vm.storage.scalar.NodeScalarInteger;
+import org.apcdevpowered.vcpu32.vm.storage.scalar.NodeScalarIntegerArray;
+import org.apcdevpowered.vcpu32.vm.storage.scalar.NodeScalarLong;
+import org.apcdevpowered.vcpu32.vm.storage.scalar.NodeScalarShort;
+import org.apcdevpowered.vcpu32.vm.storage.scalar.NodeScalarString;
 
 public final class NodeContainerArray extends NodeContainer<NodeContainerArray>
 {
@@ -133,11 +142,55 @@ public final class NodeContainerArray extends NodeContainer<NodeContainerArray>
             addElement(makeKey(length()), element);
         }
     }
+    public final void add(boolean data)
+    {
+        add(new NodeScalarByte(data ? (byte) 1 : (byte) 0));
+    }
+    public final void add(byte data)
+    {
+        add(new NodeScalarByte(data));
+    }
+    public final void add(char data)
+    {
+        add(new NodeScalarShort((short) data));
+    }
+    public final void add(short data)
+    {
+        add(new NodeScalarShort(data));
+    }
+    public final void add(int data)
+    {
+        add(new NodeScalarInteger(data));
+    }
+    public final void add(long data)
+    {
+        add(new NodeScalarLong(data));
+    }
+    public final void add(float data)
+    {
+        add(new NodeScalarFloat(data));
+    }
+    public final void add(double data)
+    {
+        add(new NodeScalarDouble(data));
+    }
+    public final void add(byte[] data)
+    {
+        add(new NodeScalarByteArray(data));
+    }
+    public final void add(int[] data)
+    {
+        add(new NodeScalarIntegerArray(data));
+    }
+    public final void add(String data)
+    {
+        add(new NodeScalarString(data));
+    }
     public final int length()
     {
         synchronized (elementArray)
         {
-            if(elementArray.isEmpty())
+            if (elementArray.isEmpty())
             {
                 return 0;
             }
