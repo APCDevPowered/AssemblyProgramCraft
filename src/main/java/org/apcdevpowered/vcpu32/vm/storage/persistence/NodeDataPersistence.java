@@ -2,6 +2,9 @@ package org.apcdevpowered.vcpu32.vm.storage.persistence;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -45,6 +48,17 @@ public abstract class NodeDataPersistence
         }
     }
     public abstract void writeElement(OutputStream stream, NodeElement element) throws IOException;
+    public static NodeElement loadNode(InputStream stream) throws IOException, UnsupportedVersionException
+    {
+        try
+        {
+            return loadNode(stream, NodeElement.class);
+        }
+        catch (ElementTypeMismatchException e)
+        {
+            throw new IllegalStateException(e);
+        }
+    }
     public static <E extends NodeElement> E loadNode(InputStream stream, Class<E> clazz) throws IOException, ElementTypeMismatchException, UnsupportedVersionException
     {
         logger.trace("Loading persistence data.");
@@ -65,24 +79,27 @@ public abstract class NodeDataPersistence
         logger.trace("Node data loaded.");
         return element;
     }
-    public static NodeElement loadNode(InputStream stream) throws IOException, UnsupportedVersionException
+    public static NodeElement loadNode(byte[] bytes) throws IOException, UnsupportedVersionException
     {
-        try
-        {
-            return loadNode(stream, NodeElement.class);
-        }
-        catch (ElementTypeMismatchException e)
-        {
-            throw new IllegalStateException(e);
-        }
+        return loadNode(new ByteArrayInputStream(bytes));
     }
     public static <E extends NodeElement> E loadNode(byte[] bytes, Class<E> clazz) throws IOException, ElementTypeMismatchException, UnsupportedVersionException
     {
         return loadNode(new ByteArrayInputStream(bytes), clazz);
     }
-    public static NodeElement loadNode(byte[] bytes) throws IOException, UnsupportedVersionException
+    public static NodeElement loadNode(File file) throws IOException, UnsupportedVersionException
     {
-        return loadNode(new ByteArrayInputStream(bytes));
+        try (FileInputStream stream = new FileInputStream(file))
+        {
+            return loadNode(stream);
+        }
+    }
+    public static <E extends NodeElement> E loadNode(File file, Class<E> clazz) throws IOException, ElementTypeMismatchException, UnsupportedVersionException
+    {
+        try (FileInputStream stream = new FileInputStream(file))
+        {
+            return loadNode(stream, clazz);
+        }
     }
     public static void saveNode(OutputStream stream, NodeElement element) throws IOException, UnsupportedVersionException
     {
@@ -124,6 +141,27 @@ public abstract class NodeDataPersistence
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         saveNode(stream, element, version, timestamp);
         return stream.toByteArray();
+    }
+    public static void saveNode(File file, NodeElement element) throws IOException, UnsupportedVersionException
+    {
+        try (FileOutputStream stream = new FileOutputStream(file))
+        {
+            saveNode(stream, element);
+        }
+    }
+    public static void saveNode(File file, NodeElement element, int version) throws IOException, UnsupportedVersionException
+    {
+        try (FileOutputStream stream = new FileOutputStream(file))
+        {
+            saveNode(stream, element, version);
+        }
+    }
+    public static void saveNode(File file, NodeElement element, int version, long timestamp) throws IOException, UnsupportedVersionException
+    {
+        try (FileOutputStream stream = new FileOutputStream(file))
+        {
+            saveNode(stream, element, version, timestamp);
+        }
     }
     public static NodeDataPersistence getImpl(int version) throws UnsupportedVersionException
     {
