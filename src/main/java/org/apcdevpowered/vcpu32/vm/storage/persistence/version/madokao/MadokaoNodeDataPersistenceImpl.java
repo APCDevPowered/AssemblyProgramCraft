@@ -11,6 +11,7 @@ import org.apcdevpowered.vcpu32.vm.storage.scalar.NodeScalarInteger;
 import org.apcdevpowered.vcpu32.vm.storage.scalar.NodeScalarIntegerArray;
 import org.apcdevpowered.vcpu32.vm.storage.scalar.NodeScalarLong;
 import org.apcdevpowered.vcpu32.vm.storage.scalar.NodeScalarShort;
+import org.apcdevpowered.vcpu32.vm.storage.scalar.NodeScalarString;
 
 public class MadokaoNodeDataPersistenceImpl extends BaseNodeDataPersistenceImpl
 {
@@ -25,7 +26,8 @@ public class MadokaoNodeDataPersistenceImpl extends BaseNodeDataPersistenceImpl
         mapping.addMapping(6, NodeScalarDouble.class);
         mapping.addMapping(7, NodeScalarByteArray.class);
         mapping.addMapping(8, NodeScalarIntegerArray.class);
-        mapping.addMapping(9, NodeContainerArray.class);
-        mapping.addMapping(10, NodeContainerMap.class);
+        mapping.addMapping(9, NodeScalarString.class);
+        mapping.addMapping(10, NodeContainerArray.class);
+        mapping.addMapping(11, NodeContainerMap.class);
     }
 }

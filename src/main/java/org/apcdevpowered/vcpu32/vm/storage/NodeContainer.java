@@ -16,6 +16,7 @@ import org.apcdevpowered.vcpu32.vm.storage.scalar.NodeScalarInteger;
 import org.apcdevpowered.vcpu32.vm.storage.scalar.NodeScalarIntegerArray;
 import org.apcdevpowered.vcpu32.vm.storage.scalar.NodeScalarLong;
 import org.apcdevpowered.vcpu32.vm.storage.scalar.NodeScalarShort;
+import org.apcdevpowered.vcpu32.vm.storage.scalar.NodeScalarString;
 
 public abstract class NodeContainer<C extends NodeContainer<C>> extends NodeElement
 {
@@ -32,7 +33,7 @@ public abstract class NodeContainer<C extends NodeContainer<C>> extends NodeElem
     public abstract void addElement(ElementKey<C> key, NodeElement element);
     public void addElement(ElementKey<C> key, boolean data)
     {
-        addElement(key, new NodeScalarByte(data ? (byte)1 : (byte)0));
+        addElement(key, new NodeScalarByte(data ? (byte) 1 : (byte) 0));
     }
     public void addElement(ElementKey<C> key, byte data)
     {
@@ -65,6 +66,10 @@ public abstract class NodeContainer<C extends NodeContainer<C>> extends NodeElem
     public void addElement(ElementKey<C> key, int[] data)
     {
         addElement(key, new NodeScalarIntegerArray(data));
+    }
+    public void addElement(ElementKey<C> key, String data)
+    {
+        addElement(key, new NodeScalarString(data));
     }
     public abstract boolean hasElement(ElementKey<C> key);
     public abstract NodeElement getElement(ElementKey<C> key) throws ElementNotFoundException;

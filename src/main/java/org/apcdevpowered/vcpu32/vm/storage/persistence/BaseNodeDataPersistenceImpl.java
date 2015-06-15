@@ -24,6 +24,7 @@ import org.apcdevpowered.vcpu32.vm.storage.scalar.NodeScalarInteger;
 import org.apcdevpowered.vcpu32.vm.storage.scalar.NodeScalarIntegerArray;
 import org.apcdevpowered.vcpu32.vm.storage.scalar.NodeScalarLong;
 import org.apcdevpowered.vcpu32.vm.storage.scalar.NodeScalarShort;
+import org.apcdevpowered.vcpu32.vm.storage.scalar.NodeScalarString;
 
 public class BaseNodeDataPersistenceImpl extends NodeDataPersistence
 {
@@ -73,19 +74,24 @@ public class BaseNodeDataPersistenceImpl extends NodeDataPersistence
             double data = StreamHelper.readDouble(stream);
             element = new NodeScalarDouble(data);
         }
-        if (mappingType.equals(NodeScalarByteArray.class))
+        else if (mappingType.equals(NodeScalarByteArray.class))
         {
             int length = StreamHelper.readInt(stream);
             byte[] data = StreamHelper.readByteArrayFully(stream, length);
             element = new NodeScalarByteArray(data);
         }
-        if (mappingType.equals(NodeScalarIntegerArray.class))
+        else if (mappingType.equals(NodeScalarIntegerArray.class))
         {
             int length = StreamHelper.readInt(stream);
             int[] data = StreamHelper.readIntArrayFully(stream, length);
             element = new NodeScalarIntegerArray(data);
         }
-        if (mappingType.equals(NodeContainerArray.class))
+        else if (mappingType.equals(NodeScalarString.class))
+        {
+            String data = StreamHelper.readString(stream);
+            element = new NodeScalarString(data);
+        }
+        else if (mappingType.equals(NodeContainerArray.class))
         {
             int length = StreamHelper.readInt(stream);
             NodeContainerArray container = new NodeContainerArray();
@@ -97,7 +103,7 @@ public class BaseNodeDataPersistenceImpl extends NodeDataPersistence
             }
             element = container;
         }
-        if (mappingType.equals(NodeContainerMap.class))
+        else if (mappingType.equals(NodeContainerMap.class))
         {
             int length = StreamHelper.readInt(stream);
             NodeContainerMap container = new NodeContainerMap();
@@ -159,14 +165,14 @@ public class BaseNodeDataPersistenceImpl extends NodeDataPersistence
             double data = ((NodeScalarDouble) element).getData();
             StreamHelper.writeDouble(stream, data);
         }
-        if (mappingType.equals(NodeScalarByteArray.class))
+        else if (mappingType.equals(NodeScalarByteArray.class))
         {
             byte[] data = ((NodeScalarByteArray) element).getData();
             int length = data.length;
             StreamHelper.writeInt(stream, length);
             stream.write(data);
         }
-        if (mappingType.equals(NodeScalarIntegerArray.class))
+        else if (mappingType.equals(NodeScalarIntegerArray.class))
         {
             int[] data = ((NodeScalarIntegerArray) element).getData();
             int length = data.length;
@@ -176,7 +182,12 @@ public class BaseNodeDataPersistenceImpl extends NodeDataPersistence
                 StreamHelper.writeInt(stream, data[index]);
             }
         }
-        if (mappingType.equals(NodeContainerArray.class))
+        else if (mappingType.equals(NodeScalarString.class))
+        {
+            String data = ((NodeScalarString) element).getData();
+            StreamHelper.writeString(stream, data);
+        }
+        else if (mappingType.equals(NodeContainerArray.class))
         {
             NodeContainerArray container = ((NodeContainerArray) element);
             Set<Entry<ElementKey<NodeContainerArray>, NodeElement>> entrySet = container.entrySet();
@@ -187,7 +198,7 @@ public class BaseNodeDataPersistenceImpl extends NodeDataPersistence
                 writeElement(stream, element);
             }
         }
-        if (mappingType.equals(NodeContainerMap.class))
+        else if (mappingType.equals(NodeContainerMap.class))
         {
             NodeContainerMap container = ((NodeContainerMap) element);
             Set<Entry<ElementKey<NodeContainerMap>, NodeElement>> entrySet = container.entrySet();
