@@ -20,17 +20,23 @@ public final class NodeContainerMap extends NodeContainer<NodeContainerMap>
     private transient int modCount;
     private Map<String, NodeElement> elementMap = new HashMap<String, NodeElement>();
     
-    @Override
-    public final void addElement(ElementKey<NodeContainerMap> key, NodeElement component)
+    public NodeContainerMap()
     {
-        if (component == null)
+        super(NodeContainerMapElementKey.class);
+    }
+    @Override
+    public final void addElement(ElementKey<NodeContainerMap> key, NodeElement element)
+    {
+        if (element == null)
         {
             throw new NullPointerException();
         }
         NodeContainerMapElementKey arrayKey = key.castKey(NodeContainerMapElementKey.class);
         synchronized (elementMap)
         {
-            elementMap.put(arrayKey.getKey(), component);
+            NodeElement previousElement = elementMap.put(arrayKey.getKey(), element);
+            resetElementParent(previousElement);
+            setElementParent(element, arrayKey);
             modCount++;
         }
     }
@@ -67,7 +73,8 @@ public final class NodeContainerMap extends NodeContainer<NodeContainerMap>
             {
                 return false;
             }
-            elementMap.remove(arrayKey.getKey());
+            NodeElement element = elementMap.remove(arrayKey.getKey());
+            resetElementParent(element);
             modCount++;
             return true;
         }
@@ -86,6 +93,10 @@ public final class NodeContainerMap extends NodeContainer<NodeContainerMap>
         synchronized (elementMap)
         {
             modCount++;
+            for (Entry<String, NodeElement> entry : elementMap.entrySet())
+            {
+                resetElementParent(entry.getValue());
+            }
             elementMap.clear();
         }
     }
@@ -99,12 +110,12 @@ public final class NodeContainerMap extends NodeContainer<NodeContainerMap>
     {
         synchronized (elementMap)
         {
-           Set<Entry<ElementKey<NodeContainerMap>, NodeElement>> entrySet = new HashSet<Entry<ElementKey<NodeContainerMap>, NodeElement>>();
-           for(Entry<String, NodeElement> entry : elementMap.entrySet())
-           {
-               entrySet.add(new NodeContainerMapEntry(entry.getKey()));
-           }
-           return Collections.unmodifiableSet(entrySet);
+            Set<Entry<ElementKey<NodeContainerMap>, NodeElement>> entrySet = new HashSet<Entry<ElementKey<NodeContainerMap>, NodeElement>>();
+            for (Entry<String, NodeElement> entry : elementMap.entrySet())
+            {
+                entrySet.add(new NodeContainerMapEntry(entry.getKey()));
+            }
+            return Collections.unmodifiableSet(entrySet);
         }
     }
     public static NodeContainerMapElementKey makeKey(String key)
@@ -173,6 +184,7 @@ public final class NodeContainerMap extends NodeContainer<NodeContainerMap>
                     throw new ConcurrentModificationException();
                 }
                 innerIterator.remove();
+                resetElementParent(currentEntry.getValue());
                 modCount++;
                 expectedModCount = modCount;
             }

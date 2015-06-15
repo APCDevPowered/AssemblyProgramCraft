@@ -27,17 +27,23 @@ public final class NodeContainerArray extends NodeContainer<NodeContainerArray>
         }
     });
     
-    @Override
-    public final void addElement(ElementKey<NodeContainerArray> key, NodeElement component)
+    public NodeContainerArray()
     {
-        if (component == null)
+        super(NodeContainerArrayElementKey.class);
+    }
+    @Override
+    public final void addElement(ElementKey<NodeContainerArray> key, NodeElement element)
+    {
+        if (element == null)
         {
             throw new NullPointerException();
         }
         NodeContainerArrayElementKey arrayKey = key.castKey(NodeContainerArrayElementKey.class);
         synchronized (elementArray)
         {
-            elementArray.put(arrayKey.getIndex(), component);
+            NodeElement previousElement = elementArray.put(arrayKey.getIndex(), element);
+            previousElement.removeFromParent();
+            setElementParent(element, arrayKey);
             modCount++;
         }
     }
@@ -74,7 +80,8 @@ public final class NodeContainerArray extends NodeContainer<NodeContainerArray>
             {
                 return false;
             }
-            elementArray.remove(arrayKey.getIndex());
+            NodeElement element = elementArray.remove(arrayKey.getIndex());
+            resetElementParent(element);
             modCount++;
             return true;
         }
@@ -93,6 +100,10 @@ public final class NodeContainerArray extends NodeContainer<NodeContainerArray>
         synchronized (elementArray)
         {
             modCount++;
+            for (Entry<Integer, NodeElement> entry : elementArray.entrySet())
+            {
+                resetElementParent(entry.getValue());
+            }
             elementArray.clear();
         }
     }
@@ -106,12 +117,12 @@ public final class NodeContainerArray extends NodeContainer<NodeContainerArray>
     {
         synchronized (elementArray)
         {
-           Set<Entry<ElementKey<NodeContainerArray>, NodeElement>> entrySet = new HashSet<Entry<ElementKey<NodeContainerArray>, NodeElement>>();
-           for(Entry<Integer, NodeElement> entry : elementArray.entrySet())
-           {
-               entrySet.add(new NodeContainerArrayEntry(entry.getKey()));
-           }
-           return Collections.unmodifiableSet(entrySet);
+            Set<Entry<ElementKey<NodeContainerArray>, NodeElement>> entrySet = new HashSet<Entry<ElementKey<NodeContainerArray>, NodeElement>>();
+            for (Entry<Integer, NodeElement> entry : elementArray.entrySet())
+            {
+                entrySet.add(new NodeContainerArrayEntry(entry.getKey()));
+            }
+            return Collections.unmodifiableSet(entrySet);
         }
     }
     public static NodeContainerArrayElementKey makeKey(int index)

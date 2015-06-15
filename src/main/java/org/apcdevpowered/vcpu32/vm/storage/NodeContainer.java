@@ -11,10 +11,17 @@ import org.apcdevpowered.vcpu32.vm.storage.exception.ElementTypeMismatchExceptio
 
 public abstract class NodeContainer<C extends NodeContainer<C>> extends NodeElement
 {
-    protected NodeContainer()
+    private final Class<? extends ElementKey<C>> keyType;
+    
+    protected NodeContainer(Class<? extends ElementKey<C>> keyType)
     {
+        this.keyType = keyType;
     }
-    public abstract void addElement(ElementKey<C> key, NodeElement component);
+    public final Class<? extends ElementKey<C>> getKeyType()
+    {
+        return keyType;
+    }
+    public abstract void addElement(ElementKey<C> key, NodeElement element);
     public abstract boolean hasElement(ElementKey<C> key);
     public abstract NodeElement getElement(ElementKey<C> key) throws ElementNotFoundException;
     public final <E extends NodeElement> E getElement(ElementKey<C> key, Class<E> clazz) throws ElementNotFoundException, ElementTypeMismatchException
@@ -51,4 +58,16 @@ public abstract class NodeContainer<C extends NodeContainer<C>> extends NodeElem
     public abstract void clearElement();
     public abstract Iterator<Entry<ElementKey<C>, NodeElement>> iterator();
     public abstract Set<Entry<ElementKey<C>, NodeElement>> entrySet();
+    protected void setElementParent(NodeElement element, ElementKey<C> key)
+    {
+        if (key == null)
+        {
+            throw new IllegalStateException(new NullPointerException());
+        }
+        element.setParent(key, this);
+    }
+    protected void resetElementParent(NodeElement element)
+    {
+        element.resetParent();
+    }
 }

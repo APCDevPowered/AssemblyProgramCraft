@@ -7,20 +7,47 @@ import org.apcdevpowered.vcpu32.vm.storage.exception.ElementTypeMismatchExceptio
 
 public abstract class NodeElement
 {
-    private ElementKey<?> key;
-    private NodeContainer<?> parent;
+    private transient Object parentLock = new Object();
+    private ElementParentCach<?> elementParentCach;
+    
+    private static final class ElementParentCach<C extends NodeContainer<C>>
+    {
+        private final ElementKey<C> key;
+        private final NodeContainer<C> parent;
+        
+        protected ElementParentCach(ElementKey<C> key, NodeContainer<C> parent)
+        {
+            this.key = key;
+            this.parent = parent;
+        }
+        public ElementKey<C> getKey()
+        {
+            return key;
+        }
+        public NodeContainer<C> getParent()
+        {
+            return parent;
+        }
+        public void removeFromParent()
+        {
+            parent.removeElement(key);
+        }
+    }
     
     protected NodeElement()
     {
     }
     public final NodeContainer<?> getParent()
     {
-        return parent;
+        synchronized(parentLock)
+        {
+            return elementParentCach == null ? null : elementParentCach.getParent();
+        }
     }
     public final <C extends NodeContainer<C>> C getParent(Class<C> clazz) throws ElementParentNotFoundException, ElementTypeMismatchException
     {
         NodeContainer<?> parent = getParent();
-        if(parent == null)
+        if (parent == null)
         {
             throw new ElementParentNotFoundException();
         }
@@ -40,16 +67,38 @@ public abstract class NodeElement
     }
     public final ElementKey<?> getKey()
     {
-        return key;
+        synchronized(parentLock)
+        {
+            return elementParentCach == null ? null : elementParentCach.getKey();
+        }
     }
-    protected void setParent(ElementKey<?> key, NodeContainer<?> parent)
+    public <E extends NodeElement> E castElemenet(Class<E> clazz)
     {
-        this.key = key;
-        this.parent = parent;
+        return clazz.cast(this);
+    }
+    public void removeFromParent()
+    {
+        synchronized (parentLock)
+        {
+            elementParentCach.removeFromParent();
+        }
+    }
+    protected <C extends NodeContainer<C>> void setParent(ElementKey<C> key, NodeContainer<C> parent)
+    {
+        if (key == null || parent == null)
+        {
+            throw new IllegalStateException(new NullPointerException());
+        }
+        synchronized (parentLock)
+        {
+            this.elementParentCach = new ElementParentCach<C>(key, parent);
+        }
     }
     protected void resetParent()
     {
-        key = null;
-        parent = null;
+        synchronized (parentLock)
+        {
+            elementParentCach = null;
+        }
     }
 }
