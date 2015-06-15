@@ -14,6 +14,7 @@ import org.apcdevpowered.vcpu32.vm.storage.ElementKey;
 import org.apcdevpowered.vcpu32.vm.storage.NodeContainer;
 import org.apcdevpowered.vcpu32.vm.storage.NodeElement;
 import org.apcdevpowered.vcpu32.vm.storage.exception.ElementNotFoundException;
+import org.apcdevpowered.vcpu32.vm.storage.exception.ElementTypeMismatchException;
 
 public final class NodeContainerMap extends NodeContainer<NodeContainerMap>
 {
@@ -101,7 +102,7 @@ public final class NodeContainerMap extends NodeContainer<NodeContainerMap>
         }
     }
     @Override
-    public Iterator<Entry<ElementKey<NodeContainerMap>, NodeElement>> iterator()
+    public NodeContainerMapIterator iterator()
     {
         return new NodeContainerMapIterator();
     }
@@ -141,12 +142,12 @@ public final class NodeContainerMap extends NodeContainer<NodeContainerMap>
             return key;
         }
     }
-    private final class NodeContainerMapIterator implements Iterator<Entry<ElementKey<NodeContainerMap>, NodeElement>>
+    public final class NodeContainerMapIterator implements Iterator<Entry<ElementKey<NodeContainerMap>, NodeElement>>
     {
         private int expectedModCount;
         private Iterator<Entry<String, NodeElement>> innerIterator;
-        private Entry<ElementKey<NodeContainerMap>, NodeElement> currentEntry;
-        private Entry<ElementKey<NodeContainerMap>, NodeElement> nextEntry;
+        private NodeContainerMapEntry currentEntry;
+        private NodeContainerMapEntry nextEntry;
         
         private NodeContainerMapIterator()
         {
@@ -166,7 +167,7 @@ public final class NodeContainerMap extends NodeContainer<NodeContainerMap>
             return nextEntry != null;
         }
         @Override
-        public Entry<ElementKey<NodeContainerMap>, NodeElement> next()
+        public NodeContainerMapEntry next()
         {
             return nextEntry();
         }
@@ -189,7 +190,7 @@ public final class NodeContainerMap extends NodeContainer<NodeContainerMap>
                 expectedModCount = modCount;
             }
         }
-        private Entry<ElementKey<NodeContainerMap>, NodeElement> nextEntry()
+        private final NodeContainerMapEntry nextEntry()
         {
             synchronized (elementMap)
             {
@@ -197,7 +198,7 @@ public final class NodeContainerMap extends NodeContainer<NodeContainerMap>
                 {
                     throw new ConcurrentModificationException();
                 }
-                Entry<ElementKey<NodeContainerMap>, NodeElement> entry = nextEntry;
+                NodeContainerMapEntry entry = nextEntry;
                 if (nextEntry == null)
                 {
                     throw new NoSuchElementException();
@@ -215,16 +216,16 @@ public final class NodeContainerMap extends NodeContainer<NodeContainerMap>
             }
         }
     }
-    private final class NodeContainerMapEntry implements Entry<ElementKey<NodeContainerMap>, NodeElement>
+    public final class NodeContainerMapEntry implements Entry<ElementKey<NodeContainerMap>, NodeElement>
     {
-        private final ElementKey<NodeContainerMap> key;
+        private final NodeContainerMapElementKey key;
         
         private NodeContainerMapEntry(String key)
         {
             this.key = makeKey(key);
         }
         @Override
-        public ElementKey<NodeContainerMap> getKey()
+        public NodeContainerMapElementKey getKey()
         {
             return key;
         }
@@ -236,6 +237,21 @@ public final class NodeContainerMap extends NodeContainer<NodeContainerMap>
                 return getElement(key);
             }
             catch (ElementNotFoundException e)
+            {
+                return null;
+            }
+        }
+        public <E extends NodeElement> E getValue(Class<E> clazz)
+        {
+            try
+            {
+                return getElement(key, clazz);
+            }
+            catch (ElementNotFoundException e)
+            {
+                return null;
+            }
+            catch (ElementTypeMismatchException e)
             {
                 return null;
             }

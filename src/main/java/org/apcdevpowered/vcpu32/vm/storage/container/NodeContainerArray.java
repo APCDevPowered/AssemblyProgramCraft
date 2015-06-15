@@ -14,6 +14,7 @@ import org.apcdevpowered.vcpu32.vm.storage.ElementKey;
 import org.apcdevpowered.vcpu32.vm.storage.NodeContainer;
 import org.apcdevpowered.vcpu32.vm.storage.NodeElement;
 import org.apcdevpowered.vcpu32.vm.storage.exception.ElementNotFoundException;
+import org.apcdevpowered.vcpu32.vm.storage.exception.ElementTypeMismatchException;
 
 public final class NodeContainerArray extends NodeContainer<NodeContainerArray>
 {
@@ -108,7 +109,7 @@ public final class NodeContainerArray extends NodeContainer<NodeContainerArray>
         }
     }
     @Override
-    public Iterator<Entry<ElementKey<NodeContainerArray>, NodeElement>> iterator()
+    public NodeContainerArrayIterator iterator()
     {
         return new NodeContainerArrayIterator();
     }
@@ -148,11 +149,11 @@ public final class NodeContainerArray extends NodeContainer<NodeContainerArray>
             return index;
         }
     }
-    private final class NodeContainerArrayIterator implements Iterator<Entry<ElementKey<NodeContainerArray>, NodeElement>>
+    public final class NodeContainerArrayIterator implements Iterator<Entry<ElementKey<NodeContainerArray>, NodeElement>>
     {
         private int expectedModCount;
-        private Entry<ElementKey<NodeContainerArray>, NodeElement> currentEntry;
-        private Entry<ElementKey<NodeContainerArray>, NodeElement> nextEntry;
+        private NodeContainerArrayEntry currentEntry;
+        private NodeContainerArrayEntry nextEntry;
         
         private NodeContainerArrayIterator()
         {
@@ -171,7 +172,7 @@ public final class NodeContainerArray extends NodeContainer<NodeContainerArray>
             return nextEntry != null;
         }
         @Override
-        public Entry<ElementKey<NodeContainerArray>, NodeElement> next()
+        public NodeContainerArrayEntry next()
         {
             return nextEntry();
         }
@@ -192,7 +193,7 @@ public final class NodeContainerArray extends NodeContainer<NodeContainerArray>
                 expectedModCount = modCount;
             }
         }
-        private Entry<ElementKey<NodeContainerArray>, NodeElement> nextEntry()
+        private final NodeContainerArrayEntry nextEntry()
         {
             synchronized (elementArray)
             {
@@ -200,7 +201,7 @@ public final class NodeContainerArray extends NodeContainer<NodeContainerArray>
                 {
                     throw new ConcurrentModificationException();
                 }
-                Entry<ElementKey<NodeContainerArray>, NodeElement> entry = nextEntry;
+                NodeContainerArrayEntry entry = nextEntry;
                 if (nextEntry == null)
                 {
                     throw new NoSuchElementException();
@@ -219,16 +220,16 @@ public final class NodeContainerArray extends NodeContainer<NodeContainerArray>
             }
         }
     }
-    private final class NodeContainerArrayEntry implements Entry<ElementKey<NodeContainerArray>, NodeElement>
+    public final class NodeContainerArrayEntry implements Entry<ElementKey<NodeContainerArray>, NodeElement>
     {
-        private final ElementKey<NodeContainerArray> key;
+        private final NodeContainerArrayElementKey key;
         
         private NodeContainerArrayEntry(int index)
         {
             key = makeKey(index);
         }
         @Override
-        public ElementKey<NodeContainerArray> getKey()
+        public NodeContainerArrayElementKey getKey()
         {
             return key;
         }
@@ -240,6 +241,21 @@ public final class NodeContainerArray extends NodeContainer<NodeContainerArray>
                 return getElement(key);
             }
             catch (ElementNotFoundException e)
+            {
+                return null;
+            }
+        }
+        public <E extends NodeElement> E getValue(Class<E> clazz)
+        {
+            try
+            {
+                return getElement(key, clazz);
+            }
+            catch (ElementNotFoundException e)
+            {
+                return null;
+            }
+            catch (ElementTypeMismatchException e)
             {
                 return null;
             }
