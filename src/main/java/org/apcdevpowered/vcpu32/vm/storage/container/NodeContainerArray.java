@@ -126,6 +126,24 @@ public final class NodeContainerArray extends NodeContainer<NodeContainerArray>
             return Collections.unmodifiableSet(entrySet);
         }
     }
+    public final void add(NodeElement element)
+    {
+        synchronized (elementArray)
+        {
+            addElement(makeKey(length()), element);
+        }
+    }
+    public final int length()
+    {
+        synchronized (elementArray)
+        {
+            if(elementArray.isEmpty())
+            {
+                return 0;
+            }
+            return elementArray.lastKey();
+        }
+    }
     @Override
     public int hashCode()
     {
