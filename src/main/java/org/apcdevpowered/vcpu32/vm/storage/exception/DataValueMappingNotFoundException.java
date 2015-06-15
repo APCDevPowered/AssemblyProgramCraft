@@ -10,7 +10,7 @@ public class DataValueMappingNotFoundException extends IOException
     public DataValueMappingNotFoundException(int dataValue)
     {
         super("Data value mapping not found. Data value " + dataValue + ".");
-        this.dataValue =dataValue;
+        this.dataValue = dataValue;
     }
     public int getDataValue()
     {

@@ -23,11 +23,11 @@ public class ElementTypeDataValueMapping
         }
         synchronized (mappingLock)
         {
-            if(typeMapping.containsKey(element))
+            if (typeMapping.containsKey(element))
             {
                 throw new IllegalStateException();
             }
-            if(dataValueMapping.containsKey(dataValue))
+            if (dataValueMapping.containsKey(dataValue))
             {
                 throw new IllegalStateException();
             }

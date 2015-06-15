@@ -39,7 +39,7 @@ public abstract class NodeElement
     }
     public final NodeContainer<?> getParent()
     {
-        synchronized(parentLock)
+        synchronized (parentLock)
         {
             return elementParentCach == null ? null : elementParentCach.getParent();
         }
@@ -67,13 +67,17 @@ public abstract class NodeElement
     }
     public final ElementKey<?> getKey()
     {
-        synchronized(parentLock)
+        synchronized (parentLock)
         {
             return elementParentCach == null ? null : elementParentCach.getKey();
         }
     }
-    public <E extends NodeElement> E castElemenet(Class<E> clazz)
+    public <E extends NodeElement> E castElemenet(Class<E> clazz) throws ElementTypeMismatchException
     {
+        if(!clazz.isAssignableFrom(this.getClass()))
+        {
+            throw new ElementTypeMismatchException(this.getClass(), clazz);
+        }
         return clazz.cast(this);
     }
     public void removeFromParent()

@@ -179,9 +179,9 @@ public class BaseNodeDataPersistenceImpl extends NodeDataPersistence
         if (mappingType.equals(NodeContainerArray.class))
         {
             NodeContainerArray container = ((NodeContainerArray) element);
-            Set<Entry<ElementKey<NodeContainerArray>, NodeElement>>  entrySet = container.entrySet();
+            Set<Entry<ElementKey<NodeContainerArray>, NodeElement>> entrySet = container.entrySet();
             StreamHelper.writeInt(stream, entrySet.size());
-            for(Entry<ElementKey<NodeContainerArray>, NodeElement> entry : entrySet)
+            for (Entry<ElementKey<NodeContainerArray>, NodeElement> entry : entrySet)
             {
                 StreamHelper.writeInt(stream, entry.getKey().castKey(NodeContainerArrayElementKey.class).getIndex());
                 writeElement(stream, element);
@@ -190,9 +190,9 @@ public class BaseNodeDataPersistenceImpl extends NodeDataPersistence
         if (mappingType.equals(NodeContainerMap.class))
         {
             NodeContainerMap container = ((NodeContainerMap) element);
-            Set<Entry<ElementKey<NodeContainerMap>, NodeElement>>  entrySet = container.entrySet();
+            Set<Entry<ElementKey<NodeContainerMap>, NodeElement>> entrySet = container.entrySet();
             StreamHelper.writeInt(stream, entrySet.size());
-            for(Entry<ElementKey<NodeContainerMap>, NodeElement> entry : entrySet)
+            for (Entry<ElementKey<NodeContainerMap>, NodeElement> entry : entrySet)
             {
                 StreamHelper.writeString(stream, entry.getKey().castKey(NodeContainerMapElementKey.class).getKey());
                 writeElement(stream, element);
