@@ -118,7 +118,7 @@ public abstract class NodeContainer<C extends NodeContainer<C>> extends NodeElem
     public abstract int countElement();
     public abstract void clearElement();
     public abstract Iterator<Entry<ElementKey<C>, NodeElement>> iterator();
-    public abstract Set<Entry<ElementKey<C>, NodeElement>> entrySet();
+    public abstract Set<? extends Entry<ElementKey<C>, NodeElement>> entrySet();
     protected void setElementParent(NodeElement element, ElementKey<C> key)
     {
         if (key == null)

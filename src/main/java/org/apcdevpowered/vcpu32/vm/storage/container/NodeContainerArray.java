@@ -123,11 +123,11 @@ public final class NodeContainerArray extends NodeContainer<NodeContainerArray>
         return new NodeContainerArrayIterator();
     }
     @Override
-    public Set<Entry<ElementKey<NodeContainerArray>, NodeElement>> entrySet()
+    public Set<NodeContainerArrayEntry> entrySet()
     {
         synchronized (elementArray)
         {
-            Set<Entry<ElementKey<NodeContainerArray>, NodeElement>> entrySet = new HashSet<Entry<ElementKey<NodeContainerArray>, NodeElement>>();
+            Set<NodeContainerArrayEntry> entrySet = new HashSet<NodeContainerArrayEntry>();
             for (Entry<Integer, NodeElement> entry : elementArray.entrySet())
             {
                 entrySet.add(new NodeContainerArrayEntry(entry.getKey()));

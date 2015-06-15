@@ -107,11 +107,11 @@ public final class NodeContainerMap extends NodeContainer<NodeContainerMap>
         return new NodeContainerMapIterator();
     }
     @Override
-    public Set<Entry<ElementKey<NodeContainerMap>, NodeElement>> entrySet()
+    public Set<NodeContainerMapEntry> entrySet()
     {
         synchronized (elementMap)
         {
-            Set<Entry<ElementKey<NodeContainerMap>, NodeElement>> entrySet = new HashSet<Entry<ElementKey<NodeContainerMap>, NodeElement>>();
+            Set<NodeContainerMapEntry> entrySet = new HashSet<NodeContainerMapEntry>();
             for (Entry<String, NodeElement> entry : elementMap.entrySet())
             {
                 entrySet.add(new NodeContainerMapEntry(entry.getKey()));

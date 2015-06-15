@@ -3,16 +3,16 @@ package org.apcdevpowered.vcpu32.vm.storage.persistence;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apcdevpowered.util.io.StreamHelper;
-import org.apcdevpowered.vcpu32.vm.storage.ElementKey;
 import org.apcdevpowered.vcpu32.vm.storage.NodeElement;
 import org.apcdevpowered.vcpu32.vm.storage.container.NodeContainerArray;
 import org.apcdevpowered.vcpu32.vm.storage.container.NodeContainerArray.NodeContainerArrayElementKey;
+import org.apcdevpowered.vcpu32.vm.storage.container.NodeContainerArray.NodeContainerArrayEntry;
 import org.apcdevpowered.vcpu32.vm.storage.container.NodeContainerMap;
 import org.apcdevpowered.vcpu32.vm.storage.container.NodeContainerMap.NodeContainerMapElementKey;
+import org.apcdevpowered.vcpu32.vm.storage.container.NodeContainerMap.NodeContainerMapEntry;
 import org.apcdevpowered.vcpu32.vm.storage.exception.DataValueMappingNotFoundException;
 import org.apcdevpowered.vcpu32.vm.storage.exception.ElementTypeMappingNotFoundException;
 import org.apcdevpowered.vcpu32.vm.storage.exception.ElementTypeMismatchException;
@@ -190,9 +190,9 @@ public class BaseNodeDataPersistenceImpl extends NodeDataPersistence
         else if (mappingType.equals(NodeContainerArray.class))
         {
             NodeContainerArray container = ((NodeContainerArray) element);
-            Set<Entry<ElementKey<NodeContainerArray>, NodeElement>> entrySet = container.entrySet();
+            Set<NodeContainerArrayEntry> entrySet = container.entrySet();
             StreamHelper.writeInt(stream, entrySet.size());
-            for (Entry<ElementKey<NodeContainerArray>, NodeElement> entry : entrySet)
+            for (NodeContainerArrayEntry entry : entrySet)
             {
                 StreamHelper.writeInt(stream, entry.getKey().castKey(NodeContainerArrayElementKey.class).getIndex());
                 writeElement(stream, element);
@@ -201,9 +201,9 @@ public class BaseNodeDataPersistenceImpl extends NodeDataPersistence
         else if (mappingType.equals(NodeContainerMap.class))
         {
             NodeContainerMap container = ((NodeContainerMap) element);
-            Set<Entry<ElementKey<NodeContainerMap>, NodeElement>> entrySet = container.entrySet();
+            Set<NodeContainerMapEntry> entrySet = container.entrySet();
             StreamHelper.writeInt(stream, entrySet.size());
-            for (Entry<ElementKey<NodeContainerMap>, NodeElement> entry : entrySet)
+            for (NodeContainerMapEntry entry : entrySet)
             {
                 StreamHelper.writeString(stream, entry.getKey().castKey(NodeContainerMapElementKey.class).getKey());
                 writeElement(stream, element);
