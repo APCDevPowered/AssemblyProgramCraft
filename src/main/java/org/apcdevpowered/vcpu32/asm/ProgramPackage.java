@@ -1,5 +1,7 @@
 package org.apcdevpowered.vcpu32.asm;
 
+import org.apcdevpowered.vcpu32.vm.storage.container.NodeContainerMap;
+
 import net.minecraft.nbt.NBTTagCompound;
 
 public class ProgramPackage
@@ -35,6 +37,14 @@ public class ProgramPackage
         this.startStaticRAM = startStaticRAMOffset;
         this.programName = programName;
         this.debugInfo = debugInfo;
+    }
+    public void writeToNode(NodeContainerMap nodeContainerMap)
+    {
+        
+    }
+    public void readFromNode(NodeContainerMap nodeContainerMap)
+    {
+        
     }
     public void writeToNBT(NBTTagCompound programPackageNBTTagCompound)
     {

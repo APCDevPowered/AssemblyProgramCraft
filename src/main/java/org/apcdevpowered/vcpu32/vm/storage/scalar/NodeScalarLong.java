@@ -25,4 +25,38 @@ public final class NodeScalarLong extends NodeScalar<NodeScalarLong>
     {
         this.data = data;
     }
+    @Override
+    public int hashCode()
+    {
+        int result = 1;
+        result = result * 31 + (int) (data ^ (data >>> 32));
+        return result;
+    }
+    @Override
+    public boolean equals(Object obj)
+    {
+        if (obj == null)
+        {
+            throw new NullPointerException();
+        }
+        if (obj == this)
+        {
+            return true;
+        }
+        if (obj instanceof NodeScalarLong)
+        {
+            NodeScalarLong scalar = ((NodeScalarLong) obj);
+            if (scalar.data != data)
+            {
+                return false;
+            }
+            return true;
+        }
+        return false;
+    }
+    @Override
+    public String toString()
+    {
+        return "{data:" + data + "}";
+    }
 }

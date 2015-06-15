@@ -119,6 +119,40 @@ public final class NodeContainerMap extends NodeContainer<NodeContainerMap>
             return Collections.unmodifiableSet(entrySet);
         }
     }
+    @Override
+    public int hashCode()
+    {
+        int result = 1;
+        result = result * 31 + elementMap.hashCode();
+        return result;
+    }
+    @Override
+    public boolean equals(Object obj)
+    {
+        if (obj == null)
+        {
+            throw new NullPointerException();
+        }
+        if (obj == this)
+        {
+            return true;
+        }
+        if (obj instanceof NodeContainerMap)
+        {
+            NodeContainerMap container = ((NodeContainerMap) obj);
+            if (container.elementMap.equals(elementMap))
+            {
+                return false;
+            }
+            return true;
+        }
+        return false;
+    }
+    @Override
+    public String toString()
+    {
+        return "{elementMap:" + elementMap + "}";
+    }
     public static NodeContainerMapElementKey makeKey(String key)
     {
         return new NodeContainerMapElementKey(key);
@@ -140,6 +174,40 @@ public final class NodeContainerMap extends NodeContainer<NodeContainerMap>
         public String getKey()
         {
             return key;
+        }
+        @Override
+        public int hashCode()
+        {
+            int result = 1;
+            result = result * 31 + key.hashCode();
+            return result;
+        }
+        @Override
+        public boolean equals(Object obj)
+        {
+            if (obj == null)
+            {
+                throw new NullPointerException();
+            }
+            if (obj == this)
+            {
+                return true;
+            }
+            if (obj instanceof NodeContainerMapElementKey)
+            {
+                NodeContainerMapElementKey elementKey = ((NodeContainerMapElementKey) obj);
+                if (elementKey.key != key)
+                {
+                    return false;
+                }
+                return true;
+            }
+            return false;
+        }
+        @Override
+        public String toString()
+        {
+            return "{key:" + key + "}";
         }
     }
     public final class NodeContainerMapIterator implements Iterator<Entry<ElementKey<NodeContainerMap>, NodeElement>>

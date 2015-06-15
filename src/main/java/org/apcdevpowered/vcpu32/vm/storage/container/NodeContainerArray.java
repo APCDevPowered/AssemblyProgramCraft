@@ -126,6 +126,40 @@ public final class NodeContainerArray extends NodeContainer<NodeContainerArray>
             return Collections.unmodifiableSet(entrySet);
         }
     }
+    @Override
+    public int hashCode()
+    {
+        int result = 1;
+        result = result * 31 + elementArray.hashCode();
+        return result;
+    }
+    @Override
+    public boolean equals(Object obj)
+    {
+        if (obj == null)
+        {
+            throw new NullPointerException();
+        }
+        if (obj == this)
+        {
+            return true;
+        }
+        if (obj instanceof NodeContainerArray)
+        {
+            NodeContainerArray container = ((NodeContainerArray) obj);
+            if (container.elementArray.equals(elementArray))
+            {
+                return false;
+            }
+            return true;
+        }
+        return false;
+    }
+    @Override
+    public String toString()
+    {
+        return "{elementArray:" + elementArray + "}";
+    }
     public static NodeContainerArrayElementKey makeKey(int index)
     {
         return new NodeContainerArrayElementKey(index);
@@ -147,6 +181,40 @@ public final class NodeContainerArray extends NodeContainer<NodeContainerArray>
         public int getIndex()
         {
             return index;
+        }
+        @Override
+        public int hashCode()
+        {
+            int result = 1;
+            result = result * 31 + index;
+            return result;
+        }
+        @Override
+        public boolean equals(Object obj)
+        {
+            if (obj == null)
+            {
+                throw new NullPointerException();
+            }
+            if (obj == this)
+            {
+                return true;
+            }
+            if (obj instanceof NodeContainerArrayElementKey)
+            {
+                NodeContainerArrayElementKey elementKey = ((NodeContainerArrayElementKey) obj);
+                if (elementKey.index != index)
+                {
+                    return false;
+                }
+                return true;
+            }
+            return false;
+        }
+        @Override
+        public String toString()
+        {
+            return "{index:" + index + "}";
         }
     }
     public final class NodeContainerArrayIterator implements Iterator<Entry<ElementKey<NodeContainerArray>, NodeElement>>

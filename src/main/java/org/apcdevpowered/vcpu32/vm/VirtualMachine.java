@@ -10,6 +10,7 @@ import java.util.Map.Entry;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+
 import org.apcdevpowered.vcpu32.asm.ProgramPackage;
 import org.apcdevpowered.vcpu32.vm.debugger.impl.ThreadReferenceImpl;
 import org.apcdevpowered.vcpu32.vm.debugger.impl.VirtualMachineReferenceImpl;
@@ -22,6 +23,7 @@ import org.apcdevpowered.vcpu32.vm.debugger.impl.event.VMStartEventImpl;
 import org.apcdevpowered.vcpu32.vm.debugger.impl.request.ThreadDeathRequestImpl;
 import org.apcdevpowered.vcpu32.vm.debugger.impl.request.ThreadStartRequestImpl;
 import org.apcdevpowered.vcpu32.vm.debugger.impl.request.VMDeathRequestImpl;
+import org.apcdevpowered.vcpu32.vm.storage.container.NodeContainerMap;
 
 public class VirtualMachine
 {
@@ -673,6 +675,14 @@ public class VirtualMachine
         {
             return Collections.unmodifiableList(new ArrayList<Monitor>(monitorList.values()));
         }
+    }
+    public synchronized void writeDataToNode(NodeContainerMap nodeContainerMap)
+    {
+        
+    }
+    public synchronized void readDataFromNode(NodeContainerMap nodeContainerMap)
+    {
+        
     }
     public synchronized void writeDataToNBT(NBTTagCompound nbtTagCompound)
     {

@@ -25,4 +25,38 @@ public final class NodeScalarInteger extends NodeScalar<NodeScalarInteger>
     {
         this.data = data;
     }
+    @Override
+    public int hashCode()
+    {
+        int result = 1;
+        result = result * 31 + data;
+        return result;
+    }
+    @Override
+    public boolean equals(Object obj)
+    {
+        if (obj == null)
+        {
+            throw new NullPointerException();
+        }
+        if (obj == this)
+        {
+            return true;
+        }
+        if (obj instanceof NodeScalarInteger)
+        {
+            NodeScalarInteger scalar = ((NodeScalarInteger) obj);
+            if (scalar.data != data)
+            {
+                return false;
+            }
+            return true;
+        }
+        return false;
+    }
+    @Override
+    public String toString()
+    {
+        return "{data:" + data + "}";
+    }
 }

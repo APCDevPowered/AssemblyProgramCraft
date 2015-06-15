@@ -74,7 +74,7 @@ public abstract class NodeElement
     }
     public <E extends NodeElement> E castElemenet(Class<E> clazz) throws ElementTypeMismatchException
     {
-        if(!clazz.isAssignableFrom(this.getClass()))
+        if (!clazz.isAssignableFrom(this.getClass()))
         {
             throw new ElementTypeMismatchException(this.getClass(), clazz);
         }
