@@ -4,6 +4,12 @@ import java.util.Arrays;
 import java.util.HashMap;
 
 import org.apcdevpowered.vcpu32.vm.debugger.impl.MemoryReferenceImpl;
+import org.apcdevpowered.vcpu32.vm.storage.container.NodeContainerArray;
+import org.apcdevpowered.vcpu32.vm.storage.container.NodeContainerArray.NodeContainerArrayEntry;
+import org.apcdevpowered.vcpu32.vm.storage.container.NodeContainerMap;
+import org.apcdevpowered.vcpu32.vm.storage.exception.ElementNotFoundException;
+import org.apcdevpowered.vcpu32.vm.storage.exception.ElementTypeMismatchException;
+import org.apcdevpowered.vcpu32.vm.storage.scalar.NodeScalarIntegerArray;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
@@ -12,30 +18,30 @@ public class AdvancedRAMArray
 {
     private VirtualMachine vm;
     private int[] ram;
-    private HashMap<Integer,MappingInfo> mappingList;
+    private HashMap<Integer, MappingInfo> mappingList;
     
     public AdvancedRAMArray(VirtualMachine vm)
     {
-       this(vm, 0);
+        this(vm, 0);
     }
     public AdvancedRAMArray(VirtualMachine vm, int size)
     {
         this.vm = vm;
         this.ram = new int[size];
-        this.mappingList = new HashMap<Integer,MappingInfo>();
+        this.mappingList = new HashMap<Integer, MappingInfo>();
     }
     public synchronized int[] getValues(int idx, int length)
     {
-        if(idx + length - 1 >= ram.length || idx < 0 || length < 0)
+        if (idx + length - 1 >= ram.length || idx < 0 || length < 0)
         {
             System.out.println("[VCPU-32]内存寻址超出范围");
             return null;
         }
         int temp[] = new int[length];
-        for(int i = 0; i < length; i++)
+        for (int i = 0; i < length; i++)
         {
             MappingInfo mappingInfo = getMapping(idx + i);
-            if(mappingInfo == null)
+            if (mappingInfo == null)
             {
                 temp[i] = ram[idx + i];
             }
@@ -43,7 +49,7 @@ public class AdvancedRAMArray
             {
                 int inputLength = Math.min(mappingInfo.mappingLength, temp.length - i);
                 int[] inputsValue = vm.inputsValueFormDevices(mappingInfo.mappingDevice, mappingInfo.getDeviceMappingIdx(idx + i), inputLength);
-                if(inputsValue != null)
+                if (inputsValue != null)
                 {
                     System.arraycopy(inputsValue, 0, temp, i, inputLength);
                 }
@@ -54,15 +60,15 @@ public class AdvancedRAMArray
     }
     public synchronized boolean setValues(int idx, int startIdx, int length, int values[])
     {
-        if(idx + length - 1 >= ram.length || idx < 0 || startIdx < 0 || length < 0 || startIdx + length - 1 >= values.length)
+        if (idx + length - 1 >= ram.length || idx < 0 || startIdx < 0 || length < 0 || startIdx + length - 1 >= values.length)
         {
             System.out.println("[VCPU-32]内存寻址超出范围");
             return false;
         }
-        for(int i = 0; i < length; i++)
+        for (int i = 0; i < length; i++)
         {
             MappingInfo mappingInfo = getMapping(idx + i);
-            if(mappingInfo == null)
+            if (mappingInfo == null)
             {
                 ram[idx + i] = values[startIdx + i];
             }
@@ -79,13 +85,13 @@ public class AdvancedRAMArray
     }
     public synchronized int getValue(int idx)
     {
-        if(idx >= ram.length || idx < 0)
+        if (idx >= ram.length || idx < 0)
         {
             System.out.println("[VCPU-32]内存寻址超出范围");
             return 0;
         }
         MappingInfo mappingInfo = getMapping(idx);
-        if(mappingInfo == null)
+        if (mappingInfo == null)
         {
             return ram[idx];
         }
@@ -96,13 +102,13 @@ public class AdvancedRAMArray
     }
     public synchronized boolean setValue(int idx, int value)
     {
-        if(idx >= ram.length || idx < 0)
+        if (idx >= ram.length || idx < 0)
         {
             System.out.println("[VCPU-32]内存寻址超出范围");
             return false;
         }
         MappingInfo mappingInfo = getMapping(idx);
-        if(mappingInfo == null)
+        if (mappingInfo == null)
         {
             ram[idx] = value;
         }
@@ -115,8 +121,7 @@ public class AdvancedRAMArray
     public String readStringFromAddress(int address)
     {
         int ramSize = this.getSize();
-        
-        if(address >= ramSize)
+        if (address >= ramSize)
         {
             return null;
         }
@@ -124,7 +129,7 @@ public class AdvancedRAMArray
         int length = this.getValue(address);
         boolean halfEnding = length % 2 == 1;
         int end = (halfEnding ? ((length + 1) / 2) : (length / 2)) + address;
-        if(end >= ramSize)
+        if (end >= ramSize)
         {
             return null;
         }
@@ -148,8 +153,7 @@ public class AdvancedRAMArray
     public boolean writeStringToAddress(int address, String string)
     {
         int ramSize = this.getSize();
-        
-        if(address >= ramSize)
+        if (address >= ramSize)
         {
             return false;
         }
@@ -157,17 +161,17 @@ public class AdvancedRAMArray
         int length = charArray.length;
         boolean halfEnding = length % 2 == 1;
         int end = (halfEnding ? ((length + 1) / 2) : (length / 2)) + address;
-        if(end >= ramSize)
+        if (end >= ramSize)
         {
             return false;
         }
         this.setValue(address, length);
         int charAt = 0;
-        while(true)
+        while (true)
         {
             int current = charAt / 2 + address + 1;
             int value = 0;
-            if(charAt < length)
+            if (charAt < length)
             {
                 value |= charArray[charAt] << 16;
                 charAt++;
@@ -177,7 +181,7 @@ public class AdvancedRAMArray
                 this.setValue(current, value);
                 break;
             }
-            if(charAt < length)
+            if (charAt < length)
             {
                 value |= charArray[charAt] << 0;
                 charAt++;
@@ -188,7 +192,7 @@ public class AdvancedRAMArray
                 break;
             }
             this.setValue(current, value);
-            if(charAt >= length)
+            if (charAt >= length)
             {
                 break;
             }
@@ -202,27 +206,27 @@ public class AdvancedRAMArray
     }
     public synchronized boolean addMapping(int mappingDevice, int mappingDeviceRAM, int mappingLength, int mappingRAMStart)
     {
-        if(mappingDevice < 0)
+        if (mappingDevice < 0)
         {
             System.out.println("[VCPU-32]设备ID不能小于0");
             return false;
         }
-        if(mappingDeviceRAM < 0)
+        if (mappingDeviceRAM < 0)
         {
             System.out.println("[VCPU-32]设备ID映射地址不能小于0");
             return false;
         }
-        if(mappingLength < 0)
+        if (mappingLength < 0)
         {
             System.out.println("[VCPU-32]设备ID映射长度不能小于0");
             return false;
         }
-        if(mappingRAMStart < 0)
+        if (mappingRAMStart < 0)
         {
             System.out.println("[VCPU-32]内存ID映射地址不能小于0");
             return false;
         }
-        if(mappingRAMStart + mappingLength - 1 >= ram.length || mappingRAMStart < 0)
+        if (mappingRAMStart + mappingLength - 1 >= ram.length || mappingRAMStart < 0)
         {
             System.out.println("[VCPU-32]内存寻址超出范围");
             return false;
@@ -232,15 +236,15 @@ public class AdvancedRAMArray
         mi.mappingDeviceRAM = mappingDeviceRAM;
         mi.mappingLength = mappingLength;
         mi.mappingRAMStart = mappingRAMStart;
-        for(MappingInfo tempMI : mappingList.values())
+        for (MappingInfo tempMI : mappingList.values())
         {
-            if(!mi.verifyNotDuplicateConflict(tempMI))
+            if (!mi.verifyNotDuplicateConflict(tempMI))
             {
                 System.out.println("[VCPU-32]尝试映射 [" + mappingRAMStart + "] - [" + (mappingRAMStart + mappingLength - 1) + "] 到外置设备 " + mappingDevice + " 的内存 [" + mappingDeviceRAM + "] - [" + (mappingDeviceRAM + mappingLength - 1) + "] 时冲突");
                 return false;
             }
         }
-        for(int i = 0;i < mappingLength;i++)
+        for (int i = 0; i < mappingLength; i++)
         {
             ram[mappingRAMStart + i] = 0;
         }
@@ -251,7 +255,7 @@ public class AdvancedRAMArray
     public synchronized boolean removeMapping(int idx)
     {
         MappingInfo mi = mappingList.get(idx);
-        if(mi == null)
+        if (mi == null)
         {
             return false;
         }
@@ -268,23 +272,49 @@ public class AdvancedRAMArray
     }
     private MappingInfo getMapping(int idx)
     {
-        for(MappingInfo mappingInfo : mappingList.values())
+        for (MappingInfo mappingInfo : mappingList.values())
         {
-            if(mappingInfo.verifyInMapping(idx) == true)
+            if (mappingInfo.verifyInMapping(idx) == true)
             {
                 return mappingInfo;
             }
         }
         return null;
     }
+    public synchronized void writeToNode(NodeContainerMap ramNodeContainerMap)
+    {
+        int[] temp = new int[ram.length];
+        System.arraycopy(ram, 0, temp, 0, ram.length);
+        ramNodeContainerMap.addElement(NodeContainerMap.makeKey("ram"), temp);
+        NodeContainerArray mappingListNodeContainerArray = new NodeContainerArray();
+        for (MappingInfo tempMappingInfo : mappingList.values())
+        {
+            NodeContainerMap mappingInfoNodeContainerMap = new NodeContainerMap();
+            tempMappingInfo.writeToNode(mappingInfoNodeContainerMap);
+            mappingListNodeContainerArray.add(mappingInfoNodeContainerMap);
+        }
+        ramNodeContainerMap.addElement(NodeContainerMap.makeKey("mappingList"), mappingListNodeContainerArray);
+    }
+    public synchronized void readFromNode(NodeContainerMap ramNodeContainerMap) throws ElementNotFoundException, ElementTypeMismatchException
+    {
+        ram = ramNodeContainerMap.getElement(NodeContainerMap.makeKey("ram"), NodeScalarIntegerArray.class).getData();
+        NodeContainerArray mappingListNodeContainerArray = ramNodeContainerMap.getArray(NodeContainerMap.makeKey("mappingList"));
+        for (NodeContainerArrayEntry entry : mappingListNodeContainerArray.entrySet())
+        {
+            NodeContainerMap mappingInfoNodeContainerMap = entry.getValue().castElemenet(NodeContainerMap.class);
+            MappingInfo mappingInfo = new MappingInfo(vm);
+            mappingInfo.readFormNode(mappingInfoNodeContainerMap);
+            mappingList.put(mappingInfo.mappingRAMStart, mappingInfo);
+        }
+    }
+    @Deprecated
     public synchronized void writeToNBT(NBTTagCompound ramNbtTagCompound)
     {
         int[] temp = new int[ram.length];
         System.arraycopy(ram, 0, temp, 0, ram.length);
         ramNbtTagCompound.setIntArray("ram", temp);
-        
         NBTTagList mappingListNbtTagList = new NBTTagList();
-        for(MappingInfo tempMI : mappingList.values())
+        for (MappingInfo tempMI : mappingList.values())
         {
             NBTTagCompound mappingInfoNbtTagCompound = new NBTTagCompound();
             tempMI.writeToNBT(mappingInfoNbtTagCompound);
@@ -292,15 +322,15 @@ public class AdvancedRAMArray
         }
         ramNbtTagCompound.setTag("mappingList", mappingListNbtTagList);
     }
+    @Deprecated
     public synchronized void readFromNBT(NBTTagCompound ramNbtTagCompound)
     {
         ram = ramNbtTagCompound.getIntArray("ram");
-        
         NBTTagList mappingListNbtTagList = ramNbtTagCompound.getTagList("mappingList", 10);
-        for(int i = 0;i < mappingListNbtTagList.tagCount();i++)
+        for (int i = 0; i < mappingListNbtTagList.tagCount(); i++)
         {
             NBTTagCompound mappingInfoNbtTagCompound = mappingListNbtTagList.getCompoundTagAt(i);
-            if(mappingInfoNbtTagCompound == null)
+            if (mappingInfoNbtTagCompound == null)
             {
                 break;
             }
@@ -309,7 +339,6 @@ public class AdvancedRAMArray
             mappingList.put(mappingInfoNbtTagCompound.getInteger("mappingRAMStart"), mi);
         }
     }
-    
     public int[] getInnerArray()
     {
         return ram;
@@ -320,9 +349,9 @@ public class AdvancedRAMArray
     
     public MemoryReferenceImpl getReference()
     {
-        synchronized(referenceInitLock)
+        synchronized (referenceInitLock)
         {
-            if(reference == null)
+            if (reference == null)
             {
                 reference = new MemoryReferenceImpl(vm.getReference(), this);
             }

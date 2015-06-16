@@ -13,6 +13,7 @@ public class VMDataHelper
      * @param vm
      *            The VirtualMachine read from.
      */
+    @Deprecated
     public static void writeToNBT(NBTTagCompound nbttagcompound, VirtualMachine vm)
     {
         vm.writeDataToNBT(nbttagcompound);
@@ -25,6 +26,7 @@ public class VMDataHelper
      * @param vm
      *            The VirtualMachine write to.
      */
+    @Deprecated
     public static void readFormNBT(NBTTagCompound nbttagcompound, VirtualMachine vm)
     {
         vm.readDataFormNBT(nbttagcompound);
