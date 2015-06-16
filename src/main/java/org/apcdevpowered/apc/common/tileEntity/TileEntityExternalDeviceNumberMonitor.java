@@ -13,7 +13,7 @@ import net.minecraft.util.EnumFacing;
 public class TileEntityExternalDeviceNumberMonitor extends TileEntityExternalDevice
 {
     public volatile boolean needSync;
-    public int number;
+    public volatile int number;
     public ExternalDeviceNumberMonitor externalDeviceNumberMonitor = new ExternalDeviceNumberMonitor(this);
     
     public TileEntityExternalDeviceNumberMonitor()
