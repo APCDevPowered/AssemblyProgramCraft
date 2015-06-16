@@ -5,7 +5,7 @@ import org.apcdevpowered.vcpu32.vm.storage.container.NodeContainerMap;
 import org.apcdevpowered.vcpu32.vm.storage.exception.ElementParentNotFoundException;
 import org.apcdevpowered.vcpu32.vm.storage.exception.ElementTypeMismatchException;
 
-public abstract class NodeElement
+public abstract class NodeElement implements Cloneable
 {
     private transient Object parentLock = new Object();
     private ElementParentCach<?> elementParentCach;

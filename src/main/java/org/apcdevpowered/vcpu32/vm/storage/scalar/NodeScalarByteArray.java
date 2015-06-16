@@ -65,4 +65,9 @@ public final class NodeScalarByteArray extends NodeScalar<NodeScalarByteArray>
     {
         return "{data:" + Arrays.toString(data) + "}";
     }
+    @Override
+    public NodeScalarByteArray clone()
+    {
+        return new NodeScalarByteArray(data.clone());
+    }
 }

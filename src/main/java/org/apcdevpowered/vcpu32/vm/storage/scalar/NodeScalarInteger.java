@@ -59,4 +59,9 @@ public final class NodeScalarInteger extends NodeScalar<NodeScalarInteger>
     {
         return "{data:" + data + "}";
     }
+    @Override
+    public NodeScalarInteger clone()
+    {
+        return new NodeScalarInteger(data);
+    }
 }

@@ -59,4 +59,9 @@ public final class NodeScalarFloat extends NodeScalar<NodeScalarFloat>
     {
         return "{data:" + data + "}";
     }
+    @Override
+    public NodeScalarFloat clone()
+    {
+        return new NodeScalarFloat(data);
+    }
 }

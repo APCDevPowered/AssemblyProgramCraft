@@ -5,11 +5,11 @@ import java.util.ConcurrentModificationException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.Map.Entry;
 
+import org.apcdevpowered.util.reflection.GenericsUtil;
 import org.apcdevpowered.vcpu32.vm.storage.ElementKey;
 import org.apcdevpowered.vcpu32.vm.storage.NodeContainer;
 import org.apcdevpowered.vcpu32.vm.storage.NodeElement;
@@ -19,7 +19,7 @@ import org.apcdevpowered.vcpu32.vm.storage.exception.ElementTypeMismatchExceptio
 public final class NodeContainerMap extends NodeContainer<NodeContainerMap>
 {
     private transient int modCount;
-    private Map<String, NodeElement> elementMap = new HashMap<String, NodeElement>();
+    private HashMap<String, NodeElement> elementMap = new HashMap<String, NodeElement>();
     
     public NodeContainerMap()
     {
@@ -152,6 +152,16 @@ public final class NodeContainerMap extends NodeContainer<NodeContainerMap>
     public String toString()
     {
         return "{elementMap:" + elementMap + "}";
+    }
+    @Override
+    public NodeContainerMap clone()
+    {
+        NodeContainerMap nodeContainerMap = new NodeContainerMap();
+        synchronized (elementMap)
+        {
+            nodeContainerMap.elementMap = GenericsUtil.genericUnsafeCast(elementMap.clone());
+        }
+        return nodeContainerMap;
     }
     public static NodeContainerMapElementKey makeKey(String key)
     {

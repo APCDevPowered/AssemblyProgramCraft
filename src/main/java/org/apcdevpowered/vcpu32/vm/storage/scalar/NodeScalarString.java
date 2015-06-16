@@ -63,4 +63,9 @@ public final class NodeScalarString extends NodeScalar<NodeScalarString>
     {
         return "{data:" + data + "}";
     }
+    @Override
+    public NodeScalarString clone()
+    {
+        return new NodeScalarString(data);
+    }
 }

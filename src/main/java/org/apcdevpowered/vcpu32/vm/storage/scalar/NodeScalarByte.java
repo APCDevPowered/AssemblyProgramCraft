@@ -59,4 +59,9 @@ public final class NodeScalarByte extends NodeScalar<NodeScalarByte>
     {
         return "{data:" + data + "}";
     }
+    @Override
+    public NodeScalarByte clone()
+    {
+        return new NodeScalarByte(data);
+    }
 }

@@ -59,4 +59,9 @@ public final class NodeScalarShort extends NodeScalar<NodeScalarShort>
     {
         return "{data:" + data + "}";
     }
+    @Override
+    public NodeScalarShort clone()
+    {
+        return new NodeScalarShort(data);
+    }
 }

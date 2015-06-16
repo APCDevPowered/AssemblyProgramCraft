@@ -65,4 +65,9 @@ public final class NodeScalarIntegerArray extends NodeScalar<NodeScalarIntegerAr
     {
         return "{data:" + Arrays.toString(data) + "}";
     }
+    @Override
+    public NodeScalarIntegerArray clone()
+    {
+        return new NodeScalarIntegerArray(data.clone());
+    }
 }

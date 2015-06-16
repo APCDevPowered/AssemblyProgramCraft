@@ -59,4 +59,9 @@ public final class NodeScalarDouble extends NodeScalar<NodeScalarDouble>
     {
         return "{data:" + data + "}";
     }
+    @Override
+    public NodeScalarDouble clone()
+    {
+        return new NodeScalarDouble(data);
+    }
 }

@@ -10,6 +10,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 
+import org.apcdevpowered.util.reflection.GenericsUtil;
 import org.apcdevpowered.vcpu32.vm.storage.ElementKey;
 import org.apcdevpowered.vcpu32.vm.storage.NodeContainer;
 import org.apcdevpowered.vcpu32.vm.storage.NodeElement;
@@ -230,6 +231,16 @@ public final class NodeContainerArray extends NodeContainer<NodeContainerArray>
     public String toString()
     {
         return "{elementArray:" + elementArray + "}";
+    }
+    @Override
+    public NodeContainerArray clone()
+    {
+        NodeContainerArray nodeContainerArray = new NodeContainerArray();
+        synchronized (elementArray)
+        {
+            nodeContainerArray.elementArray = GenericsUtil.genericUnsafeCast(elementArray.clone());
+        }
+        return nodeContainerArray;
     }
     public static NodeContainerArrayElementKey makeKey(int index)
     {

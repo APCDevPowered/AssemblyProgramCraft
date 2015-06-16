@@ -59,4 +59,9 @@ public final class NodeScalarLong extends NodeScalar<NodeScalarLong>
     {
         return "{data:" + data + "}";
     }
+    @Override
+    public NodeScalarLong clone()
+    {
+        return new NodeScalarLong(data);
+    }
 }
