@@ -16,7 +16,7 @@ public class VersionNaming
     }
     public static int getCurrentVersion()
     {
-        return versionNames.length;
+        return versionNames.length - 1;
     }
     
     static

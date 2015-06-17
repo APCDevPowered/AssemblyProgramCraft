@@ -195,7 +195,7 @@ public class BaseNodeDataPersistenceImpl extends NodeDataPersistence
             for (NodeContainerArrayEntry entry : entrySet)
             {
                 StreamHelper.writeInt(stream, entry.getKey().castKey(NodeContainerArrayElementKey.class).getIndex());
-                writeElement(stream, element);
+                writeElement(stream, entry.getValue());
             }
         }
         else if (mappingType.equals(NodeContainerMap.class))
@@ -206,7 +206,7 @@ public class BaseNodeDataPersistenceImpl extends NodeDataPersistence
             for (NodeContainerMapEntry entry : entrySet)
             {
                 StreamHelper.writeString(stream, entry.getKey().castKey(NodeContainerMapElementKey.class).getKey());
-                writeElement(stream, element);
+                writeElement(stream, entry.getValue());
             }
         }
         else

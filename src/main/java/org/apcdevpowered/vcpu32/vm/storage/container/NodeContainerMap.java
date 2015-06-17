@@ -36,7 +36,10 @@ public final class NodeContainerMap extends NodeContainer<NodeContainerMap>
         synchronized (elementMap)
         {
             NodeElement previousElement = elementMap.put(arrayKey.getKey(), element);
-            resetElementParent(previousElement);
+            if (previousElement != null)
+            {
+                resetElementParent(previousElement);
+            }
             setElementParent(element, arrayKey);
             modCount++;
         }

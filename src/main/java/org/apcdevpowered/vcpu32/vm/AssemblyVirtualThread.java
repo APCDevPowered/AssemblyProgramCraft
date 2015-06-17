@@ -1022,7 +1022,10 @@ public class AssemblyVirtualThread
             }
         }
         threadName = avtNodeContainerMap.getElement(NodeContainerMap.makeKey("threadName"), NodeScalarString.class).getData();
-        parentThreadHandlerValue = avtNodeContainerMap.getElement(NodeContainerMap.makeKey("parentThreadHandlerValue"), NodeScalarInteger.class).getData();
+        if (avtNodeContainerMap.hasElement(NodeContainerMap.makeKey("parentThreadHandlerValue")))
+        {
+            parentThreadHandlerValue = avtNodeContainerMap.getElement(NodeContainerMap.makeKey("parentThreadHandlerValue"), NodeScalarInteger.class).getData();
+        }
         startRAM = avtNodeContainerMap.getElement(NodeContainerMap.makeKey("startRAM"), NodeScalarInteger.class).getData();
         isRunning = avtNodeContainerMap.getBoolean(NodeContainerMap.makeKey("isRunning"));
         isTerminated = avtNodeContainerMap.getBoolean(NodeContainerMap.makeKey("isTerminated"));

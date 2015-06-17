@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.UUID;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
@@ -29,10 +30,12 @@ import org.apcdevpowered.vcpu32.vm.storage.container.NodeContainerMap;
 import org.apcdevpowered.vcpu32.vm.storage.exception.ElementNotFoundException;
 import org.apcdevpowered.vcpu32.vm.storage.exception.ElementTypeMismatchException;
 import org.apcdevpowered.vcpu32.vm.storage.scalar.NodeScalarIntegerArray;
+import org.apcdevpowered.vcpu32.vm.storage.scalar.NodeScalarString;
 
 public class VirtualMachine
 {
     public static final String VERSION = "1.0.0";
+    private UUID uuid;
     public AdvancedRAMArray ram;
     private ProgramPackage programPak;
     private ProgramPackage biosPak;
@@ -48,12 +51,24 @@ public class VirtualMachine
     
     public VirtualMachine()
     {
+        this(false);
+    }
+    public VirtualMachine(boolean newUUID)
+    {
+        if(newUUID)
+        {
+            uuid = UUID.randomUUID();
+        }
         devicesList = new HashMap<Integer, AbstractExternalDevice>();
         ram = new AdvancedRAMArray(this, 65536);
         closedThreadList = new ArrayList<Integer>();
         avtList = new HashMap<Integer, AssemblyVirtualThread>();
         closedMonitorList = new ArrayList<Integer>();
         monitorList = new HashMap<Integer, Monitor>();
+    }
+    public UUID getUUID()
+    {
+        return uuid == null ? uuid = UUID.randomUUID() : uuid;
     }
     protected int getDeviceType(int port)
     {
@@ -688,6 +703,7 @@ public class VirtualMachine
         {
             suspendVM();
         }
+        vmNodeContainerMap.addElement(NodeContainerMap.makeKey("uuid"), getUUID().toString());
         vmNodeContainerMap.addElement(NodeContainerMap.makeKey("isRunning"), this.isRunning);
         if (programPak != null)
         {
@@ -760,6 +776,13 @@ public class VirtualMachine
         {
             throw new IllegalStateException();
         }
+        try
+        {
+            uuid = UUID.fromString(vmNodeContainerMap.getScalar(NodeContainerMap.makeKey("uuid"), NodeScalarString.class).getData());
+        }
+        catch (IllegalArgumentException e)
+        {
+        }
         isRunning = vmNodeContainerMap.getBoolean(NodeContainerMap.makeKey("isRunning"));
         if (vmNodeContainerMap.hasElement(NodeContainerMap.makeKey("programPak")))
         {
@@ -785,7 +808,7 @@ public class VirtualMachine
         synchronized (avtList)
         {
             NodeContainerArray avtListNodeContainerArray = vmNodeContainerMap.getArray(NodeContainerMap.makeKey("avtList"));
-            for(NodeContainerArrayEntry entry : avtListNodeContainerArray.entrySet())
+            for (NodeContainerArrayEntry entry : avtListNodeContainerArray.entrySet())
             {
                 NodeContainerMap avtNodeContainerMap = entry.getValue().castElemenet(NodeContainerMap.class);
                 AssemblyVirtualThread avt = new AssemblyVirtualThread(this);
@@ -800,7 +823,7 @@ public class VirtualMachine
         synchronized (monitorList)
         {
             NodeContainerArray monitorListNodeContainerArray = vmNodeContainerMap.getArray(NodeContainerMap.makeKey("monitorList"));
-            for(NodeContainerArrayEntry entry : monitorListNodeContainerArray.entrySet())
+            for (NodeContainerArrayEntry entry : monitorListNodeContainerArray.entrySet())
             {
                 NodeContainerMap monitorNodeContainerMap = entry.getValue().castElemenet(NodeContainerMap.class);
                 Monitor monitor = new Monitor(this);
@@ -817,6 +840,7 @@ public class VirtualMachine
         {
             suspendVM();
         }
+        nbtTagCompound.setString("uuid", getUUID().toString());
         nbtTagCompound.setBoolean("isRunning", this.isRunning);
         if (programPak != null)
         {
@@ -889,6 +913,13 @@ public class VirtualMachine
         if (isRunning == true)
         {
             throw new IllegalStateException();
+        }
+        try
+        {
+            uuid = UUID.fromString(nbtTagCompound.getString("uuid"));
+        }
+        catch (IllegalArgumentException e)
+        {
         }
         isRunning = nbtTagCompound.getBoolean("isRunning");
         if (nbtTagCompound.hasKey("programPak"))

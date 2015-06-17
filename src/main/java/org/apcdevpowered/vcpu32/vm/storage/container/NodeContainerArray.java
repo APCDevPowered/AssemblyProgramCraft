@@ -53,7 +53,10 @@ public final class NodeContainerArray extends NodeContainer<NodeContainerArray>
         synchronized (elementArray)
         {
             NodeElement previousElement = elementArray.put(arrayKey.getIndex(), element);
-            previousElement.removeFromParent();
+            if (previousElement != null)
+            {
+                previousElement.removeFromParent();
+            }
             setElementParent(element, arrayKey);
             modCount++;
         }

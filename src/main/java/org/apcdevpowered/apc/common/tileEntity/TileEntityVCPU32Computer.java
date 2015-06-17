@@ -3,9 +3,11 @@ package org.apcdevpowered.apc.common.tileEntity;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.UUID;
 import java.util.Map.Entry;
 
 import net.minecraftforge.fml.common.network.internal.FMLNetworkHandler;
+
 import org.apcdevpowered.apc.client.listener.TickEventListener;
 import org.apcdevpowered.apc.client.listener.TickEventListener.IGamePauseListener;
 import org.apcdevpowered.apc.common.AssemblyProgramCraft;
@@ -24,6 +26,7 @@ import org.apcdevpowered.vcpu32.asm.ProgramPackage;
 import org.apcdevpowered.vcpu32.vm.AssemblyVirtualThread;
 import org.apcdevpowered.vcpu32.vm.Monitor;
 import org.apcdevpowered.vcpu32.vm.VirtualMachine;
+
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
@@ -53,6 +56,7 @@ public class TileEntityVCPU32Computer extends TileEntity implements IInventory, 
     private boolean runtimeError = false;
     private boolean isInIt = false;
     private VirtualMachine vm;
+    private UUID loadVMUUID;
     
     public TileEntityVCPU32Computer()
     {
@@ -267,6 +271,10 @@ public class TileEntityVCPU32Computer extends TileEntity implements IInventory, 
     }
     public void init()
     {
+        if(loadVMUUID != null)
+        {
+            loadVM(loadVMUUID);
+        }
         TileEntityVCPU32ComputerConnector connector = this.getConnectedConnector(getWorld().getBlockState(getPos()));
         if (connector != null)
         {
@@ -335,7 +343,7 @@ public class TileEntityVCPU32Computer extends TileEntity implements IInventory, 
         }
         if (vm == null)
         {
-            vm = new VirtualMachine();
+            vm = new VirtualMachine(true);
             Iterator<Entry<Integer, TileEntityExternalDevice>> iterator = connectedDeviceList.entrySet().iterator();
             while (iterator.hasNext())
             {
@@ -374,20 +382,19 @@ public class TileEntityVCPU32Computer extends TileEntity implements IInventory, 
                 var2.appendTag(var4);
             }
         }
-        par1NBTTagCompound.setTag("Items", var2);
-        par1NBTTagCompound.setBoolean("PowerStatus", this.powerStatus);
-        par1NBTTagCompound.setBoolean("RuntimeError", this.runtimeError);
+        par1NBTTagCompound.setTag("items", var2);
+        par1NBTTagCompound.setBoolean("powerStatus", this.powerStatus);
+        par1NBTTagCompound.setBoolean("runtimeError", this.runtimeError);
         if (vm != null)
         {
-            NBTTagCompound VMDataNBTTagCompound = new NBTTagCompound();
-            VMDataHelper.writeToNBT(VMDataNBTTagCompound, vm);
-            par1NBTTagCompound.setTag("VirtualMachineData", VMDataNBTTagCompound);
+            UUID uuid = VMDataHelper.writeToData(worldObj, vm);
+            par1NBTTagCompound.setString("virtualMachineUUID", uuid.toString());
         }
     }
     public void readFromNBT(NBTTagCompound par1NBTTagCompound)
     {
         super.readFromNBT(par1NBTTagCompound);
-        NBTTagList var2 = par1NBTTagCompound.getTagList("Items", 10);
+        NBTTagList var2 = par1NBTTagCompound.getTagList("items", 10);
         this.computerContents = new ItemStack[this.getSizeInventory()];
         for (int var3 = 0; var3 < var2.tagCount(); ++var3)
         {
@@ -398,40 +405,52 @@ public class TileEntityVCPU32Computer extends TileEntity implements IInventory, 
                 this.computerContents[var5] = ItemStack.loadItemStackFromNBT(var4);
             }
         }
-        this.powerStatus = par1NBTTagCompound.getBoolean("PowerStatus");
-        this.runtimeError = par1NBTTagCompound.getBoolean("RuntimeError");
-        if (par1NBTTagCompound.hasKey("VirtualMachineData"))
+        this.powerStatus = par1NBTTagCompound.getBoolean("powerStatus");
+        this.runtimeError = par1NBTTagCompound.getBoolean("runtimeError");
+        if (par1NBTTagCompound.hasKey("virtualMachineUUID"))
         {
-            VirtualMachine vm = new VirtualMachine();
-            synchronized (vm)
+            UUID uuid = UUID.fromString(par1NBTTagCompound.getString("virtualMachineUUID"));
+            if (getWorld() == null)
             {
-                VMDataHelper.readFormNBT(par1NBTTagCompound.getCompoundTag("VirtualMachineData"), vm);
-                this.vm = vm;
-                if (this.vm.isRunning() == true)
+                loadVMUUID = uuid;
+            }
+            else
+            {
+                loadVM(uuid);
+            }
+        }
+    }
+    public void loadVM(UUID uuid)
+    {
+        VirtualMachine vm = new VirtualMachine();
+        synchronized (vm)
+        {
+            VMDataHelper.readFormNode(getWorld(), uuid, vm);
+            this.vm = vm;
+            if (this.vm.isRunning() == true)
+            {
+                List<AssemblyVirtualThread> avtList = vm.getVMThreadList();
                 {
-                    List<AssemblyVirtualThread> avtList = vm.getVMThreadList();
-                    {
-                        for (AssemblyVirtualThread avt : avtList)
-                        {
-                            avt.loadThreadRelation();
-                        }
-                    }
-                    List<Monitor> monitorList = vm.getMonitorList();
-                    {
-                        for (Monitor monitor : monitorList)
-                        {
-                            monitor.loadMonitorRelation();
-                        }
-                    }
                     for (AssemblyVirtualThread avt : avtList)
                     {
-                        if (avt.isRunning() == true)
-                        {
-                            avt.loadedStart();
-                        }
+                        avt.loadThreadRelation();
                     }
-                    vmIsRunning = true;
                 }
+                List<Monitor> monitorList = vm.getMonitorList();
+                {
+                    for (Monitor monitor : monitorList)
+                    {
+                        monitor.loadMonitorRelation();
+                    }
+                }
+                for (AssemblyVirtualThread avt : avtList)
+                {
+                    if (avt.isRunning() == true)
+                    {
+                        avt.loadedStart();
+                    }
+                }
+                vmIsRunning = true;
             }
         }
     }

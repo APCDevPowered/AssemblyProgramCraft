@@ -101,9 +101,16 @@ public abstract class NodeDataPersistence
             return loadNode(stream, clazz);
         }
     }
-    public static void saveNode(OutputStream stream, NodeElement element) throws IOException, UnsupportedVersionException
+    public static void saveNode(OutputStream stream, NodeElement element) throws IOException
     {
-        saveNode(stream, element, VersionNaming.getCurrentVersion(), System.currentTimeMillis());
+        try
+        {
+            saveNode(stream, element, VersionNaming.getCurrentVersion(), System.currentTimeMillis());
+        }
+        catch (UnsupportedVersionException e)
+        {
+            throw new IllegalStateException(e);
+        }
     }
     public static void saveNode(OutputStream stream, NodeElement element, int version) throws IOException, UnsupportedVersionException
     {
@@ -124,7 +131,7 @@ public abstract class NodeDataPersistence
         impl.writeElement(stream, element);
         logger.trace("Node data saved.");
     }
-    public static byte[] saveNode(NodeElement element) throws IOException, UnsupportedVersionException
+    public static byte[] saveNode(NodeElement element) throws IOException
     {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         saveNode(stream, element);
@@ -142,7 +149,7 @@ public abstract class NodeDataPersistence
         saveNode(stream, element, version, timestamp);
         return stream.toByteArray();
     }
-    public static void saveNode(File file, NodeElement element) throws IOException, UnsupportedVersionException
+    public static void saveNode(File file, NodeElement element) throws IOException
     {
         try (FileOutputStream stream = new FileOutputStream(file))
         {
