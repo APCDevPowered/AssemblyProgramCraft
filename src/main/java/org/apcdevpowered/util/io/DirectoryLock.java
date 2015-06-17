@@ -11,6 +11,7 @@ import java.nio.file.OpenOption;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
+
 import org.apcdevpowered.util.reflection.GenericsUtil;
 
 public final class DirectoryLock
@@ -21,6 +22,7 @@ public final class DirectoryLock
     private boolean pendingLock;
     private Thread currentLockThread;
     private int lockCount;
+    private int wattingCount;
     private FileChannel fileChannel;
     
     public DirectoryLock(File directory) throws IOException
@@ -31,24 +33,35 @@ public final class DirectoryLock
     {
         synchronized (lockNotifier)
         {
-            while(pendingLock)
+            if (currentLockThread == Thread.currentThread())
             {
-                lockNotifier.wait();
+                lockCount++;
+                return true;
             }
-            if (lockCount > 0)
+            wattingCount++;
+            while(lockCount > 0 || pendingLock)
             {
-                if (currentLockThread == Thread.currentThread())
+                try
                 {
-                    lockCount++;
-                    return true;
+                    lockNotifier.wait();
                 }
-                else
+                catch (InterruptedException e)
                 {
-                    do
+                    if(wattingCount == 0)
                     {
-                        lockNotifier.wait();
+                        synchronized (threadLock)
+                        {
+                            try
+                            {
+                                fileChannel.close();
+                            }
+                            catch (IOException e1)
+                            {
+                                e1.printStackTrace();
+                            }
+                        }
                     }
-                    while (lockCount > 0 || pendingLock);
+                    throw e;
                 }
             }
             pendingLock = true;
@@ -57,39 +70,42 @@ public final class DirectoryLock
         {
             synchronized (threadLock)
             {
-                File lockFile = new File(directory, ".lock");
-                FileChannel fileChannel;
-                try
+                if(fileChannel == null)
                 {
-                    List<OpenOption> openOptionList = new ArrayList<OpenOption>();
-                    openOptionList.add(StandardOpenOption.READ);
-                    openOptionList.add(StandardOpenOption.WRITE);
-                    openOptionList.add(StandardOpenOption.TRUNCATE_EXISTING);
-                    openOptionList.add(StandardOpenOption.CREATE);
-                    openOptionList.add(StandardOpenOption.DELETE_ON_CLOSE);
-                    openOptionList.add(StandardOpenOption.SYNC);
+                    File lockFile = new File(directory, ".lock");
+                    FileChannel fileChannel;
                     try
                     {
-                        Class<? extends OpenOption> clazz = GenericsUtil.<Class<?>, Class<? extends OpenOption>> genericUnsafeCast(getClass().getClassLoader().loadClass("com.sun.nio.file.ExtendedOpenOption"));
-                        if (OpenOption.class.isAssignableFrom(clazz))
+                        List<OpenOption> openOptionList = new ArrayList<OpenOption>();
+                        openOptionList.add(StandardOpenOption.READ);
+                        openOptionList.add(StandardOpenOption.WRITE);
+                        openOptionList.add(StandardOpenOption.TRUNCATE_EXISTING);
+                        openOptionList.add(StandardOpenOption.CREATE);
+                        openOptionList.add(StandardOpenOption.DELETE_ON_CLOSE);
+                        openOptionList.add(StandardOpenOption.SYNC);
+                        try
                         {
-                            if (clazz.isEnum())
+                            Class<? extends OpenOption> clazz = GenericsUtil.<Class<?>, Class<? extends OpenOption>> genericUnsafeCast(getClass().getClassLoader().loadClass("com.sun.nio.file.ExtendedOpenOption"));
+                            if (OpenOption.class.isAssignableFrom(clazz))
                             {
-                                OpenOption[] extendedOpenOptions = clazz.getEnumConstants();
-                                Method nameMethod = clazz.getMethod("name");
-                                for (OpenOption extendedOpenOption : extendedOpenOptions)
+                                if (clazz.isEnum())
                                 {
-                                    int modifiers = nameMethod.getModifiers();
-                                    if (Modifier.isPublic(modifiers) && !Modifier.isStatic(modifiers))
+                                    OpenOption[] extendedOpenOptions = clazz.getEnumConstants();
+                                    Method nameMethod = clazz.getMethod("name");
+                                    for (OpenOption extendedOpenOption : extendedOpenOptions)
                                     {
-                                        if (nameMethod.getParameterTypes().length == 0)
+                                        int modifiers = nameMethod.getModifiers();
+                                        if (Modifier.isPublic(modifiers) && !Modifier.isStatic(modifiers))
                                         {
-                                            if (nameMethod.getReturnType().equals(String.class))
+                                            if (nameMethod.getParameterTypes().length == 0)
                                             {
-                                                String name = (String) nameMethod.invoke(extendedOpenOption);
-                                                if (name.equals("NOSHARE_READ") || name.equals("NOSHARE_WRITE") || name.equals("NOSHARE_DELETE"))
+                                                if (nameMethod.getReturnType().equals(String.class))
                                                 {
-                                                    openOptionList.add(extendedOpenOption);
+                                                    String name = (String) nameMethod.invoke(extendedOpenOption);
+                                                    if (name.equals("NOSHARE_READ") || name.equals("NOSHARE_WRITE") || name.equals("NOSHARE_DELETE"))
+                                                    {
+                                                        openOptionList.add(extendedOpenOption);
+                                                    }
                                                 }
                                             }
                                         }
@@ -97,59 +113,59 @@ public final class DirectoryLock
                                 }
                             }
                         }
+                        catch (ClassNotFoundException e)
+                        {
+                        }
+                        catch (NoSuchMethodException e)
+                        {
+                        }
+                        catch (SecurityException e)
+                        {
+                        }
+                        catch (IllegalAccessException e)
+                        {
+                        }
+                        catch (IllegalArgumentException e)
+                        {
+                        }
+                        catch (InvocationTargetException e)
+                        {
+                        }
+                        catch (ClassCastException e)
+                        {
+                        }
+                        fileChannel = FileChannel.open(lockFile.toPath(), openOptionList.toArray(new OpenOption[openOptionList.size()]));
                     }
-                    catch (ClassNotFoundException e)
+                    catch (IOException e)
                     {
+                        e.printStackTrace();
+                        return false;
                     }
-                    catch (NoSuchMethodException e)
-                    {
-                    }
-                    catch (SecurityException e)
-                    {
-                    }
-                    catch (IllegalAccessException e)
-                    {
-                    }
-                    catch (IllegalArgumentException e)
-                    {
-                    }
-                    catch (InvocationTargetException e)
-                    {
-                    }
-                    catch (ClassCastException e)
-                    {
-                    }
-                    fileChannel = FileChannel.open(lockFile.toPath(), openOptionList.toArray(new OpenOption[openOptionList.size()]));
-                }
-                catch (IOException e)
-                {
-                    e.printStackTrace();
-                    return false;
-                }
-                try
-                {
-                    fileChannel.lock();
-                }
-                catch (FileLockInterruptionException e)
-                {
-                    throw new InterruptedException();
-                }
-                catch (IOException e)
-                {
-                    e.printStackTrace();
                     try
                     {
-                        fileChannel.close();
+                        fileChannel.lock();
                     }
-                    catch (IOException e1)
+                    catch (FileLockInterruptionException e)
                     {
-                        e1.printStackTrace();
+                        throw new InterruptedException();
                     }
-                    return false;
+                    catch (IOException e)
+                    {
+                        e.printStackTrace();
+                        try
+                        {
+                            fileChannel.close();
+                        }
+                        catch (IOException e1)
+                        {
+                            e1.printStackTrace();
+                        }
+                        return false;
+                    }
+                    this.fileChannel = fileChannel;
                 }
                 currentLockThread = Thread.currentThread();
                 lockCount = 1;
-                this.fileChannel = fileChannel;
                 return true;
             }
         }
@@ -157,6 +173,7 @@ public final class DirectoryLock
         {
             synchronized (lockNotifier)
             {
+                wattingCount--;
                 pendingLock = false;
                 lockNotifier.notify();
             }
@@ -175,21 +192,24 @@ public final class DirectoryLock
                 return false;
             }
             lockCount--;
-            if (lockCount == 0)
+            if (lockCount <= 0)
             {
-                synchronized (threadLock)
+                if(wattingCount <= 0)
                 {
-                    try
+                    synchronized (threadLock)
                     {
-                        fileChannel.close();
+                        try
+                        {
+                            fileChannel.close();
+                        }
+                        catch (IOException e)
+                        {
+                            e.printStackTrace();
+                        }
+                        fileChannel = null;
                     }
-                    catch (IOException e)
-                    {
-                        e.printStackTrace();
-                    }
-                    currentLockThread = null;
-                    fileChannel = null;
                 }
+                currentLockThread = null;
                 lockNotifier.notify();
             }
             return true;
