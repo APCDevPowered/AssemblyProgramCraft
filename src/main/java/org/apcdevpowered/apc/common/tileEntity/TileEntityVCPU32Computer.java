@@ -21,6 +21,8 @@ import org.apcdevpowered.apc.common.network.AssemblyProgramCraftGuiHandler;
 import org.apcdevpowered.apc.common.network.AssemblyProgramCraftPacket;
 import org.apcdevpowered.apc.common.tileEntity.TileEntityExternalDevice.ComputerPos;
 import org.apcdevpowered.apc.common.util.MethodHandler;
+import org.apcdevpowered.apc.common.util.NodeIOException;
+import org.apcdevpowered.apc.common.util.ProgramDataHelper;
 import org.apcdevpowered.apc.common.util.VMDataHelper;
 import org.apcdevpowered.vcpu32.asm.ProgramPackage;
 import org.apcdevpowered.vcpu32.vm.AssemblyVirtualThread;
@@ -271,7 +273,7 @@ public class TileEntityVCPU32Computer extends TileEntity implements IInventory, 
     }
     public void init()
     {
-        if(loadVMUUID != null)
+        if (loadVMUUID != null)
         {
             loadVM(loadVMUUID);
         }
@@ -352,7 +354,31 @@ public class TileEntityVCPU32Computer extends TileEntity implements IInventory, 
             }
         }
         ProgramPackage program = new ProgramPackage();
-        program.readFromNBT(this.computerContents[0].getTagCompound());
+        NBTTagCompound programNBTTagCompound = this.computerContents[0].getTagCompound();
+        if(!programNBTTagCompound.hasKey("uuid", 8))
+        {
+            setRuntimeError(true);
+            return;
+        }
+        UUID uuid;
+        try
+        {
+            uuid = UUID.fromString(programNBTTagCompound.getString("uuid"));
+        }
+        catch (IllegalArgumentException e)
+        {
+            setRuntimeError(true);
+            return;
+        }
+        try
+        {
+            ProgramDataHelper.readFormNode(uuid, program);
+        }
+        catch (NodeIOException e)
+        {
+            setRuntimeError(true);
+            return;
+        }
         vm.loadBIOS(program);
         vm.startVM(false);
     }
@@ -387,7 +413,15 @@ public class TileEntityVCPU32Computer extends TileEntity implements IInventory, 
         par1NBTTagCompound.setBoolean("runtimeError", this.runtimeError);
         if (vm != null)
         {
-            UUID uuid = VMDataHelper.writeToData(worldObj, vm);
+            UUID uuid;
+            try
+            {
+                uuid = VMDataHelper.writeToData(worldObj, vm);
+            }
+            catch (NodeIOException e)
+            {
+                return;
+            }
             par1NBTTagCompound.setString("virtualMachineUUID", uuid.toString());
         }
     }
@@ -425,7 +459,14 @@ public class TileEntityVCPU32Computer extends TileEntity implements IInventory, 
         VirtualMachine vm = new VirtualMachine();
         synchronized (vm)
         {
-            VMDataHelper.readFormNode(getWorld(), uuid, vm);
+            try
+            {
+                VMDataHelper.readFormNode(getWorld(), uuid, vm);
+            }
+            catch (NodeIOException e)
+            {
+                return;
+            }
             this.vm = vm;
             if (this.vm.isRunning() == true)
             {

@@ -9,61 +9,59 @@ import java.util.WeakHashMap;
 import net.minecraft.world.World;
 
 import org.apcdevpowered.util.io.DirectoryLock;
-import org.apcdevpowered.vcpu32.vm.VirtualMachine;
+import org.apcdevpowered.vcpu32.asm.ProgramPackage;
 import org.apcdevpowered.vcpu32.vm.storage.container.NodeContainerMap;
 import org.apcdevpowered.vcpu32.vm.storage.exception.ElementNotFoundException;
 import org.apcdevpowered.vcpu32.vm.storage.exception.ElementTypeMismatchException;
 import org.apcdevpowered.vcpu32.vm.storage.exception.UnsupportedVersionException;
 import org.apcdevpowered.vcpu32.vm.storage.persistence.NodeDataPersistence;
 
-public class VMDataHelper
+public class ProgramDataHelper
 {
     /** Virtual machine data cache. */
-    private static Map<UUID, NodeContainerMap> vmDataCacheMap = new WeakHashMap<UUID, NodeContainerMap>();
+    private static Map<UUID, NodeContainerMap> programDataCacheMap = new WeakHashMap<UUID, NodeContainerMap>();
     /** Directory lock cache. */
     private static Map<File, DirectoryLock> directoryLockCacheMap = new WeakHashMap<File, DirectoryLock>();
     
     /**
-     * Write data from VirtualMachine to node.
+     * Write data from ProgramPackage to node.
      * 
-     * @param world
-     *            World write to.
+     * @param uuid
+     *            UUID of ProgramPackage.
      * 
-     * @param vm
-     *            The VirtualMachine read from.
-     * 
-     * @return UUID of VirtualMachine.
+     * @param programPackage
+     *            The ProgramPackage read from.
      */
-    public static UUID writeToData(World world, VirtualMachine vm) throws NodeIOException
+    public static void writeToData(UUID uuid, ProgramPackage programPackage) throws NodeIOException
     {
-        UUID uuid = vm.getUUID();
+        World world = WorldHelper.getWorldFromDimension(0);
         File worldDirectory = world.getSaveHandler().getWorldDirectory();
-        File vmdataDirectory;
+        File programDirectory;
         try
         {
-            vmdataDirectory = new File(worldDirectory, "vmdata").getCanonicalFile();
+            programDirectory = new File(worldDirectory, "programdata").getCanonicalFile();
         }
         catch (IOException e)
         {
             throw new NodeIOException(e);
         }
-        if (!vmdataDirectory.exists())
+        if (!programDirectory.exists())
         {
-            if (!vmdataDirectory.mkdirs())
+            if (!programDirectory.mkdirs())
             {
-                throw new NodeIOException("Can not create vmdata directory");
+                throw new NodeIOException("Can not create programdata directory");
             }
         }
         DirectoryLock directoryLock;
         synchronized (directoryLockCacheMap)
         {
-            directoryLock = directoryLockCacheMap.get(vmdataDirectory);
+            directoryLock = directoryLockCacheMap.get(programDirectory);
             if (directoryLock == null)
             {
                 try
                 {
-                    directoryLock = new DirectoryLock(vmdataDirectory);
-                    directoryLockCacheMap.put(vmdataDirectory, directoryLock);
+                    directoryLock = new DirectoryLock(programDirectory);
+                    directoryLockCacheMap.put(programDirectory, directoryLock);
                 }
                 catch (IOException e)
                 {
@@ -84,22 +82,21 @@ public class VMDataHelper
         }
         try
         {
-            File vmdataFile = new File(vmdataDirectory, uuid.toString());
-            NodeContainerMap vmNodeContainerMap = new NodeContainerMap();
-            vm.writeDataToNode(vmNodeContainerMap);
-            synchronized (vmDataCacheMap)
+            File programdataFile = new File(programDirectory, uuid.toString());
+            NodeContainerMap programPackageNodeContainerMap = new NodeContainerMap();
+            programPackage.writeToNode(programPackageNodeContainerMap);
+            synchronized (programDataCacheMap)
             {
-                vmDataCacheMap.put(uuid, vmNodeContainerMap);
+                programDataCacheMap.put(uuid, programPackageNodeContainerMap);
             }
             try
             {
-                NodeDataPersistence.saveNode(vmdataFile, vmNodeContainerMap);
+                NodeDataPersistence.saveNode(programdataFile, programPackageNodeContainerMap);
             }
             catch (IOException e)
             {
                 throw new NodeIOException(e);
             }
-            return uuid;
         }
         finally
         {
@@ -107,27 +104,25 @@ public class VMDataHelper
         }
     }
     /**
-     * Read data from node to VirtualMachine.
-     * 
-     * @param world
-     *            World read form.
+     * Read data from node to ProgramPackage.
      * 
      * @param uuid
-     *            UUID of VirtualMachine.
+     *            UUID of ProgramPackage.
      * 
-     * @param vm
-     *            The VirtualMachine write to.
+     * @param programPackage
+     *            The ProgramPackage write to.
      */
-    public static void readFormNode(World world, UUID uuid, VirtualMachine vm) throws NodeIOException
+    public static void readFormNode(UUID uuid, ProgramPackage programPackage) throws NodeIOException
     {
-        synchronized (vmDataCacheMap)
+        World world = WorldHelper.getWorldFromDimension(0);
+        synchronized (programDataCacheMap)
         {
-            NodeContainerMap cachedVMNodeContainerMap = vmDataCacheMap.get(uuid);
+            NodeContainerMap cachedVMNodeContainerMap = programDataCacheMap.get(uuid);
             if (cachedVMNodeContainerMap != null)
             {
                 try
                 {
-                    vm.readDataFromNode(cachedVMNodeContainerMap);
+                    programPackage.readFromNode(cachedVMNodeContainerMap);
                     return;
                 }
                 catch (ElementNotFoundException e)
@@ -141,32 +136,32 @@ public class VMDataHelper
             }
         }
         File worldDirectory = world.getSaveHandler().getWorldDirectory();
-        File vmdataDirectory;
+        File programDirectory;
         try
         {
-            vmdataDirectory = new File(worldDirectory, "vmdata").getCanonicalFile();
+            programDirectory = new File(worldDirectory, "programdata").getCanonicalFile();
         }
         catch (IOException e)
         {
             throw new NodeIOException(e);
         }
-        if (!vmdataDirectory.exists())
+        if (!programDirectory.exists())
         {
-            if (!vmdataDirectory.mkdirs())
+            if (!programDirectory.mkdirs())
             {
-                throw new NodeIOException("Can not create vmdata directory");
+                throw new NodeIOException("Can not create programdata directory");
             }
         }
         DirectoryLock directoryLock;
         synchronized (directoryLockCacheMap)
         {
-            directoryLock = directoryLockCacheMap.get(vmdataDirectory);
+            directoryLock = directoryLockCacheMap.get(programDirectory);
             if (directoryLock == null)
             {
                 try
                 {
-                    directoryLock = new DirectoryLock(vmdataDirectory);
-                    directoryLockCacheMap.put(vmdataDirectory, directoryLock);
+                    directoryLock = new DirectoryLock(programDirectory);
+                    directoryLockCacheMap.put(programDirectory, directoryLock);
                 }
                 catch (IOException e)
                 {
@@ -187,11 +182,11 @@ public class VMDataHelper
         }
         try
         {
-            File vmdataFile = new File(vmdataDirectory, uuid.toString());
-            NodeContainerMap vmNodeContainerMap;
+            File programdataFile = new File(programDirectory, uuid.toString());
+            NodeContainerMap programPackageNodeContainerMap;
             try
             {
-                vmNodeContainerMap = NodeDataPersistence.loadNode(vmdataFile, NodeContainerMap.class);
+                programPackageNodeContainerMap = NodeDataPersistence.loadNode(programdataFile, NodeContainerMap.class);
             }
             catch (IOException e)
             {
@@ -207,7 +202,7 @@ public class VMDataHelper
             }
             try
             {
-                vm.readDataFromNode(vmNodeContainerMap);
+                programPackage.readFromNode(programPackageNodeContainerMap);
             }
             catch (ElementNotFoundException e)
             {
