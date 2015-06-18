@@ -55,7 +55,7 @@ public class VirtualMachine
     }
     public VirtualMachine(boolean newUUID)
     {
-        if(newUUID)
+        if (newUUID)
         {
             uuid = UUID.randomUUID();
         }

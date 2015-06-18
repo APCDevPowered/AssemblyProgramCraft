@@ -355,7 +355,7 @@ public class TileEntityVCPU32Computer extends TileEntity implements IInventory, 
         }
         ProgramPackage program = new ProgramPackage();
         NBTTagCompound programNBTTagCompound = this.computerContents[0].getTagCompound();
-        if(!programNBTTagCompound.hasKey("uuid", 8))
+        if (!programNBTTagCompound.hasKey("uuid", 8))
         {
             setRuntimeError(true);
             return;
