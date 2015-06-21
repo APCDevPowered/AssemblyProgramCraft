@@ -4,7 +4,9 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import org.apcdevpowered.apc.client.gui.event.IEventNode;
+import org.apcdevpowered.apc.common.util.history.HistoryApplyException;
 import org.apcdevpowered.apc.common.util.history.HistoryManager;
+import org.apcdevpowered.apc.common.util.history.HistoryManager.HistoryEntry;
 import org.apcdevpowered.util.string.StringTools;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
@@ -655,9 +657,41 @@ public class GuiMultipleLineTextField extends Gui implements IEventNode
             }
             else if (isCtrlDown() && key == Keyboard.KEY_Z && isEditable)
             {
+                HistoryEntry entry = historyManager.undoHistory();
+                if(entry != null)
+                {
+                    try
+                    {
+                        text = entry.undo(text);
+                        setCursor(entry.getFrom() + entry.getOldText().length());
+                        selectedFrom = entry.getFrom();
+                        selectedTo = entry.getFrom() + entry.getOldText().length();
+                    }
+                    catch (HistoryApplyException e)
+                    {
+                        e.printStackTrace();
+                        historyManager.clearHistory();
+                    }
+                }
             }
             else if (isCtrlDown() && key == Keyboard.KEY_Y && isEditable)
             {
+                HistoryEntry entry = historyManager.redoHistory();
+                if(entry != null)
+                {
+                    try
+                    {
+                        text = entry.redo(text);
+                        setCursor(entry.getFrom() + entry.getNewText().length());
+                        selectedFrom = entry.getFrom();
+                        selectedTo = entry.getFrom() + entry.getNewText().length();
+                    }
+                    catch (HistoryApplyException e)
+                    {
+                        e.printStackTrace();
+                        historyManager.clearHistory();
+                    }
+                }
             }
             else if (key == Keyboard.KEY_RETURN && isEditable)
             {
@@ -1052,8 +1086,6 @@ public class GuiMultipleLineTextField extends Gui implements IEventNode
     @Override
     public void tick()
     {
-        System.out.println("countHistory:" + historyManager.countHistory());
-        System.out.println("countUndoHistory:" + historyManager.countUndoHistory());
         cursorCounter++;
         this.scollBoard.tick();
     }

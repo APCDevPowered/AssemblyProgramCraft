@@ -136,11 +136,11 @@ public class HistoryManager
             this.oldText = oldText;
             this.canMerge = canMerge;
         }
-        public int getSelectedFrom()
+        public int getFrom()
         {
             return from;
         }
-        public int getSelectedTo()
+        public int getTo()
         {
             return to;
         }
@@ -151,6 +151,30 @@ public class HistoryManager
         public String getOldText()
         {
             return oldText;
+        }
+        public String undo(String str) throws HistoryApplyException
+        {
+            if (from > str.length())
+            {
+                throw new HistoryApplyException();
+            }
+            if (!str.substring(from, from + newText.length()).equals(newText))
+            {
+                throw new HistoryApplyException();
+            }
+            return str.substring(0, from) + oldText + str.substring(from + newText.length(), str.length());
+        }
+        public String redo(String str) throws HistoryApplyException
+        {
+            if (from > str.length() || to > str.length())
+            {
+                throw new HistoryApplyException();
+            }
+            if (!str.substring(from, to).equals(oldText))
+            {
+                throw new HistoryApplyException();
+            }
+            return str.substring(0, from) + newText + str.substring(to, str.length());
         }
         public boolean canMerge()
         {
@@ -206,13 +230,11 @@ public class HistoryManager
                         }
                     }
                     // Insert After
-                    else if (from == this.from + newText.length())
+                    else if (from == this.from + this.newText.length())
                     {
                         if (mergeMode.isMergeInsertAfter())
                         {
                             this.newText = this.newText + newText;
-                            this.from += newText.length();
-                            this.to += newText.length();
                             return true;
                         }
                         else

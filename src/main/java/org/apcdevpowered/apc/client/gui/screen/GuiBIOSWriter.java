@@ -8,6 +8,7 @@ import org.apcdevpowered.apc.client.gui.components.GuiMultipleLineTextField;
 import org.apcdevpowered.apc.common.AssemblyProgramCraft;
 import org.apcdevpowered.apc.common.container.ContainerBIOSWriter;
 import org.apcdevpowered.apc.common.network.AssemblyProgramCraftPacket;
+import org.apcdevpowered.apc.common.util.history.HistoryManager;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 
@@ -29,7 +30,8 @@ import net.minecraft.util.ResourceLocation;
 public class GuiBIOSWriter extends GuiContainer
 {
     private static final ResourceLocation guiBIOSWriteTextures = new ResourceLocation("AssemblyProgramCraft:textures/gui/gui-bios-writer.png");
-    private static String programCatch = "";
+    private static HistoryManager historyManagerCache = new HistoryManager();
+    private static String programCache = "";
     private GuiMultipleLineTextField textField;
     private GuiInfoWindow guiInfoWindow;
     private GuiButton compiledSource;
@@ -56,10 +58,10 @@ public class GuiBIOSWriter extends GuiContainer
         Keyboard.enableRepeatEvents(true);
         if (this.textField != null)
         {
-            programCatch = this.textField.getText();
+            historyManagerCache = this.textField.getHistoryManager();
+            programCache = this.textField.getText();
         }
-        this.textField = new GuiMultipleLineTextField(this.fontRendererObj, (this.width - this.xSize) / 2 + 10, (this.height - this.ySize) / 2 + 10, 236, 131);
-        this.textField.setText(programCatch);
+        this.textField = new GuiMultipleLineTextField(this.fontRendererObj, (this.width - this.xSize) / 2 + 10, (this.height - this.ySize) / 2 + 10, 236, 131, programCache, historyManagerCache);
         this.guiInfoWindow = new GuiInfoWindow(mc, fontRendererObj, (this.width - 216) / 2, (this.height - 146) / 2 - 25, 216, 146);
     }
     public void displayInfoWindow(String info)
@@ -118,7 +120,8 @@ public class GuiBIOSWriter extends GuiContainer
     {
         super.onGuiClosed();
         Keyboard.enableRepeatEvents(false);
-        programCatch = this.textField.getText();
+        historyManagerCache = this.textField.getHistoryManager();
+        programCache = this.textField.getText();
         if (this.mc.thePlayer != null)
         {
             this.inventorySlots.onContainerClosed(this.mc.thePlayer);
