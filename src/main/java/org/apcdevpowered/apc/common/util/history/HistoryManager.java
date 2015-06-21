@@ -16,6 +16,18 @@ public class HistoryManager
     {
         this.setMergeMode(mergeMode);
     }
+    public MergeMode getMergeMode()
+    {
+        return mergeMode;
+    }
+    public void setMergeMode(MergeMode mergeMode)
+    {
+        if (mergeMode == null)
+        {
+            throw new NullPointerException();
+        }
+        this.mergeMode = mergeMode;
+    }
     public void addHistory(int from, int to, String newText, String oldText, boolean canMerge)
     {
         if (newText == null || oldText == null)
@@ -74,19 +86,11 @@ public class HistoryManager
         historyStack.push(entry);
         return entry;
     }
-    public MergeMode getMergeMode()
+    public void clearHistory()
     {
-        return mergeMode;
+        historyStack.clear();
+        undoHistoryStack.clear();
     }
-    public void setMergeMode(MergeMode mergeMode)
-    {
-        if (mergeMode == null)
-        {
-            throw new NullPointerException();
-        }
-        this.mergeMode = mergeMode;
-    }
-    
     public class HistoryEntry
     {
         private int from;

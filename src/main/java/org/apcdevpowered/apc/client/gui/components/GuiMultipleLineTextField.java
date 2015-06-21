@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import org.apcdevpowered.apc.client.gui.event.IEventNode;
+import org.apcdevpowered.apc.common.util.history.HistoryManager;
 import org.apcdevpowered.util.string.StringTools;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
@@ -28,6 +29,7 @@ public class GuiMultipleLineTextField extends Gui implements IEventNode
     private FontRenderer fontRenderer;
     private String text = "";
     private GuiScrollBoard scollBoard;
+    private HistoryManager historyManager;
     private int backgroundColor = 0xFF000000;
     private int fontColor = 0xFFFFFFFF;
     private int cursouColor = 0xFFFFFFFF;
@@ -61,6 +63,8 @@ public class GuiMultipleLineTextField extends Gui implements IEventNode
     public GuiMultipleLineTextField(FontRenderer fontRenderer, int xPos, int yPos, int width, int height, int backgroundColor, int fontColor, int cursouColor, int selectionColor, int selectedFontColor)
     {
         this.fontRenderer = fontRenderer;
+        this.scollBoard = new GuiScrollBoard(xPos, yPos, width, height);
+        this.historyManager = new HistoryManager();
         this.xPos = xPos;
         this.yPos = yPos;
         this.width = width;
@@ -70,7 +74,6 @@ public class GuiMultipleLineTextField extends Gui implements IEventNode
         this.cursouColor = cursouColor;
         this.selectionColor = selectionColor;
         this.selectedFontColor = selectedFontColor;
-        scollBoard = new GuiScrollBoard(xPos, yPos, width, height);
     }
     public String getText()
     {
@@ -79,6 +82,7 @@ public class GuiMultipleLineTextField extends Gui implements IEventNode
     public void setText(String text)
     {
         this.text = text;
+        this.historyManager.clearHistory();
         this.selectedFrom = 0;
         this.selectedTo = 0;
         this.cursor = 0;
@@ -356,9 +360,9 @@ public class GuiMultipleLineTextField extends Gui implements IEventNode
         if (cursor < text.length())
         {
             cursor++;
-            if (cursor < text.length() && text.charAt(cursor) == '\r')
+            if (cursor - 1 >= 0 && cursor - 1 < text.length() && text.charAt(cursor - 1) == '\r')
             {
-                if (cursor + 1 < text.length() && text.charAt(cursor + 1) == '\n')
+                if (cursor >= 0 && cursor < text.length() && text.charAt(cursor) == '\n')
                 {
                     cursor++;
                 }
@@ -374,9 +378,9 @@ public class GuiMultipleLineTextField extends Gui implements IEventNode
         if (cursor > 0)
         {
             cursor--;
-            if (cursor < text.length() && text.charAt(cursor) == '\r')
+            if (cursor >= 0 && cursor < text.length() && text.charAt(cursor) == '\n')
             {
-                if (cursor + 1 < text.length() && text.charAt(cursor + 1) == '\n')
+                if (cursor - 1 >= 0 && cursor - 1 < text.length() && text.charAt(cursor - 1) == '\r')
                 {
                     cursor--;
                 }
@@ -599,7 +603,7 @@ public class GuiMultipleLineTextField extends Gui implements IEventNode
             }
             else if (key == Keyboard.KEY_RETURN && isEditable)
             {
-                insertChar('\n');
+                insertText(System.lineSeparator());
             }
             else if (key == Keyboard.KEY_TAB && isEditable)
             {
@@ -786,13 +790,14 @@ public class GuiMultipleLineTextField extends Gui implements IEventNode
             char theChar = text.charAt(i);
             if (theChar == '\n' || theChar == '\r')
             {
+                int newlineIndex = i;
                 if (theChar == '\r' && i + 1 < text.length() && text.charAt(i + 1) == '\n')
                 {
                     i++;
                 }
                 horizontalPos = FONT_SPACTING_LEFT;
                 verticalPos += FONT_HEIGHT + FONT_SPACTING_V;
-                if (cursor == i)
+                if (cursor == newlineIndex)
                 {
                     drawCursor(horizontalPosTmp, verticalPosTmp, scrollH, scrollV, maskX, maskY, maskW, maskH);
                 }
