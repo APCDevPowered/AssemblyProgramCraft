@@ -624,10 +624,6 @@ public class GuiMultipleLineTextField extends Gui implements IEventNode
             {
                 this.insertText(GuiScreen.getClipboardString());
             }
-            else if(ChatAllowedCharacters.isAllowedCharacter(character) && isEditable)
-            {
-                insertChar(character);
-            }
             else if(key == Keyboard.KEY_RETURN && isEditable)
             {
                 insertChar('\n');
@@ -635,6 +631,10 @@ public class GuiMultipleLineTextField extends Gui implements IEventNode
             else if(key == Keyboard.KEY_TAB && isEditable)
             {
                 insertChar('\t');
+            }
+            else if(ChatAllowedCharacters.isAllowedCharacter(character) && isEditable)
+            {
+                insertChar(character);
             }
         }
         scollBoard.keyPressed(character, key);
