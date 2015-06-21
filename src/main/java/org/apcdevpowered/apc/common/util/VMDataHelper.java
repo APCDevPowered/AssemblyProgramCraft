@@ -37,7 +37,7 @@ public class VMDataHelper
     public static UUID writeToData(World world, VirtualMachine vm) throws NodeIOException
     {
         UUID uuid = vm.getUUID();
-        File worldDirectory = world.getSaveHandler().getWorldDirectory();
+        File worldDirectory = WorldHelper.getSaveFolder(world);
         File vmdataDirectory;
         try
         {
@@ -140,7 +140,7 @@ public class VMDataHelper
                 }
             }
         }
-        File worldDirectory = world.getSaveHandler().getWorldDirectory();
+        File worldDirectory = WorldHelper.getSaveFolder(world);
         File vmdataDirectory;
         try
         {
