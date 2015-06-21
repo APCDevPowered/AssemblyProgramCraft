@@ -625,9 +625,27 @@ public class GuiMultipleLineTextField extends Gui implements IEventNode
             {
                 GuiScreen.setClipboardString(getSelectedtext());
             }
+            else if (isCtrlDown() && key == Keyboard.KEY_X)
+            {
+                GuiScreen.setClipboardString(getSelectedtext());
+                int start = Math.min(selectedFrom, selectedTo);
+                int end = Math.max(selectedFrom, selectedTo);
+                text = text.substring(0, start) + text.substring(end, text.length());
+                setCursor(start);
+                selectedFrom = start;
+                selectedTo = start;
+            }
             else if (isCtrlDown() && key == Keyboard.KEY_V && isEditable)
             {
                 this.insertText(GuiScreen.getClipboardString());
+            }
+            else if (isCtrlDown() && key == Keyboard.KEY_Z && isEditable)
+            {
+                
+            }
+            else if (isCtrlDown() && key == Keyboard.KEY_Y && isEditable)
+            {
+                
             }
             else if (key == Keyboard.KEY_RETURN && isEditable)
             {
