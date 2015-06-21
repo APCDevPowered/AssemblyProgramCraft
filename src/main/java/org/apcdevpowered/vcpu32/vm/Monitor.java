@@ -7,6 +7,13 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apcdevpowered.vcpu32.vm.debugger.impl.MonitorReferenceImpl;
+import org.apcdevpowered.vcpu32.vm.storage.container.NodeContainerArray;
+import org.apcdevpowered.vcpu32.vm.storage.container.NodeContainerArray.NodeContainerArrayEntry;
+import org.apcdevpowered.vcpu32.vm.storage.container.NodeContainerMap;
+import org.apcdevpowered.vcpu32.vm.storage.exception.ElementNotFoundException;
+import org.apcdevpowered.vcpu32.vm.storage.exception.ElementTypeMismatchException;
+import org.apcdevpowered.vcpu32.vm.storage.scalar.NodeScalarInteger;
+import org.apcdevpowered.vcpu32.vm.storage.scalar.NodeScalarIntegerArray;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
@@ -14,29 +21,21 @@ import net.minecraft.nbt.NBTTagList;
 public class Monitor
 {
     private VirtualMachine vm;
-    
     private int handleValue;
-    
     private List<AssemblyVirtualThread> blockingThreadList = new ArrayList<AssemblyVirtualThread>();
-    
     private List<AssemblyVirtualThread> waitingThreadList = new ArrayList<AssemblyVirtualThread>();
     private Map<AssemblyVirtualThread, Integer> waitingThreadLockCountMap = new HashMap<AssemblyVirtualThread, Integer>();
-    
     private AssemblyVirtualThread holdsLockThread;
     private int lockCount;
-    
     private int[] blockingThreadHandlerList;
-    
     private int[] waitingThreadHandlerList;
     private Map<Integer, Integer> waitingThreadHandlerLockCountMap;
-    
     private int holdsLockThreadHandleValue = -1;
     
     public Monitor(VirtualMachine vm)
     {
         this(vm, 0);
     }
-    
     public Monitor(VirtualMachine vm, int handlerValue)
     {
         this.vm = vm;
@@ -46,7 +45,6 @@ public class Monitor
     {
         waitLockNotify(0);
     }
-
     public synchronized void waitLockNotify(long timeout)
     {
         try
@@ -55,12 +53,11 @@ public class Monitor
         }
         catch (InterruptedException e)
         {
-            
         }
     }
-
     /**
-     * @param avThread 要获取监视器锁的线程
+     * @param avThread
+     *            要获取监视器锁的线程
      * @return 返回-1为获取锁失败，其他线程已经锁定此监视器，线程应该进入等待监视器通知状态，否则返回当前线程的锁定次数
      */
     public synchronized int lockMonitor(AssemblyVirtualThread avThread)
@@ -68,19 +65,21 @@ public class Monitor
         return lockMonitor(avThread, 1);
     }
     /**
-     * @param avThread 要获取监视器锁的线程
-     * @param times 要获取的次数，应大于0
+     * @param avThread
+     *            要获取监视器锁的线程
+     * @param times
+     *            要获取的次数，应大于0
      * @return 返回-1为获取锁失败，其他线程已经锁定此监视器，线程应该进入等待监视器通知状态，否则返回当前线程的锁定次数
      */
     public synchronized int lockMonitor(AssemblyVirtualThread avThread, int times)
     {
-        if(times <= 0)
+        if (times <= 0)
         {
             throw new IllegalArgumentException();
         }
-        if(holdsLockThread == null)
+        if (holdsLockThread == null)
         {
-            if(blockingThreadList.contains(avThread))
+            if (blockingThreadList.contains(avThread))
             {
                 blockingThreadList.remove(avThread);
             }
@@ -90,7 +89,7 @@ public class Monitor
         }
         else
         {
-            if(holdsLockThread == avThread)
+            if (holdsLockThread == avThread)
             {
                 lockCount += times;
                 return lockCount;
@@ -103,7 +102,8 @@ public class Monitor
         }
     }
     /**
-     * @param avThread 要释放监视器锁的线程
+     * @param avThread
+     *            要释放监视器锁的线程
      * @return 返回-1为释放锁失败，此线程没有锁定此监视器，否则返回当前线程的锁定次数，为0则为已完全解锁
      */
     public synchronized int unlockMonitor(AssemblyVirtualThread avThread)
@@ -112,7 +112,8 @@ public class Monitor
     }
     /**
      * 
-     * @param avThread 要查看是否在此监视器上阻塞等待的线程
+     * @param avThread
+     *            要查看是否在此监视器上阻塞等待的线程
      * @return 线程是否在此监视器上阻塞等待
      */
     public synchronized boolean isBlockingOnMonitor(AssemblyVirtualThread avThread)
@@ -120,23 +121,25 @@ public class Monitor
         return blockingThreadList.contains(avThread);
     }
     /**
-     * @param avThread 要释放监视器锁的线程
-     * @param times 最多要释放的次数，应大于0或等于-1（释放全部）
+     * @param avThread
+     *            要释放监视器锁的线程
+     * @param times
+     *            最多要释放的次数，应大于0或等于-1（释放全部）
      * @return 返回-1为释放锁失败，此线程没有锁定此监视器，否则返回当前线程的锁定次数，为0则为已完全解锁
      */
     public synchronized int unlockMonitor(AssemblyVirtualThread avThread, int times)
     {
-        if(times <= 0 && times != -1)
+        if (times <= 0 && times != -1)
         {
             throw new IllegalArgumentException();
         }
-        if(holdsLockThread != avThread)
+        if (holdsLockThread != avThread)
         {
             return -1;
         }
         else
         {
-            if(times == -1)
+            if (times == -1)
             {
                 holdsLockThread = null;
                 lockCount = 0;
@@ -146,7 +149,7 @@ public class Monitor
             else
             {
                 lockCount -= times;
-                if(lockCount <= 0)
+                if (lockCount <= 0)
                 {
                     holdsLockThread = null;
                     lockCount = 0;
@@ -157,12 +160,13 @@ public class Monitor
         }
     }
     /**
-     * @param avThread 要取消阻塞等待锁定监视器的线程
+     * @param avThread
+     *            要取消阻塞等待锁定监视器的线程
      * @return 返回true为取消成功，返回false为未在此监视器上阻塞等待
      */
     public synchronized boolean cancelLockMonitor(AssemblyVirtualThread avThread)
     {
-        if(blockingThreadList.contains(avThread))
+        if (blockingThreadList.contains(avThread))
         {
             blockingThreadList.remove(avThread);
             return true;
@@ -188,7 +192,7 @@ public class Monitor
     }
     public synchronized boolean waitMonitor(AssemblyVirtualThread avThread)
     {
-        if(holdsLockThread != avThread)
+        if (holdsLockThread != avThread)
         {
             return false;
         }
@@ -203,7 +207,7 @@ public class Monitor
     }
     public synchronized boolean cancelWaitMonitor(AssemblyVirtualThread avThread)
     {
-        if(waitingThreadList.contains(avThread))
+        if (waitingThreadList.contains(avThread))
         {
             waitingThreadList.remove(avThread);
             return true;
@@ -215,21 +219,21 @@ public class Monitor
     }
     public synchronized boolean notifyMonitor(AssemblyVirtualThread avThread, int count)
     {
-        if(holdsLockThread != avThread)
+        if (holdsLockThread != avThread)
         {
             return false;
         }
         else
         {
-            if(count <= 0)
+            if (count <= 0)
             {
                 waitingThreadList.clear();
             }
             else
             {
-                for(int i = 0;i < count;i++)
+                for (int i = 0; i < count; i++)
                 {
-                    if(waitingThreadList.isEmpty())
+                    if (waitingThreadList.isEmpty())
                     {
                         break;
                     }
@@ -249,15 +253,15 @@ public class Monitor
     }
     public synchronized boolean restoreMonitorLock(AssemblyVirtualThread AVThread)
     {
-        if(waitingThreadLockCountMap.containsKey(AVThread))
+        if (waitingThreadLockCountMap.containsKey(AVThread))
         {
-            if(waitingThreadList.contains(AVThread))
+            if (waitingThreadList.contains(AVThread))
             {
                 return false;
             }
             else
             {
-                if(holdsLockThread == null)
+                if (holdsLockThread == null)
                 {
                     holdsLockThread = AVThread;
                     lockCount = waitingThreadLockCountMap.get(AVThread);
@@ -305,76 +309,128 @@ public class Monitor
     }
     public synchronized void onThreadDeath(AssemblyVirtualThread avThread)
     {
-        if(isBlockingOnMonitor(avThread))
+        if (isBlockingOnMonitor(avThread))
         {
             cancelLockMonitor(avThread);
         }
-        if(isWaitingOnMonitor(avThread))
+        if (isWaitingOnMonitor(avThread))
         {
             cancelWaitMonitor(avThread);
             restoreMonitorLock(avThread);
         }
-        if(getHoldsLockThread() == avThread)
+        if (getHoldsLockThread() == avThread)
         {
             unlockMonitor(avThread, -1);
         }
     }
     public synchronized void loadMonitorRelation()
     {
-        if(waitingThreadHandlerList != null)
+        if (waitingThreadHandlerList != null)
         {
-            for(int i = 0 ; i < waitingThreadHandlerList.length ; i++)
+            for (int i = 0; i < waitingThreadHandlerList.length; i++)
             {
                 waitingThreadList.add(vm.getVMThread(waitingThreadHandlerList[i]));
             }
             waitingThreadHandlerList = null;
         }
-        if(blockingThreadHandlerList != null)
+        if (blockingThreadHandlerList != null)
         {
-            for(int i = 0 ; i < blockingThreadHandlerList.length ; i++)
+            for (int i = 0; i < blockingThreadHandlerList.length; i++)
             {
                 blockingThreadList.add(vm.getVMThread(blockingThreadHandlerList[i]));
             }
             blockingThreadHandlerList = null;
         }
-        if(waitingThreadHandlerLockCountMap != null)
+        if (waitingThreadHandlerLockCountMap != null)
         {
-            for(Entry<Integer, Integer> entry : waitingThreadHandlerLockCountMap.entrySet())
+            for (Entry<Integer, Integer> entry : waitingThreadHandlerLockCountMap.entrySet())
             {
                 waitingThreadLockCountMap.put(vm.getVMThread(entry.getKey()), entry.getValue());
             }
             waitingThreadHandlerLockCountMap = null;
         }
-        if(holdsLockThreadHandleValue != -1)
+        if (holdsLockThreadHandleValue != -1)
         {
             holdsLockThread = vm.getVMThread(holdsLockThreadHandleValue);
             holdsLockThreadHandleValue = -1;
         }
     }
+    public synchronized void writeToNode(NodeContainerMap monitorNodeContainerMap)
+    {
+        monitorNodeContainerMap.addElement(NodeContainerMap.makeKey("handleValue"), handleValue);
+        {
+            int temp[] = new int[waitingThreadList.size()];
+            for (int i = 0; i < waitingThreadList.size(); i++)
+            {
+                temp[i] = waitingThreadList.get(i).getThreadHandler();
+            }
+            monitorNodeContainerMap.addElement(NodeContainerMap.makeKey("waitingThreadHandlerList"), temp);
+        }
+        {
+            int temp[] = new int[blockingThreadList.size()];
+            for (int i = 0; i < blockingThreadList.size(); i++)
+            {
+                temp[i] = blockingThreadList.get(i).getThreadHandler();
+            }
+            monitorNodeContainerMap.addElement(NodeContainerMap.makeKey("blockingThreadHandlerList"), temp);
+        }
+        NodeContainerArray waitingThreadHandlerLockCountMapNodeContainerArray = new NodeContainerArray();
+        for (Entry<AssemblyVirtualThread, Integer> entry : waitingThreadLockCountMap.entrySet())
+        {
+            NodeContainerMap waitingThreadHandlerLockCountMapEntryNodeContainerMap = new NodeContainerMap();
+            waitingThreadHandlerLockCountMapEntryNodeContainerMap.addElement(NodeContainerMap.makeKey("key"), entry.getKey().getThreadHandler());
+            waitingThreadHandlerLockCountMapEntryNodeContainerMap.addElement(NodeContainerMap.makeKey("value"), entry.getValue());
+            waitingThreadHandlerLockCountMapNodeContainerArray.add(waitingThreadHandlerLockCountMapEntryNodeContainerMap);
+        }
+        monitorNodeContainerMap.addElement(NodeContainerMap.makeKey("waitingThreadHandlerLockCountMap"), waitingThreadHandlerLockCountMapNodeContainerArray);
+        if (holdsLockThread != null)
+        {
+            monitorNodeContainerMap.addElement(NodeContainerMap.makeKey("holdsLockThreadHandleValue"), holdsLockThread.getThreadHandler());
+        }
+        monitorNodeContainerMap.addElement(NodeContainerMap.makeKey("lockCount"), lockCount);
+    }
+    public synchronized void readFromNode(NodeContainerMap monitorNodeContainerMap) throws ElementNotFoundException, ElementTypeMismatchException
+    {
+        handleValue = monitorNodeContainerMap.getElement(NodeContainerMap.makeKey("handleValue"), NodeScalarInteger.class).getData();
+        waitingThreadHandlerList = monitorNodeContainerMap.getElement(NodeContainerMap.makeKey("waitingThreadHandlerList"), NodeScalarIntegerArray.class).getData();
+        blockingThreadHandlerList = monitorNodeContainerMap.getElement(NodeContainerMap.makeKey("blockingThreadHandlerList"), NodeScalarIntegerArray.class).getData();
+        NodeContainerArray waitingThreadHandlerLockCountMapNodeContainerArray = monitorNodeContainerMap.getElement(NodeContainerMap.makeKey("waitingThreadHandlerLockCountMap"), NodeContainerArray.class);
+        waitingThreadHandlerLockCountMap = new HashMap<Integer, Integer>();
+        for (NodeContainerArrayEntry entry : waitingThreadHandlerLockCountMapNodeContainerArray.entrySet())
+        {
+            NodeContainerMap waitingThreadHandlerLockCountMapEntryNodeContainerMap = entry.getValue().castElemenet(NodeContainerMap.class);
+            int key = waitingThreadHandlerLockCountMapEntryNodeContainerMap.getElement(NodeContainerMap.makeKey("key"), NodeScalarInteger.class).getData();
+            int value = waitingThreadHandlerLockCountMapEntryNodeContainerMap.getElement(NodeContainerMap.makeKey("value"), NodeScalarInteger.class).getData();
+            waitingThreadHandlerLockCountMap.put(key, value);
+        }
+        if (monitorNodeContainerMap.hasElement(NodeContainerMap.makeKey("holdsLockThreadHandleValue")))
+        {
+            holdsLockThreadHandleValue = monitorNodeContainerMap.getElement(NodeContainerMap.makeKey("holdsLockThreadHandleValue"), NodeScalarInteger.class).getData();
+        }
+        lockCount = monitorNodeContainerMap.getElement(NodeContainerMap.makeKey("lockCount"), NodeScalarInteger.class).getData();
+    }
+    @Deprecated
     public synchronized void writeToNBT(NBTTagCompound monitorNbtTagCompound)
     {
         monitorNbtTagCompound.setInteger("handleValue", handleValue);
-        
         {
             int temp[] = new int[waitingThreadList.size()];
-            for(int i = 0 ; i < waitingThreadList.size() ;  i++)
+            for (int i = 0; i < waitingThreadList.size(); i++)
             {
                 temp[i] = waitingThreadList.get(i).getThreadHandler();
             }
             monitorNbtTagCompound.setIntArray("waitingThreadHandlerList", temp);
         }
-        
         {
             int temp[] = new int[blockingThreadList.size()];
-            for(int i = 0 ; i < blockingThreadList.size() ;  i++)
+            for (int i = 0; i < blockingThreadList.size(); i++)
             {
                 temp[i] = blockingThreadList.get(i).getThreadHandler();
             }
             monitorNbtTagCompound.setIntArray("blockingThreadHandlerList", temp);
         }
-        
         NBTTagList waitingThreadHandlerLockCountMapTagList = new NBTTagList();
-        for(Entry<AssemblyVirtualThread, Integer> entry : waitingThreadLockCountMap.entrySet())
+        for (Entry<AssemblyVirtualThread, Integer> entry : waitingThreadLockCountMap.entrySet())
         {
             NBTTagCompound waitingThreadHandlerLockCountMapEntryTagCompound = new NBTTagCompound();
             waitingThreadHandlerLockCountMapEntryTagCompound.setInteger("key", entry.getKey().getThreadHandler());
@@ -382,34 +438,31 @@ public class Monitor
             waitingThreadHandlerLockCountMapTagList.appendTag(waitingThreadHandlerLockCountMapEntryTagCompound);
         }
         monitorNbtTagCompound.setTag("waitingThreadHandlerLockCountMap", waitingThreadHandlerLockCountMapTagList);
-        
-        if(holdsLockThread != null)
+        if (holdsLockThread != null)
         {
             monitorNbtTagCompound.setInteger("holdsLockThreadHandleValue", holdsLockThread.getThreadHandler());
         }
         monitorNbtTagCompound.setInteger("lockCount", lockCount);
     }
+    @Deprecated
     public synchronized void readFromNBT(NBTTagCompound monitorNbtTagCompound)
     {
         handleValue = monitorNbtTagCompound.getInteger("handleValue");
-        
         waitingThreadHandlerList = monitorNbtTagCompound.getIntArray("waitingThreadHandlerList");
         blockingThreadHandlerList = monitorNbtTagCompound.getIntArray("blockingThreadHandlerList");
-        
         NBTTagList waitingThreadHandlerLockCountMapTagList = monitorNbtTagCompound.getTagList("waitingThreadHandlerLockCountMap", 10);
         waitingThreadHandlerLockCountMap = new HashMap<Integer, Integer>();
-        for(int i = 0;i < waitingThreadHandlerLockCountMapTagList.tagCount();i++)
+        for (int i = 0; i < waitingThreadHandlerLockCountMapTagList.tagCount(); i++)
         {
             NBTTagCompound waitingThreadHandlerLockCountMapEntryTagCompound = waitingThreadHandlerLockCountMapTagList.getCompoundTagAt(i);
             Integer key = waitingThreadHandlerLockCountMapEntryTagCompound.getInteger("key");
             Integer value = waitingThreadHandlerLockCountMapEntryTagCompound.getInteger("value");
-            if(key != null && value != null)
+            if (key != null && value != null)
             {
                 waitingThreadHandlerLockCountMap.put(key, value);
             }
         }
-        
-        if(monitorNbtTagCompound.hasKey("holdsLockThreadHandleValue"))
+        if (monitorNbtTagCompound.hasKey("holdsLockThreadHandleValue"))
         {
             holdsLockThreadHandleValue = monitorNbtTagCompound.getInteger("holdsLockThreadHandleValue");
         }
@@ -423,7 +476,7 @@ public class Monitor
     {
         synchronized (referenceInitLock)
         {
-            if(reference == null)
+            if (reference == null)
             {
                 reference = new MonitorReferenceImpl(vm.getReference(), this);
             }

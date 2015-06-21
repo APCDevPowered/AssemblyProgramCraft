@@ -7,9 +7,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.UUID;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+
 import org.apcdevpowered.vcpu32.asm.ProgramPackage;
 import org.apcdevpowered.vcpu32.vm.debugger.impl.ThreadReferenceImpl;
 import org.apcdevpowered.vcpu32.vm.debugger.impl.VirtualMachineReferenceImpl;
@@ -22,10 +24,18 @@ import org.apcdevpowered.vcpu32.vm.debugger.impl.event.VMStartEventImpl;
 import org.apcdevpowered.vcpu32.vm.debugger.impl.request.ThreadDeathRequestImpl;
 import org.apcdevpowered.vcpu32.vm.debugger.impl.request.ThreadStartRequestImpl;
 import org.apcdevpowered.vcpu32.vm.debugger.impl.request.VMDeathRequestImpl;
+import org.apcdevpowered.vcpu32.vm.storage.container.NodeContainerArray;
+import org.apcdevpowered.vcpu32.vm.storage.container.NodeContainerArray.NodeContainerArrayEntry;
+import org.apcdevpowered.vcpu32.vm.storage.container.NodeContainerMap;
+import org.apcdevpowered.vcpu32.vm.storage.exception.ElementNotFoundException;
+import org.apcdevpowered.vcpu32.vm.storage.exception.ElementTypeMismatchException;
+import org.apcdevpowered.vcpu32.vm.storage.scalar.NodeScalarIntegerArray;
+import org.apcdevpowered.vcpu32.vm.storage.scalar.NodeScalarString;
 
 public class VirtualMachine
 {
     public static final String VERSION = "1.0.0";
+    private UUID uuid;
     public AdvancedRAMArray ram;
     private ProgramPackage programPak;
     private ProgramPackage biosPak;
@@ -41,12 +51,24 @@ public class VirtualMachine
     
     public VirtualMachine()
     {
+        this(false);
+    }
+    public VirtualMachine(boolean newUUID)
+    {
+        if (newUUID)
+        {
+            uuid = UUID.randomUUID();
+        }
         devicesList = new HashMap<Integer, AbstractExternalDevice>();
         ram = new AdvancedRAMArray(this, 65536);
         closedThreadList = new ArrayList<Integer>();
         avtList = new HashMap<Integer, AssemblyVirtualThread>();
         closedMonitorList = new ArrayList<Integer>();
         monitorList = new HashMap<Integer, Monitor>();
+    }
+    public UUID getUUID()
+    {
+        return uuid == null ? uuid = UUID.randomUUID() : uuid;
     }
     protected int getDeviceType(int port)
     {
@@ -674,6 +696,143 @@ public class VirtualMachine
             return Collections.unmodifiableList(new ArrayList<Monitor>(monitorList.values()));
         }
     }
+    public synchronized void writeDataToNode(NodeContainerMap vmNodeContainerMap)
+    {
+        boolean needSuspend = !isSuspend;
+        if (needSuspend)
+        {
+            suspendVM();
+        }
+        vmNodeContainerMap.addElement(NodeContainerMap.makeKey("uuid"), getUUID().toString());
+        vmNodeContainerMap.addElement(NodeContainerMap.makeKey("isRunning"), this.isRunning);
+        if (programPak != null)
+        {
+            NodeContainerMap programPakNodeContainerMap = new NodeContainerMap();
+            programPak.writeToNode(programPakNodeContainerMap);
+            vmNodeContainerMap.addElement(NodeContainerMap.makeKey("programPak"), (programPakNodeContainerMap));
+        }
+        if (biosPak != null)
+        {
+            NodeContainerMap biosPakNodeContainerMap = new NodeContainerMap();
+            biosPak.writeToNode(biosPakNodeContainerMap);
+            vmNodeContainerMap.addElement(NodeContainerMap.makeKey("biosPak"), biosPakNodeContainerMap);
+        }
+        if (ram != null)
+        {
+            NodeContainerMap ramNodeContainerMap = new NodeContainerMap();
+            ram.writeToNode(ramNodeContainerMap);
+            vmNodeContainerMap.addElement(NodeContainerMap.makeKey("ram"), ramNodeContainerMap);
+        }
+        if (closedThreadList != null)
+        {
+            synchronized (closedThreadList)
+            {
+                int[] temp1 = new int[closedThreadList.size()];
+                for (int i = 0; i < closedThreadList.size(); i++)
+                {
+                    temp1[i] = closedThreadList.get(i);
+                }
+                vmNodeContainerMap.addElement(NodeContainerMap.makeKey("closedThreadList"), temp1);
+            }
+        }
+        if (avtList != null)
+        {
+            synchronized (avtList)
+            {
+                NodeContainerArray avtListNodeContainerArray = new NodeContainerArray();
+                Iterator<AssemblyVirtualThread> avtListIterator = avtList.values().iterator();
+                while (avtListIterator.hasNext())
+                {
+                    NodeContainerMap avtNodeContainerMap = new NodeContainerMap();
+                    avtListIterator.next().writeToNode(avtNodeContainerMap);
+                    avtListNodeContainerArray.add(avtNodeContainerMap);
+                }
+                vmNodeContainerMap.addElement(NodeContainerMap.makeKey("avtList"), avtListNodeContainerArray);
+            }
+        }
+        if (monitorList != null)
+        {
+            synchronized (monitorList)
+            {
+                NodeContainerArray monitorListNodeContainerArray = new NodeContainerArray();
+                Iterator<Monitor> monitorListIterator = monitorList.values().iterator();
+                while (monitorListIterator.hasNext())
+                {
+                    NodeContainerMap avtNodeContainerMap = new NodeContainerMap();
+                    monitorListIterator.next().writeToNode(avtNodeContainerMap);
+                    monitorListNodeContainerArray.add(avtNodeContainerMap);
+                }
+                vmNodeContainerMap.addElement(NodeContainerMap.makeKey("monitorList"), monitorListNodeContainerArray);
+            }
+        }
+        if (needSuspend)
+        {
+            resumeVM();
+        }
+    }
+    public synchronized void readDataFromNode(NodeContainerMap vmNodeContainerMap) throws ElementNotFoundException, ElementTypeMismatchException
+    {
+        if (isRunning == true)
+        {
+            throw new IllegalStateException();
+        }
+        try
+        {
+            uuid = UUID.fromString(vmNodeContainerMap.getScalar(NodeContainerMap.makeKey("uuid"), NodeScalarString.class).getData());
+        }
+        catch (IllegalArgumentException e)
+        {
+        }
+        isRunning = vmNodeContainerMap.getBoolean(NodeContainerMap.makeKey("isRunning"));
+        if (vmNodeContainerMap.hasElement(NodeContainerMap.makeKey("programPak")))
+        {
+            programPak = new ProgramPackage();
+            programPak.readFromNode(vmNodeContainerMap.getMap(NodeContainerMap.makeKey("programPak")));
+        }
+        if (vmNodeContainerMap.hasElement(NodeContainerMap.makeKey("biosPak")))
+        {
+            biosPak = new ProgramPackage();
+            biosPak.readFromNode(vmNodeContainerMap.getMap(NodeContainerMap.makeKey("biosPak")));
+        }
+        ram = new AdvancedRAMArray(this);
+        ram.readFromNode(vmNodeContainerMap.getMap(NodeContainerMap.makeKey("ram")));
+        synchronized (closedThreadList)
+        {
+            int[] temp1;
+            temp1 = vmNodeContainerMap.getElement(NodeContainerMap.makeKey("closedThreadList"), NodeScalarIntegerArray.class).getData();
+            for (int i = 0; i < temp1.length; i++)
+            {
+                closedThreadList.add(temp1[i]);
+            }
+        }
+        synchronized (avtList)
+        {
+            NodeContainerArray avtListNodeContainerArray = vmNodeContainerMap.getArray(NodeContainerMap.makeKey("avtList"));
+            for (NodeContainerArrayEntry entry : avtListNodeContainerArray.entrySet())
+            {
+                NodeContainerMap avtNodeContainerMap = entry.getValue().castElemenet(NodeContainerMap.class);
+                AssemblyVirtualThread avt = new AssemblyVirtualThread(this);
+                avt.readFromNode(avtNodeContainerMap);
+                avtList.put(avt.getThreadHandler(), avt);
+                synchronized (threadReferenceList)
+                {
+                    threadReferenceList.add(avt.getReference());
+                }
+            }
+        }
+        synchronized (monitorList)
+        {
+            NodeContainerArray monitorListNodeContainerArray = vmNodeContainerMap.getArray(NodeContainerMap.makeKey("monitorList"));
+            for (NodeContainerArrayEntry entry : monitorListNodeContainerArray.entrySet())
+            {
+                NodeContainerMap monitorNodeContainerMap = entry.getValue().castElemenet(NodeContainerMap.class);
+                Monitor monitor = new Monitor(this);
+                monitor.readFromNode(monitorNodeContainerMap);
+                monitorList.put(monitor.getMonitorHandler(), monitor);
+            }
+        }
+    }
+    @Deprecated
     public synchronized void writeDataToNBT(NBTTagCompound nbtTagCompound)
     {
         boolean needSuspend = !isSuspend;
@@ -681,6 +840,7 @@ public class VirtualMachine
         {
             suspendVM();
         }
+        nbtTagCompound.setString("uuid", getUUID().toString());
         nbtTagCompound.setBoolean("isRunning", this.isRunning);
         if (programPak != null)
         {
@@ -747,11 +907,19 @@ public class VirtualMachine
             resumeVM();
         }
     }
+    @Deprecated
     public synchronized void readDataFormNBT(NBTTagCompound nbtTagCompound)
     {
         if (isRunning == true)
         {
             throw new IllegalStateException();
+        }
+        try
+        {
+            uuid = UUID.fromString(nbtTagCompound.getString("uuid"));
+        }
+        catch (IllegalArgumentException e)
+        {
         }
         isRunning = nbtTagCompound.getBoolean("isRunning");
         if (nbtTagCompound.hasKey("programPak"))

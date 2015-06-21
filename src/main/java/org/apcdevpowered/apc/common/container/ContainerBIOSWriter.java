@@ -1,7 +1,11 @@
 package org.apcdevpowered.apc.common.container;
 
+import java.util.UUID;
+
 import org.apcdevpowered.apc.common.inventory.BIOSWriterInventory;
 import org.apcdevpowered.apc.common.slot.SlotVCPU32ComputerCMOSChip;
+import org.apcdevpowered.apc.common.util.NodeIOException;
+import org.apcdevpowered.apc.common.util.ProgramDataHelper;
 import org.apcdevpowered.vcpu32.asm.Assembler;
 import org.apcdevpowered.vcpu32.asm.CompileLogger;
 import org.apcdevpowered.vcpu32.asm.ProgramPackage;
@@ -53,17 +57,38 @@ public class ContainerBIOSWriter extends Container
     }
     public String decompiledSource()
     {
-        if(temp_inv.getStackInSlot(0) == null)
+        ItemStack itemStack = temp_inv.getStackInSlot(0);
+        if(itemStack == null)
         {
             return null;
         }
-        if(temp_inv.getStackInSlot(0).getTagCompound() == null)
+        NBTTagCompound programNBTTagCompound = temp_inv.getStackInSlot(0).getTagCompound();
+        if(programNBTTagCompound == null)
         {
             return null;
         }
-        NBTTagCompound nbtTagCompound = (NBTTagCompound)temp_inv.getStackInSlot(0).getTagCompound().copy();
         ProgramPackage programPackage = new ProgramPackage();
-        programPackage.readFromNBT(nbtTagCompound);
+        if(!programNBTTagCompound.hasKey("uuid", 8))
+        {
+            return null;
+        }
+        UUID uuid;
+        try
+        {
+            uuid = UUID.fromString(programNBTTagCompound.getString("uuid"));
+        }
+        catch (IllegalArgumentException  e)
+        {
+            return null;
+        }
+        try
+        {
+            ProgramDataHelper.readFormNode(uuid, programPackage);
+        }
+        catch (NodeIOException e)
+        {
+            return null;
+        }
         return Disassembler.decompile(programPackage);
     }
     public boolean compileSource(String source, CompileLogger logger)
@@ -85,9 +110,18 @@ public class ContainerBIOSWriter extends Container
         {
             return false;
         }
-        NBTTagCompound nbtTagCompound = temp_inv.getStackInSlot(0).getTagCompound() == null ? new NBTTagCompound() : (NBTTagCompound)temp_inv.getStackInSlot(0).getTagCompound().copy();
-        program.writeToNBT(nbtTagCompound);
-        temp_inv.getStackInSlot(0).setTagCompound(nbtTagCompound);
+        NBTTagCompound programNBTTagCompound = temp_inv.getStackInSlot(0).getTagCompound() == null ? new NBTTagCompound() : (NBTTagCompound)temp_inv.getStackInSlot(0).getTagCompound().copy();
+        UUID uuid = UUID.randomUUID();
+        try
+        {
+            ProgramDataHelper.writeToData(uuid, program);
+        }
+        catch (NodeIOException e)
+        {
+            return false;
+        }
+        programNBTTagCompound.setString("uuid", uuid.toString());
+        temp_inv.getStackInSlot(0).setTagCompound(programNBTTagCompound);
         return true;
     }
     public boolean canInteractWith(EntityPlayer var1)

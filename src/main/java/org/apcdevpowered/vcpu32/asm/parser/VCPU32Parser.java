@@ -2,9 +2,8 @@
 package org.apcdevpowered.vcpu32.asm.parser;
 
 import java.io.StringReader;
-
-import org.apcdevpowered.vcpu32.asm.parser.syntaxtree.*;
 import org.apcdevpowered.vcpu32.asm.parser.visitor.*;
+import org.apcdevpowered.vcpu32.asm.parser.syntaxtree.*;
 
 
 public class VCPU32Parser implements VCPU32ParserConstants {
