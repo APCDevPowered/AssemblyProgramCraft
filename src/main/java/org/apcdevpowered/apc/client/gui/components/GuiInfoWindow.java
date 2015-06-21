@@ -13,7 +13,7 @@ import net.minecraft.client.gui.GuiButton;
 @SideOnly(Side.CLIENT)
 public class GuiInfoWindow extends Gui implements IEventNode
 {
-    //Auto close after 60 ticks(3 second)
+    // Auto close after 60 ticks(3 second)
     public static final int DEFAULT_DISPLAY_TICKS = 60;
     private Minecraft mc;
     private FontRenderer fontRenderer;
@@ -41,17 +41,16 @@ public class GuiInfoWindow extends Gui implements IEventNode
         this.closeButton = new GuiButton(1, xPos + width - 37 - 7, yPos + height - 20 - 7, 37, 20, "关闭");
         this.vanillaBackground = new GuiVanillaBackground(xPos, yPos, width, height);
         this.textField = new GuiMultipleLineTextField(fontRenderer, xPos + 5, yPos + 15, width - 10, height - 45, 0xFFFFFFFF, 0xFF000000, 0xFF000000, 0xFF0000FF, 0xFFFFFFFF);
-        
         textField.setEditable(false);
     }
     public void drawInfoWindow(int mouseX, int mouseY)
     {
-        if(isShowing())
+        if (isShowing())
         {
             vanillaBackground.drawVanillaBackground();
             fontRenderer.drawString("信息：", xPos + 5, yPos + 5, 0x404040);
             textField.drawMultipleLineTextField();
-            if(isFocused)
+            if (isFocused)
             {
                 closeButton.drawButton(mc, mouseX, mouseY);
                 lockButton.drawButton(mc, mouseX, mouseY);
@@ -76,7 +75,7 @@ public class GuiInfoWindow extends Gui implements IEventNode
     }
     public void checkTextFieldFocus(int mouseX, int mouseY)
     {
-        if(mouseX >= textField.getXPos() && mouseY >= textField.getYPos() && mouseX < textField.getXPos() + textField.getWidth() && mouseY < textField.getYPos() + textField.getHeight())
+        if (mouseX >= textField.getXPos() && mouseY >= textField.getYPos() && mouseX < textField.getXPos() + textField.getWidth() && mouseY < textField.getYPos() + textField.getHeight())
         {
             this.lockButton.enabled = false;
             isForceOpen = true;
@@ -100,16 +99,16 @@ public class GuiInfoWindow extends Gui implements IEventNode
     @Override
     public void mousePressed(int key, int mouseX, int mouseY)
     {
-        if(isFocused)
+        if (isFocused)
         {
             checkTextFieldFocus(mouseX, mouseY);
-            if(lockButton.mousePressed(mc, mouseX, mouseY))
+            if (lockButton.mousePressed(mc, mouseX, mouseY))
             {
                 lockButton.playPressSound(this.mc.getSoundHandler());
                 lockButton.enabled = false;
                 isForceOpen = true;
             }
-            if(closeButton.mousePressed(mc, mouseX, mouseY))
+            if (closeButton.mousePressed(mc, mouseX, mouseY))
             {
                 closeButton.playPressSound(this.mc.getSoundHandler());
                 lockButton.enabled = true;
@@ -147,7 +146,7 @@ public class GuiInfoWindow extends Gui implements IEventNode
     @Override
     public void tick()
     {
-        if(infoTime > 0)
+        if (infoTime > 0)
         {
             infoTime--;
         }

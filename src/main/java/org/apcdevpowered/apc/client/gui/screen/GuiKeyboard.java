@@ -15,11 +15,11 @@ import net.minecraft.util.ResourceLocation;
 public class GuiKeyboard extends GuiScreen
 {
     private static final ResourceLocation guiKeyboardTextures = new ResourceLocation("AssemblyProgramCraft:textures/gui/gui_keyboard.png");
-    
     private TileEntityExternalDeviceKeyboard keyboard;
     private boolean isVirtualKeyboard;
     private GuiButton leaveKeyboard;
     private GuiButton turnVirtualKeyboard;
+    
     public GuiKeyboard(TileEntityExternalDeviceKeyboard keyboard)
     {
         this.keyboard = keyboard;
@@ -37,11 +37,11 @@ public class GuiKeyboard extends GuiScreen
     }
     protected void actionPerformed(GuiButton par1GuiButton)
     {
-        if(par1GuiButton.id == leaveKeyboard.id)
+        if (par1GuiButton.id == leaveKeyboard.id)
         {
             this.mc.displayGuiScreen((GuiScreen) null);
         }
-        else if(par1GuiButton.id == turnVirtualKeyboard.id)
+        else if (par1GuiButton.id == turnVirtualKeyboard.id)
         {
             isVirtualKeyboard = !isVirtualKeyboard;
         }
@@ -98,13 +98,12 @@ public class GuiKeyboard extends GuiScreen
         int x = (width + 227) / 2;
         int y = (height) / 2;
         drawTexturedModalRect(x, y, 0, 0, 86, 106);
-        super.drawScreen(par1,par2,par3);
+        super.drawScreen(par1, par2, par3);
     }
     public void handleKeyboardInput()
     {
         int i = Keyboard.getEventKey();
         char c0 = Keyboard.getEventCharacter();
-        
         if (Keyboard.getEventKeyState())
         {
             this.keyTyped(c0, i);

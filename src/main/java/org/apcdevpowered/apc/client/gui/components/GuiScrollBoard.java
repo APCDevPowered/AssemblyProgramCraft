@@ -42,14 +42,14 @@ public class GuiScrollBoard extends Gui implements IEventNode
     {
         return (isLeftButtonDown || isRightButtonDown || isDownButtonDown || isDownButtonDown || isScrollVButtonDown || isScrollHButtonDown);
     }
-    public void drawHorizontalScrollButton(int x,int y,int length)
+    public void drawHorizontalScrollButton(int x, int y, int length)
     {
         length -= 14;
         this.drawTexturedModalRect(x, y, 0, 0, 7, 14);
         this.drawTexturedModalRect(x + 7, y, 0, 28, 14, 14, length, 14);
         this.drawTexturedModalRect(x + 7 + length, y, 7, 0, 7, 14);
     }
-    public void drawVerticalScrollButton(int x,int y,int length)
+    public void drawVerticalScrollButton(int x, int y, int length)
     {
         length -= 14;
         this.drawTexturedModalRect(x, y, 0, 0, 14, 7);
@@ -64,58 +64,56 @@ public class GuiScrollBoard extends Gui implements IEventNode
         GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
         FMLClientHandler.instance().getClient().renderEngine.bindTexture(scrollTextures);
         this.drawTexturedModalRect(xPos + width - 14, yPos + height - 14, 14, 0, 14, 14);
-        this.drawTexturedModalRect(xPos, yPos +  height - 14, 14, 0, 7, 14);
-        this.drawTexturedModalRect(xPos + 7, yPos +  height - 14, 14, 28, 14, 14, width - 28, 14);
+        this.drawTexturedModalRect(xPos, yPos + height - 14, 14, 0, 7, 14);
+        this.drawTexturedModalRect(xPos + 7, yPos + height - 14, 14, 28, 14, 14, width - 28, 14);
         this.drawTexturedModalRect(xPos + width - 21, yPos + height - 14, 21, 0, 7, 14);
         this.drawTexturedModalRect(xPos + width - 14, yPos + height - 21, 14, 7, 14, 7);
         this.drawTexturedModalRect(xPos + width - 14, yPos + 7, 14, 14, 14, 14, 14, height - 28);
         this.drawTexturedModalRect(xPos + width - 14, yPos, 14, 0, 14, 7);
-        
-        //Draw bottoms
-        
-        this.drawTexturedModalRect(xPos, yPos +  height - 14, 0, 0, 14, 14);
-        if(isLeftButtonDown)
+        // Draw bottoms
+        this.drawTexturedModalRect(xPos, yPos + height - 14, 0, 0, 14, 14);
+        if (isLeftButtonDown)
         {
-            drawRect(xPos + 2, yPos +  height - 12, xPos + 12, yPos +  height - 2, 0xffb0b0b0);
+            drawRect(xPos + 2, yPos + height - 12, xPos + 12, yPos + height - 2, 0xffb0b0b0);
             GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
         }
-        this.drawTexturedModalRect(xPos, yPos +  height - 14, 42, 42, 14, 14);
-        this.drawTexturedModalRect(xPos + width - 28, yPos +  height - 14, 0, 0, 14, 14);
-        if(isRightButtonDown)
+        this.drawTexturedModalRect(xPos, yPos + height - 14, 42, 42, 14, 14);
+        this.drawTexturedModalRect(xPos + width - 28, yPos + height - 14, 0, 0, 14, 14);
+        if (isRightButtonDown)
         {
-            drawRect(xPos + width - 26, yPos +  height - 12, xPos + width - 16, yPos +  height - 2, 0xffb0b0b0);
+            drawRect(xPos + width - 26, yPos + height - 12, xPos + width - 16, yPos + height - 2, 0xffb0b0b0);
             GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
         }
-        this.drawTexturedModalRect(xPos + width - 28, yPos +  height - 14, 42, 28, 14, 14);
+        this.drawTexturedModalRect(xPos + width - 28, yPos + height - 14, 42, 28, 14, 14);
         this.drawTexturedModalRect(xPos + width - 14, yPos + height - 28, 0, 0, 14, 14);
-        if(isDownButtonDown)
+        if (isDownButtonDown)
         {
             drawRect(xPos + width - 12, yPos + height - 26, xPos + width - 2, yPos + height - 16, 0xffb0b0b0);
             GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
         }
         this.drawTexturedModalRect(xPos + width - 14, yPos + height - 28, 42, 14, 14, 14);
         this.drawTexturedModalRect(xPos + width - 14, yPos, 0, 0, 14, 14);
-        if(isUpButtonDown)
+        if (isUpButtonDown)
         {
             drawRect(xPos + width - 12, yPos + 2, xPos + width - 2, yPos + 12, 0xffb0b0b0);
             GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
         }
         this.drawTexturedModalRect(xPos + width - 14, yPos, 42, 0, 14, 14);
-        if(objWidth > width - 14)
+        if (objWidth > width - 14)
         {
             int HorizontalMaxLength = (xPos + width - 28) - (xPos + 10);
-            int HorizontalScrollButtonLength = (int)(((float)(width - 14) / (float)objWidth) * HorizontalMaxLength);
+            int HorizontalScrollButtonLength = (int) (((float) (width - 14) / (float) objWidth) * HorizontalMaxLength);
             HorizontalScrollButtonLength = HorizontalScrollButtonLength < 14 ? 14 : HorizontalScrollButtonLength;
-            int HorizontalScrollButtonOffset = (int)(((float)scrollH / (float)objWidth) * (HorizontalMaxLength - HorizontalScrollButtonLength));
-            drawHorizontalScrollButton(xPos + 12 + HorizontalScrollButtonOffset,yPos +  height - 14,HorizontalScrollButtonLength);
+            int HorizontalScrollButtonOffset = (int) (((float) scrollH / (float) objWidth) * (HorizontalMaxLength - HorizontalScrollButtonLength));
+            drawHorizontalScrollButton(xPos + 12 + HorizontalScrollButtonOffset, yPos + height - 14, HorizontalScrollButtonLength);
         }
-        if(objHight > height - 14)
+        if (objHight > height - 14)
         {
             int VerticalMaxLength = (yPos + height - 28) - (yPos + 10);
-            int VerticalScrollButtonLength = (int)(((float)(height - 14) / (float)objHight) * VerticalMaxLength);
+            int VerticalScrollButtonLength = (int) (((float) (height - 14) / (float) objHight) * VerticalMaxLength);
             VerticalScrollButtonLength = VerticalScrollButtonLength < 14 ? 14 : VerticalScrollButtonLength;
-            int VerticalScrollButtonOffset = (int)(((float)scrollV / (float)objHight) * (VerticalMaxLength - VerticalScrollButtonLength));
-            drawVerticalScrollButton(xPos + width - 14,yPos + 12 + VerticalScrollButtonOffset,VerticalScrollButtonLength);
+            int VerticalScrollButtonOffset = (int) (((float) scrollV / (float) objHight) * (VerticalMaxLength - VerticalScrollButtonLength));
+            drawVerticalScrollButton(xPos + width - 14, yPos + 12 + VerticalScrollButtonOffset, VerticalScrollButtonLength);
         }
     }
     public void drawTexturedModalRect(int par1, int par2, int par3, int par4, int par5, int par6, int par7, int par8)
@@ -125,27 +123,27 @@ public class GuiScrollBoard extends Gui implements IEventNode
         Tessellator tessellator = Tessellator.getInstance();
         WorldRenderer worldRenderer = tessellator.getWorldRenderer();
         worldRenderer.startDrawingQuads();
-        worldRenderer.addVertexWithUV((double)(par1 + 0), (double)(par2 + par8), (double)this.zLevel, (double)((float)(par3 + 0) * var7), (double)((float)(par4 + par6) * var8));
-        worldRenderer.addVertexWithUV((double)(par1 + par7), (double)(par2 + par8), (double)this.zLevel, (double)((float)(par3 + par5) * var7), (double)((float)(par4 + par6) * var8));
-        worldRenderer.addVertexWithUV((double)(par1 + par7), (double)(par2 + 0), (double)this.zLevel, (double)((float)(par3 + par5) * var7), (double)((float)(par4 + 0) * var8));
-        worldRenderer.addVertexWithUV((double)(par1 + 0), (double)(par2 + 0), (double)this.zLevel, (double)((float)(par3 + 0) * var7), (double)((float)(par4 + 0) * var8));
+        worldRenderer.addVertexWithUV((double) (par1 + 0), (double) (par2 + par8), (double) this.zLevel, (double) ((float) (par3 + 0) * var7), (double) ((float) (par4 + par6) * var8));
+        worldRenderer.addVertexWithUV((double) (par1 + par7), (double) (par2 + par8), (double) this.zLevel, (double) ((float) (par3 + par5) * var7), (double) ((float) (par4 + par6) * var8));
+        worldRenderer.addVertexWithUV((double) (par1 + par7), (double) (par2 + 0), (double) this.zLevel, (double) ((float) (par3 + par5) * var7), (double) ((float) (par4 + 0) * var8));
+        worldRenderer.addVertexWithUV((double) (par1 + 0), (double) (par2 + 0), (double) this.zLevel, (double) ((float) (par3 + 0) * var7), (double) ((float) (par4 + 0) * var8));
         tessellator.draw();
     }
     public void checkBorder()
     {
-        if(scrollH < 0)
+        if (scrollH < 0)
         {
             scrollH = 0;
         }
-        if(scrollH > objWidth)
+        if (scrollH > objWidth)
         {
             scrollH = objWidth;
         }
-        if(scrollV < 0)
+        if (scrollV < 0)
         {
             scrollV = 0;
         }
-        if(scrollV > objHight)
+        if (scrollV > objHight)
         {
             scrollV = objHight;
         }
@@ -153,51 +151,49 @@ public class GuiScrollBoard extends Gui implements IEventNode
     @Override
     public void keyReleased(char character, int key)
     {
-        
     }
     @Override
     public void keyPressed(char character, int key)
     {
-        
     }
     @Override
     public void mousePressed(int key, int mouseX, int mouseY)
     {
-        if(isFocused)
+        if (isFocused)
         {
-            if(key == 0)
+            if (key == 0)
             {
-                if((mouseX >= xPos + 1) && (mouseY >= (yPos +  height - 14 + 1)) && (mouseX < (xPos + 14 - 1)) && (mouseY < (yPos +  height - 1)))
+                if ((mouseX >= xPos + 1) && (mouseY >= (yPos + height - 14 + 1)) && (mouseX < (xPos + 14 - 1)) && (mouseY < (yPos + height - 1)))
                 {
                     isLeftButtonDown = true;
                 }
-                else if((mouseX >= (xPos + width - 28 + 1)) && (mouseY >= (yPos +  height - 14 + 1)) && (mouseX < (xPos + width - 14 - 1)) && (mouseY < (yPos +  height - 1)))
+                else if ((mouseX >= (xPos + width - 28 + 1)) && (mouseY >= (yPos + height - 14 + 1)) && (mouseX < (xPos + width - 14 - 1)) && (mouseY < (yPos + height - 1)))
                 {
                     isRightButtonDown = true;
                 }
-                else if((mouseX >= (xPos + width - 14 + 1)) && (mouseY >= (yPos + height - 28 + 1)) && (mouseX < (xPos + width + 1)) && (mouseY < (yPos + height - 14 + 1)))
+                else if ((mouseX >= (xPos + width - 14 + 1)) && (mouseY >= (yPos + height - 28 + 1)) && (mouseX < (xPos + width + 1)) && (mouseY < (yPos + height - 14 + 1)))
                 {
                     isDownButtonDown = true;
                 }
-                else if((mouseX >= (xPos + width - 14 + 1)) && (mouseY >= (yPos + 1)) && (mouseX < (xPos + width - 1)) && (mouseY< (yPos +14 - 1)))
+                else if ((mouseX >= (xPos + width - 14 + 1)) && (mouseY >= (yPos + 1)) && (mouseX < (xPos + width - 1)) && (mouseY < (yPos + 14 - 1)))
                 {
                     isUpButtonDown = true;
                 }
                 else
                 {
                     int HorizontalMaxLength = (xPos + width - 28) - (xPos + 10);
-                    int HorizontalScrollButtonLength = (int)(((float)(width - 14) / (float)objWidth) * HorizontalMaxLength);
+                    int HorizontalScrollButtonLength = (int) (((float) (width - 14) / (float) objWidth) * HorizontalMaxLength);
                     HorizontalScrollButtonLength = HorizontalScrollButtonLength < 14 ? 14 : HorizontalScrollButtonLength;
-                    int HorizontalScrollButtonOffset = (int)(((float)scrollH / (float)objWidth) * (HorizontalMaxLength - HorizontalScrollButtonLength));
-                    if((mouseX >= (xPos + 12 + HorizontalScrollButtonOffset + 1)) && (mouseY >= (yPos +  height - 14 + 1)) && (mouseX < (xPos + 12 + HorizontalScrollButtonOffset + HorizontalScrollButtonLength - 1)) && (mouseY < yPos +  height - 1))
+                    int HorizontalScrollButtonOffset = (int) (((float) scrollH / (float) objWidth) * (HorizontalMaxLength - HorizontalScrollButtonLength));
+                    if ((mouseX >= (xPos + 12 + HorizontalScrollButtonOffset + 1)) && (mouseY >= (yPos + height - 14 + 1)) && (mouseX < (xPos + 12 + HorizontalScrollButtonOffset + HorizontalScrollButtonLength - 1)) && (mouseY < yPos + height - 1))
                     {
                         isScrollHButtonDown = true;
                     }
                     int VerticalMaxLength = (yPos + height - 28) - (yPos + 10);
-                    int VerticalScrollButtonLength = (int)(((float)(height - 14) / (float)objHight) * VerticalMaxLength);
+                    int VerticalScrollButtonLength = (int) (((float) (height - 14) / (float) objHight) * VerticalMaxLength);
                     VerticalScrollButtonLength = VerticalScrollButtonLength < 14 ? 14 : VerticalScrollButtonLength;
-                    int VerticalScrollButtonOffset = (int)(((float)scrollV / (float)objHight) * (VerticalMaxLength - VerticalScrollButtonLength));
-                    if((mouseX >= (xPos + width - 14 + 1)) && (mouseY >= (yPos + 12 + VerticalScrollButtonOffset + 1)) && (mouseX < (xPos + width - 1)) && (mouseY < (yPos + 12 + VerticalScrollButtonOffset + VerticalScrollButtonLength- 1)))
+                    int VerticalScrollButtonOffset = (int) (((float) scrollV / (float) objHight) * (VerticalMaxLength - VerticalScrollButtonLength));
+                    if ((mouseX >= (xPos + width - 14 + 1)) && (mouseY >= (yPos + 12 + VerticalScrollButtonOffset + 1)) && (mouseX < (xPos + width - 1)) && (mouseY < (yPos + 12 + VerticalScrollButtonOffset + VerticalScrollButtonLength - 1)))
                     {
                         isScrollVButtonDown = true;
                     }
@@ -208,9 +204,9 @@ public class GuiScrollBoard extends Gui implements IEventNode
     @Override
     public void mouseReleased(int key, int mouseX, int mouseY)
     {
-        if(isFocused)
+        if (isFocused)
         {
-            if(key == 0)
+            if (key == 0)
             {
                 isLeftButtonDown = false;
                 isRightButtonDown = false;
@@ -224,9 +220,9 @@ public class GuiScrollBoard extends Gui implements IEventNode
     @Override
     public void mouseWheel(boolean state)
     {
-        if(isFocused)
+        if (isFocused)
         {
-            if(state == true)
+            if (state == true)
             {
                 scrollV -= 30;
             }
@@ -240,27 +236,27 @@ public class GuiScrollBoard extends Gui implements IEventNode
     @Override
     public void mouseMove(int mouseX, int mouseY, int offsetX, int offsetY)
     {
-        if(isFocused)
+        if (isFocused)
         {
-            if(isScrollHButtonDown)
+            if (isScrollHButtonDown)
             {
                 int HorizontalMaxLength = (xPos + width - 28) - (xPos + 10);
-                int HorizontalScrollButtonLength = (int)(((float)(width - 14) / (float)objWidth) * HorizontalMaxLength);
+                int HorizontalScrollButtonLength = (int) (((float) (width - 14) / (float) objWidth) * HorizontalMaxLength);
                 int HorizontalScrollStartPox = xPos + 12 + HorizontalScrollButtonLength / 2;
                 int HorizontalScrollMaxPox = xPos + width - 28 - HorizontalScrollButtonLength / 2;
                 int HorizontalScrollCanMove = HorizontalScrollMaxPox - HorizontalScrollStartPox;
                 int offset = mouseX - HorizontalScrollStartPox;
-                scrollH = (int)(objWidth * ((float)offset / (float)HorizontalScrollCanMove));
+                scrollH = (int) (objWidth * ((float) offset / (float) HorizontalScrollCanMove));
             }
-            if(isScrollVButtonDown)
+            if (isScrollVButtonDown)
             {
                 int VerticalMaxLength = (yPos + height - 28) - (yPos + 10);
-                int VerticalScrollButtonLength = (int)(((float)(height - 14) / (float)objHight) * VerticalMaxLength);
+                int VerticalScrollButtonLength = (int) (((float) (height - 14) / (float) objHight) * VerticalMaxLength);
                 int VerticalScrollStartPox = yPos + 12 + VerticalScrollButtonLength / 2;
                 int VerticalScrollMaxPox = yPos + height - 28 - VerticalScrollButtonLength / 2;
                 int VerticalScrollCanMove = VerticalScrollMaxPox - VerticalScrollStartPox;
                 int offset = mouseY - VerticalScrollStartPox;
-                scrollV = (int)(objHight * ((float)offset / (float)VerticalScrollCanMove));
+                scrollV = (int) (objHight * ((float) offset / (float) VerticalScrollCanMove));
             }
             checkBorder();
         }
@@ -302,22 +298,22 @@ public class GuiScrollBoard extends Gui implements IEventNode
     @Override
     public void tick()
     {
-        if(isLeftButtonDown)
+        if (isLeftButtonDown)
         {
             scrollH -= 5;
             checkBorder();
         }
-        if(isRightButtonDown)
+        if (isRightButtonDown)
         {
             scrollH += 5;
             checkBorder();
         }
-        if(isDownButtonDown)
+        if (isDownButtonDown)
         {
             scrollV += 5;
             checkBorder();
         }
-        if(isUpButtonDown)
+        if (isUpButtonDown)
         {
             scrollV -= 5;
             checkBorder();

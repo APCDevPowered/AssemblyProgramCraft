@@ -13,7 +13,6 @@ import net.minecraft.util.ResourceLocation;
 public class GuiVanillaBackground extends Gui
 {
     private static final ResourceLocation vanillaBackgroundTextures = new ResourceLocation("AssemblyProgramCraft:textures/gui/vanilla_background.png");
-
     private int xPos;
     private int yPos;
     private final int width;
@@ -30,23 +29,23 @@ public class GuiVanillaBackground extends Gui
     {
         GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
         FMLClientHandler.instance().getClient().renderEngine.bindTexture(vanillaBackgroundTextures);
-        //LeftUp
+        // LeftUp
         this.drawTexturedModalRect(xPos, yPos, 0, 0, 4, 4);
-        //RightUp
+        // RightUp
         this.drawTexturedModalRect(xPos + width - 4, yPos, 8, 0, 4, 4);
-        //LeftDown
+        // LeftDown
         this.drawTexturedModalRect(xPos, yPos + height - 4, 0, 8, 4, 4);
-        //RightDown
+        // RightDown
         this.drawTexturedModalRect(xPos + width - 4, yPos + height - 4, 8, 8, 4, 4);
-        //Left
+        // Left
         this.drawTexturedModalRect(xPos, yPos + 4, 0, 4, 4, 4, 4, height - 8);
-        //Right
+        // Right
         this.drawTexturedModalRect(xPos + width - 4, yPos + 4, 8, 4, 4, 4, 4, height - 8);
-        //Up
+        // Up
         this.drawTexturedModalRect(xPos + 4, yPos, 4, 0, 4, 4, width - 8, 4);
-        //Down
+        // Down
         this.drawTexturedModalRect(xPos + 4, yPos + height - 4, 4, 8, 4, 4, width - 8, 4);
-        //Central
+        // Central
         this.drawTexturedModalRect(xPos + 4, yPos + 4, 4, 4, 4, 4, width - 8, height - 8);
     }
     public void drawTexturedModalRect(int x, int y, int u, int v, int uOffset, int vOffset, int width, int height)
@@ -56,10 +55,10 @@ public class GuiVanillaBackground extends Gui
         Tessellator tessellator = Tessellator.getInstance();
         WorldRenderer worldrenderer = tessellator.getWorldRenderer();
         worldrenderer.startDrawingQuads();
-        worldrenderer.addVertexWithUV((double)(x + 0), (double)(y + height), (double)this.zLevel, (double)((float)(u + 0) * uMultiplier), (double)((float)(v + vOffset) * vMultiplier));
-        worldrenderer.addVertexWithUV((double)(x + width), (double)(y + height), (double)this.zLevel, (double)((float)(u + uOffset) * uMultiplier), (double)((float)(v + vOffset) * vMultiplier));
-        worldrenderer.addVertexWithUV((double)(x + width), (double)(y + 0), (double)this.zLevel, (double)((float)(u + uOffset) * uMultiplier), (double)((float)(v + 0) * vMultiplier));
-        worldrenderer.addVertexWithUV((double)(x + 0), (double)(y + 0), (double)this.zLevel, (double)((float)(u + 0) * uMultiplier), (double)((float)(v + 0) * vMultiplier));
+        worldrenderer.addVertexWithUV((double) (x + 0), (double) (y + height), (double) this.zLevel, (double) ((float) (u + 0) * uMultiplier), (double) ((float) (v + vOffset) * vMultiplier));
+        worldrenderer.addVertexWithUV((double) (x + width), (double) (y + height), (double) this.zLevel, (double) ((float) (u + uOffset) * uMultiplier), (double) ((float) (v + vOffset) * vMultiplier));
+        worldrenderer.addVertexWithUV((double) (x + width), (double) (y + 0), (double) this.zLevel, (double) ((float) (u + uOffset) * uMultiplier), (double) ((float) (v + 0) * vMultiplier));
+        worldrenderer.addVertexWithUV((double) (x + 0), (double) (y + 0), (double) this.zLevel, (double) ((float) (u + 0) * uMultiplier), (double) ((float) (v + 0) * vMultiplier));
         tessellator.draw();
     }
     public int getXPos()
