@@ -8,6 +8,7 @@ import org.apcdevpowered.apc.client.gui.components.GuiMultipleLineTextField;
 import org.apcdevpowered.apc.common.AssemblyProgramCraft;
 import org.apcdevpowered.apc.common.container.ContainerBIOSWriter;
 import org.apcdevpowered.apc.common.network.AssemblyProgramCraftPacket;
+import org.apcdevpowered.apc.common.util.history.HistoryManager;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 
@@ -29,8 +30,8 @@ import net.minecraft.util.ResourceLocation;
 public class GuiBIOSWriter extends GuiContainer
 {
     private static final ResourceLocation guiBIOSWriteTextures = new ResourceLocation("AssemblyProgramCraft:textures/gui/gui-bios-writer.png");
-    
-    private static String programCatch = "";
+    private static HistoryManager historyManagerCache = new HistoryManager();
+    private static String programCache = "";
     private GuiMultipleLineTextField textField;
     private GuiInfoWindow guiInfoWindow;
     private GuiButton compiledSource;
@@ -48,19 +49,19 @@ public class GuiBIOSWriter extends GuiContainer
     {
         super.initGui();
         this.buttonList.clear();
-        compiledSource = new GuiButton(0, this.width / 2 + 45, this.height / 2  + 33, 37, 20, "汇编");
-        writeBytecode = new GuiButton(1, this.width / 2 + 45, this.height / 2  + 57, 37, 20, "写入");
+        compiledSource = new GuiButton(0, this.width / 2 + 45, this.height / 2 + 33, 37, 20, "汇编");
+        writeBytecode = new GuiButton(1, this.width / 2 + 45, this.height / 2 + 57, 37, 20, "写入");
         decompiledSource = new GuiButton(2, this.width / 2 + 85, this.height / 2 + 33, 37, 20, "反编译");
         this.buttonList.add(compiledSource);
         this.buttonList.add(writeBytecode);
         this.buttonList.add(decompiledSource);
         Keyboard.enableRepeatEvents(true);
-        if(this.textField != null)
+        if (this.textField != null)
         {
-            programCatch = this.textField.getText();
+            historyManagerCache = this.textField.getHistoryManager();
+            programCache = this.textField.getText();
         }
-        this.textField = new GuiMultipleLineTextField(this.fontRendererObj, (this.width - this.xSize) / 2 + 10, (this.height - this.ySize) / 2 + 10, 236, 131);
-        this.textField.setText(programCatch);
+        this.textField = new GuiMultipleLineTextField(this.fontRendererObj, (this.width - this.xSize) / 2 + 10, (this.height - this.ySize) / 2 + 10, 236, 131, programCache, historyManagerCache);
         this.guiInfoWindow = new GuiInfoWindow(mc, fontRendererObj, (this.width - 216) / 2, (this.height - 146) / 2 - 25, 216, 146);
     }
     public void displayInfoWindow(String info)
@@ -75,42 +76,42 @@ public class GuiBIOSWriter extends GuiContainer
     }
     protected void actionPerformed(GuiButton par1GuiButton)
     {
-        if(par1GuiButton.id == 0)
+        if (par1GuiButton.id == 0)
         {
             AssemblyProgramCraftPacket pak = new AssemblyProgramCraftPacket();
             pak.packetType = AssemblyProgramCraftPacket.ClientPacket.BIOSWriterDoCompiled.getValue();
             pak.dataByte = new byte[1];
             pak.dataString = new String[1];
-            pak.dataByte[0] = (byte)inventorySlots.windowId;
+            pak.dataByte[0] = (byte) inventorySlots.windowId;
             pak.dataString[0] = textField.getText();
             AssemblyProgramCraft.sendToServer(pak);
         }
-        else if(par1GuiButton.id == 1)
+        else if (par1GuiButton.id == 1)
         {
             AssemblyProgramCraftPacket pak = new AssemblyProgramCraftPacket();
             pak.packetType = AssemblyProgramCraftPacket.ClientPacket.BIOSWriterDoWrite.getValue();
             pak.dataByte = new byte[1];
-            pak.dataByte[0] = (byte)inventorySlots.windowId;
+            pak.dataByte[0] = (byte) inventorySlots.windowId;
             AssemblyProgramCraft.sendToServer(pak);
         }
-        else if(par1GuiButton.id == 2)
+        else if (par1GuiButton.id == 2)
         {
             AssemblyProgramCraftPacket pak = new AssemblyProgramCraftPacket();
             pak.packetType = AssemblyProgramCraftPacket.ClientPacket.BIOSWriterDoDecompiled.getValue();
             pak.dataByte = new byte[1];
-            pak.dataByte[0] = (byte)inventorySlots.windowId;
+            pak.dataByte[0] = (byte) inventorySlots.windowId;
             AssemblyProgramCraft.sendToServer(pak);
         }
     }
     public void updateScreen()
     {
-        if(!guiInfoWindow.isShowing())
+        if (!guiInfoWindow.isShowing())
         {
             guiInfoWindow.setFocused(false);
         }
         this.textField.tick();
         this.guiInfoWindow.tick();
-        if(!this.mc.thePlayer.isEntityAlive() || this.mc.thePlayer.isDead)
+        if (!this.mc.thePlayer.isEntityAlive() || this.mc.thePlayer.isDead)
         {
             this.mc.thePlayer.closeScreen();
         }
@@ -119,7 +120,8 @@ public class GuiBIOSWriter extends GuiContainer
     {
         super.onGuiClosed();
         Keyboard.enableRepeatEvents(false);
-        programCatch = this.textField.getText();
+        historyManagerCache = this.textField.getHistoryManager();
+        programCache = this.textField.getText();
         if (this.mc.thePlayer != null)
         {
             this.inventorySlots.onContainerClosed(this.mc.thePlayer);
@@ -127,7 +129,7 @@ public class GuiBIOSWriter extends GuiContainer
     }
     public void handleMouseInput() throws IOException
     {
-        if(!guiInfoWindow.isShowing())
+        if (!guiInfoWindow.isShowing())
         {
             super.handleMouseInput();
         }
@@ -155,7 +157,7 @@ public class GuiBIOSWriter extends GuiContainer
             default:
                 if (Mouse.getEventButtonState())
                 {
-                    if(!guiInfoWindow.isShowing() && mouseX >= textField.getXPos() && mouseY >= textField.getYPos() && mouseX < textField.getXPos() + textField.getWidth() && mouseY < textField.getYPos() + textField.getHeight())
+                    if (!guiInfoWindow.isShowing() && mouseX >= textField.getXPos() && mouseY >= textField.getYPos() && mouseX < textField.getXPos() + textField.getWidth() && mouseY < textField.getYPos() + textField.getHeight())
                     {
                         textField.setFocused(true);
                     }
@@ -178,9 +180,9 @@ public class GuiBIOSWriter extends GuiContainer
     {
         int key = Keyboard.getEventKey();
         char character = Keyboard.getEventCharacter();
-        if (Keyboard.getEventKeyState())
+        if (Keyboard.getEventKeyState() || ((key == 0) && (Character.isDefined(character))))
         {
-            if(key == 87)
+            if (key == 87)
             {
                 this.mc.toggleFullscreen();
             }
@@ -192,7 +194,7 @@ public class GuiBIOSWriter extends GuiContainer
             {
                 textField.keyPressed(character, key);
                 guiInfoWindow.keyPressed(character, key);
-                if(!guiInfoWindow.isShowing() && !guiInfoWindow.isFocused() && !textField.isFocused())
+                if (!guiInfoWindow.isShowing() && !guiInfoWindow.isFocused() && !textField.isFocused())
                 {
                     keyTyped(character, key);
                 }
@@ -203,11 +205,12 @@ public class GuiBIOSWriter extends GuiContainer
             textField.keyReleased(character, key);
             guiInfoWindow.keyReleased(character, key);
         }
+        this.mc.dispatchKeypresses();
     }
     @SuppressWarnings("unchecked")
     public void drawScreen(int mouseX, int mouseY, float renderPartialTicks)
     {
-        if(!guiInfoWindow.isShowing())
+        if (!guiInfoWindow.isShowing())
         {
             super.drawScreen(mouseX, mouseY, renderPartialTicks);
         }
@@ -215,11 +218,11 @@ public class GuiBIOSWriter extends GuiContainer
         {
             drawDefaultBackground();
             drawGuiContainerBackgroundLayer(renderPartialTicks, mouseX, mouseY);
-            for(GuiButton guiButton : ((List<GuiButton>)buttonList))
+            for (GuiButton guiButton : ((List<GuiButton>) buttonList))
             {
                 guiButton.drawButton(this.mc, Integer.MIN_VALUE, Integer.MIN_VALUE);
             }
-            for(GuiLabel guiLabel : (List<GuiLabel>)labelList)
+            for (GuiLabel guiLabel : (List<GuiLabel>) labelList)
             {
                 guiLabel.drawLabel(this.mc, Integer.MIN_VALUE, Integer.MIN_VALUE);
             }

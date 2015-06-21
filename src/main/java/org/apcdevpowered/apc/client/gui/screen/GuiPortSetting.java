@@ -20,11 +20,11 @@ import net.minecraft.util.ResourceLocation;
 public class GuiPortSetting extends GuiScreen
 {
     private static final ResourceLocation guiPortSettingTextures = new ResourceLocation("AssemblyProgramCraft:textures/gui/gui_port_setting.png");
-    
     private GuiTextField portTextField;
     private TileEntityExternalDevice device;
     private GuiButton confirm;
     private GuiButton cancel;
+    
     public GuiPortSetting(TileEntityExternalDevice device)
     {
         this.device = device;
@@ -45,7 +45,7 @@ public class GuiPortSetting extends GuiScreen
     }
     protected void actionPerformed(GuiButton par1GuiButton)
     {
-        if(par1GuiButton.id == confirm.id)
+        if (par1GuiButton.id == confirm.id)
         {
             int port = 0;
             try
@@ -69,7 +69,7 @@ public class GuiPortSetting extends GuiScreen
             this.device.setPort(port);
             this.mc.thePlayer.closeScreen();
         }
-        else if(par1GuiButton.id == cancel.id)
+        else if (par1GuiButton.id == cancel.id)
         {
             this.mc.thePlayer.closeScreen();
         }
@@ -99,7 +99,7 @@ public class GuiPortSetting extends GuiScreen
         int y = (height - 83) / 2;
         this.drawTexturedModalRect(x, y, 0, 0, 118, 83);
         this.portTextField.drawTextBox();
-        super.drawScreen(par1,par2,par3);
+        super.drawScreen(par1, par2, par3);
         this.fontRendererObj.drawString("外设端口分配器", x + 7, y + 7, 0x404040);
     }
 }
