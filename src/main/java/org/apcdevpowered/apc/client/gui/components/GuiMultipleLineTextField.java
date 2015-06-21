@@ -27,8 +27,8 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class GuiMultipleLineTextField extends Gui implements IEventNode
 {
     private FontRenderer fontRenderer;
-    private String text = "";
     private GuiScrollBoard scollBoard;
+    private String text;
     private HistoryManager historyManager;
     private int backgroundColor = 0xFF000000;
     private int fontColor = 0xFFFFFFFF;
@@ -58,13 +58,18 @@ public class GuiMultipleLineTextField extends Gui implements IEventNode
     
     public GuiMultipleLineTextField(FontRenderer fontRenderer, int xPos, int yPos, int width, int height)
     {
-        this(fontRenderer, xPos, yPos, width, height, 0xFF000000, 0xFFFFFFFF, 0xFFFFFFFF, 0xFF0000FF, 0xFF000000);
+        this(fontRenderer, xPos, yPos, width, height, "", new HistoryManager());
     }
-    public GuiMultipleLineTextField(FontRenderer fontRenderer, int xPos, int yPos, int width, int height, int backgroundColor, int fontColor, int cursouColor, int selectionColor, int selectedFontColor)
+    public GuiMultipleLineTextField(FontRenderer fontRenderer, int xPos, int yPos, int width, int height, String text, HistoryManager historyManager)
+    {
+        this(fontRenderer, xPos, yPos, width, height, text, historyManager, 0xFF000000, 0xFFFFFFFF, 0xFFFFFFFF, 0xFF0000FF, 0xFF000000);
+    }
+    public GuiMultipleLineTextField(FontRenderer fontRenderer, int xPos, int yPos, int width, int height, String text, HistoryManager historyManager, int backgroundColor, int fontColor, int cursouColor, int selectionColor, int selectedFontColor)
     {
         this.fontRenderer = fontRenderer;
         this.scollBoard = new GuiScrollBoard(xPos, yPos, width, height);
-        this.historyManager = new HistoryManager();
+        this.text = text;
+        this.historyManager = historyManager;
         this.xPos = xPos;
         this.yPos = yPos;
         this.width = width;
@@ -74,6 +79,10 @@ public class GuiMultipleLineTextField extends Gui implements IEventNode
         this.cursouColor = cursouColor;
         this.selectionColor = selectionColor;
         this.selectedFontColor = selectedFontColor;
+    }
+    public HistoryManager getHistoryManager()
+    {
+        return historyManager;
     }
     public String getText()
     {
@@ -211,10 +220,22 @@ public class GuiMultipleLineTextField extends Gui implements IEventNode
         }
         setCursorSafety(basePos + offsetPos, false);
     }
-    public String getSelectedtext()
+    public String getSelectedtextSafety()
     {
         int start = Math.min(selectedFrom, selectedTo);
         int end = Math.max(selectedFrom, selectedTo);
+        if(start < 0)
+        {
+            start = 0;
+        }
+        if(end > text.length())
+        {
+            end = text.length();
+        }
+        return text.substring(start, end);
+    }
+    public String getSelectedtext(int start, int end)
+    {
         return text.substring(start, end);
     }
     public void insertText(String str)
@@ -223,6 +244,7 @@ public class GuiMultipleLineTextField extends Gui implements IEventNode
         {
             int start = Math.min(selectedFrom, selectedTo);
             int end = Math.max(selectedFrom, selectedTo);
+            historyManager.addHistory(start, end, str, getSelectedtext(start, end), false);
             text = (text.substring(0, start) + str + text.substring(end, text.length()));
             setCursorSafety(start + str.length(), false);
             selectedFrom = cursor;
@@ -230,6 +252,7 @@ public class GuiMultipleLineTextField extends Gui implements IEventNode
         }
         else
         {
+            historyManager.addHistory(cursor, cursor, str, "");
             text = (text.substring(0, cursor) + str + text.substring(cursor, text.length()));
             setCursorSafety(cursor + str.length(), false);
             selectedFrom = cursor;
@@ -242,6 +265,7 @@ public class GuiMultipleLineTextField extends Gui implements IEventNode
         {
             int start = Math.min(selectedFrom, selectedTo);
             int end = Math.max(selectedFrom, selectedTo);
+            historyManager.addHistory(start, end, Character.toString(theChar), getSelectedtext(start, end), false);
             text = (text.substring(0, start) + theChar + text.substring(end, text.length()));
             setCursorSafety(start + 1, false);
             selectedFrom = cursor;
@@ -249,6 +273,7 @@ public class GuiMultipleLineTextField extends Gui implements IEventNode
         }
         else
         {
+            historyManager.addHistory(cursor, cursor, Character.toString(theChar), "");
             text = (text.substring(0, cursor) + theChar + text.substring(cursor, text.length()));
             setCursorSafety(cursor + 1, false);
             selectedFrom = cursor;
@@ -546,6 +571,7 @@ public class GuiMultipleLineTextField extends Gui implements IEventNode
                 {
                     int start = Math.min(selectedFrom, selectedTo);
                     int end = Math.max(selectedFrom, selectedTo);
+                    historyManager.addHistory(start, end, "", getSelectedtext(start, end));
                     text = (text.substring(0, start) + text.substring(end, text.length()));
                     setCursorSafety(start, false);
                     selectedFrom = cursor;
@@ -564,6 +590,7 @@ public class GuiMultipleLineTextField extends Gui implements IEventNode
                                 end++;
                             }
                         }
+                        historyManager.addHistory(start, end, "", getSelectedtext(start, end));
                         text = (text.substring(0, start) + text.substring((end <= text.length() ? end : text.length()), text.length()));
                     }
                 }
@@ -574,6 +601,7 @@ public class GuiMultipleLineTextField extends Gui implements IEventNode
                 {
                     int start = Math.min(selectedFrom, selectedTo);
                     int end = Math.max(selectedFrom, selectedTo);
+                    historyManager.addHistory(start, end, "", getSelectedtext(start, end));
                     text = (text.substring(0, start) + text.substring(end, text.length()));
                     setCursorSafety(start, false);
                     selectedFrom = cursor;
@@ -592,6 +620,7 @@ public class GuiMultipleLineTextField extends Gui implements IEventNode
                                 start--;
                             }
                         }
+                        historyManager.addHistory(start, end, "", getSelectedtext(start, end));
                         text = (text.substring(0, start) + text.substring((end <= text.length() ? end : text.length()), text.length()));
                         setCursorSafety(start, false);
                         selectedFrom = start;
@@ -607,13 +636,14 @@ public class GuiMultipleLineTextField extends Gui implements IEventNode
             }
             else if (isCtrlDown() && key == Keyboard.KEY_C)
             {
-                GuiScreen.setClipboardString(getSelectedtext());
+                GuiScreen.setClipboardString(getSelectedtextSafety());
             }
             else if (isCtrlDown() && key == Keyboard.KEY_X)
             {
-                GuiScreen.setClipboardString(getSelectedtext());
+                GuiScreen.setClipboardString(getSelectedtextSafety());
                 int start = Math.min(selectedFrom, selectedTo);
                 int end = Math.max(selectedFrom, selectedTo);
+                historyManager.addHistory(start, end, "", getSelectedtext(start, end));
                 text = text.substring(0, start) + text.substring(end, text.length());
                 setCursor(start);
                 selectedFrom = start;
@@ -1022,6 +1052,8 @@ public class GuiMultipleLineTextField extends Gui implements IEventNode
     @Override
     public void tick()
     {
+        System.out.println("countHistory:" + historyManager.countHistory());
+        System.out.println("countUndoHistory:" + historyManager.countUndoHistory());
         cursorCounter++;
         this.scollBoard.tick();
     }

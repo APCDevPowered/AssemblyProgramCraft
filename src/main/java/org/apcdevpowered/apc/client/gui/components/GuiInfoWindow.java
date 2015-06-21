@@ -2,6 +2,7 @@ package org.apcdevpowered.apc.client.gui.components;
 
 import org.apcdevpowered.apc.client.gui.event.IEventNode;
 import org.apcdevpowered.apc.client.gui.structure.GuiVanillaBackground;
+import org.apcdevpowered.apc.common.util.history.HistoryManager;
 
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -40,7 +41,7 @@ public class GuiInfoWindow extends Gui implements IEventNode
         this.lockButton = new GuiButton(0, xPos + width - 37 - 48, yPos + height - 20 - 7, 37, 20, "锁定");
         this.closeButton = new GuiButton(1, xPos + width - 37 - 7, yPos + height - 20 - 7, 37, 20, "关闭");
         this.vanillaBackground = new GuiVanillaBackground(xPos, yPos, width, height);
-        this.textField = new GuiMultipleLineTextField(fontRenderer, xPos + 5, yPos + 15, width - 10, height - 45, 0xFFFFFFFF, 0xFF000000, 0xFF000000, 0xFF0000FF, 0xFFFFFFFF);
+        this.textField = new GuiMultipleLineTextField(fontRenderer, xPos + 5, yPos + 15, width - 10, height - 45, "", new HistoryManager(), 0xFFFFFFFF, 0xFF000000, 0xFF000000, 0xFF0000FF, 0xFFFFFFFF);
         textField.setEditable(false);
     }
     public void drawInfoWindow(int mouseX, int mouseY)

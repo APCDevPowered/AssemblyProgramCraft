@@ -82,7 +82,7 @@ public class HistoryManager
     }
     public HistoryEntry redoHistory()
     {
-        if(undoHistoryStack.isEmpty())
+        if (undoHistoryStack.isEmpty())
         {
             return null;
         }
@@ -90,11 +90,20 @@ public class HistoryManager
         historyStack.push(entry);
         return entry;
     }
+    public int countHistory()
+    {
+        return historyStack.size();
+    }
+    public int countUndoHistory()
+    {
+        return undoHistoryStack.size();
+    }
     public void clearHistory()
     {
         historyStack.clear();
         undoHistoryStack.clear();
     }
+    
     public class HistoryEntry
     {
         private int from;
