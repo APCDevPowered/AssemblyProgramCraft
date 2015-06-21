@@ -177,7 +177,7 @@ public class GuiBIOSWriter extends GuiContainer
     {
         int key = Keyboard.getEventKey();
         char character = Keyboard.getEventCharacter();
-        if (Keyboard.getEventKeyState())
+        if (Keyboard.getEventKeyState() || ((key == 0) && (Character.isDefined(character))))
         {
             if (key == 87)
             {
@@ -202,6 +202,7 @@ public class GuiBIOSWriter extends GuiContainer
             textField.keyReleased(character, key);
             guiInfoWindow.keyReleased(character, key);
         }
+        this.mc.dispatchKeypresses();
     }
     @SuppressWarnings("unchecked")
     public void drawScreen(int mouseX, int mouseY, float renderPartialTicks)

@@ -102,16 +102,17 @@ public class GuiKeyboard extends GuiScreen
     }
     public void handleKeyboardInput()
     {
-        int i = Keyboard.getEventKey();
-        char c0 = Keyboard.getEventCharacter();
+        int key = Keyboard.getEventKey();
+        char character = Keyboard.getEventCharacter();
         if (Keyboard.getEventKeyState())
         {
-            this.keyTyped(c0, i);
-            this.keyPressed(i);
+            this.keyTyped(character, key);
+            this.keyPressed(key);
         }
         else
         {
-            this.keyReleased(i);
+            this.keyReleased(key);
         }
+        this.mc.dispatchKeypresses();
     }
 }
