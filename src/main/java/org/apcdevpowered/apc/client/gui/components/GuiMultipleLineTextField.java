@@ -182,17 +182,19 @@ public class GuiMultipleLineTextField extends Gui implements IEventNode
         int lineX = getLineX();
         int offsetWidth = fontRenderer.getStringWidth(strArray[lineY].substring(0, lineX)) + (strArray[lineY].substring(0, lineX).length() - 1) * FONT_SPACTING_H;
         int offsetPos = 0;
-        String str = strArray[pos];
-        for (int i = 0; i <= str.length(); i++)
+        String targetLine = strArray[pos];
+        int codePointCount = targetLine.codePointCount(0, targetLine.length());
+        for (int codePoint = 0; codePoint <= codePointCount; codePoint++)
         {
-            if (offsetWidth <= fontRenderer.getStringWidth(str.substring(0, i)) + (str.substring(0, i).length() - 1) * FONT_SPACTING_H)
+            int index = targetLine.offsetByCodePoints(0, codePoint);
+            if (offsetWidth <= fontRenderer.getStringWidth(targetLine.substring(0, index)) + codePoint * FONT_SPACTING_H)
             {
-                offsetPos = i;
+                offsetPos = index;
                 break;
             }
-            if (i == str.length())
+            if (index == targetLine.length())
             {
-                offsetPos = i;
+                offsetPos = index;
                 break;
             }
         }
