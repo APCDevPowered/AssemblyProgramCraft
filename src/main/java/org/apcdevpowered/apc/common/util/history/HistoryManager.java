@@ -28,6 +28,10 @@ public class HistoryManager
         }
         this.mergeMode = mergeMode;
     }
+    public void addHistory(int from, int to, String newText, String oldText)
+    {
+        addHistory(from, to, newText, oldText, true);
+    }
     public void addHistory(int from, int to, String newText, String oldText, boolean canMerge)
     {
         if (newText == null || oldText == null)

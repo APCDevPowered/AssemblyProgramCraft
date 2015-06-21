@@ -81,8 +81,19 @@ public class GuiMultipleLineTextField extends Gui implements IEventNode
     }
     public void setText(String text)
     {
+        setText(text, false);
+    }
+    public void setText(String text, boolean keepHistory)
+    {
+        if (keepHistory)
+        {
+            this.historyManager.addHistory(0, this.text.length(), text, this.text, false);
+        }
+        else
+        {
+            this.historyManager.clearHistory();
+        }
         this.text = text;
-        this.historyManager.clearHistory();
         this.selectedFrom = 0;
         this.selectedTo = 0;
         this.cursor = 0;
@@ -202,31 +213,20 @@ public class GuiMultipleLineTextField extends Gui implements IEventNode
     }
     public String getSelectedtext()
     {
-        if (selectedFrom < selectedTo)
-        {
-            return text.substring(selectedFrom, selectedTo);
-        }
-        else
-        {
-            return text.substring(selectedTo, selectedFrom);
-        }
+        int start = Math.min(selectedFrom, selectedTo);
+        int end = Math.max(selectedFrom, selectedTo);
+        return text.substring(start, end);
     }
     public void insertText(String str)
     {
         if (selectedFrom != selectedTo)
         {
-            if (selectedFrom < selectedTo)
-            {
-                text = (text.substring(0, selectedFrom) + str + text.substring(selectedTo, text.length()));
-                setCursorSafety(selectedFrom + str.length(), false);
-                selectedTo = selectedFrom;
-            }
-            else
-            {
-                text = (text.substring(0, selectedTo) + str + text.substring(selectedFrom, text.length()));
-                setCursorSafety(selectedTo + str.length(), false);
-                selectedFrom = selectedTo;
-            }
+            int start = Math.min(selectedFrom, selectedTo);
+            int end = Math.max(selectedFrom, selectedTo);
+            text = (text.substring(0, start) + str + text.substring(end, text.length()));
+            setCursorSafety(start + str.length(), false);
+            selectedFrom = cursor;
+            selectedTo = cursor;
         }
         else
         {
@@ -240,18 +240,12 @@ public class GuiMultipleLineTextField extends Gui implements IEventNode
     {
         if (selectedFrom != selectedTo)
         {
-            if (selectedFrom < selectedTo)
-            {
-                text = (text.substring(0, selectedFrom) + theChar + text.substring(selectedTo, text.length()));
-                setCursorSafety(selectedFrom + 1, false);
-                selectedTo = selectedFrom;
-            }
-            else
-            {
-                text = (text.substring(0, selectedTo) + theChar + text.substring(selectedFrom, text.length()));
-                setCursorSafety(selectedTo + 1, false);
-                selectedFrom = selectedTo;
-            }
+            int start = Math.min(selectedFrom, selectedTo);
+            int end = Math.max(selectedFrom, selectedTo);
+            text = (text.substring(0, start) + theChar + text.substring(end, text.length()));
+            setCursorSafety(start + 1, false);
+            selectedFrom = cursor;
+            selectedTo = cursor;
         }
         else
         {
@@ -550,27 +544,22 @@ public class GuiMultipleLineTextField extends Gui implements IEventNode
             {
                 if (selectedFrom != selectedTo)
                 {
-                    if (selectedFrom < selectedTo)
-                    {
-                        text = (text.substring(0, selectedFrom) + text.substring(selectedTo, text.length()));
-                        setCursorSafety(selectedFrom, false);
-                        selectedTo = selectedFrom;
-                    }
-                    else
-                    {
-                        text = (text.substring(0, selectedTo) + text.substring(selectedFrom, text.length()));
-                        selectedFrom = selectedTo;
-                    }
+                    int start = Math.min(selectedFrom, selectedTo);
+                    int end = Math.max(selectedFrom, selectedTo);
+                    text = (text.substring(0, start) + text.substring(end, text.length()));
+                    setCursorSafety(start, false);
+                    selectedFrom = cursor;
+                    selectedTo = cursor;
                 }
                 else
                 {
-                    if(cursor < text.length())
+                    if (cursor < text.length())
                     {
                         int start = cursor;
                         int end = text.offsetByCodePoints(cursor, 1);
-                        if(cursor >= 0 && cursor < text.length() && text.charAt(cursor) == '\r')
+                        if (cursor >= 0 && cursor < text.length() && text.charAt(cursor) == '\r')
                         {
-                            if(cursor + 1 >= 0 && cursor + 1 < text.length() && text.charAt(cursor + 1) == '\n')
+                            if (cursor + 1 >= 0 && cursor + 1 < text.length() && text.charAt(cursor + 1) == '\n')
                             {
                                 end++;
                             }
@@ -583,27 +572,22 @@ public class GuiMultipleLineTextField extends Gui implements IEventNode
             {
                 if (selectedFrom != selectedTo)
                 {
-                    if (selectedFrom < selectedTo)
-                    {
-                        text = (text.substring(0, selectedFrom) + text.substring(selectedTo, text.length()));
-                        setCursorSafety(selectedFrom, false);
-                        selectedTo = selectedFrom;
-                    }
-                    else
-                    {
-                        text = (text.substring(0, selectedTo) + text.substring(selectedFrom, text.length()));
-                        selectedFrom = selectedTo;
-                    }
+                    int start = Math.min(selectedFrom, selectedTo);
+                    int end = Math.max(selectedFrom, selectedTo);
+                    text = (text.substring(0, start) + text.substring(end, text.length()));
+                    setCursorSafety(start, false);
+                    selectedFrom = cursor;
+                    selectedTo = cursor;
                 }
                 else
                 {
-                    if(cursor > 0)
+                    if (cursor > 0)
                     {
                         int start = text.offsetByCodePoints(cursor, -1);
                         int end = cursor;
-                        if(start >= 0 && start < text.length() && text.charAt(start) == '\n')
+                        if (start >= 0 && start < text.length() && text.charAt(start) == '\n')
                         {
-                            if(start - 1 >= 0 && start - 1 < text.length() && text.charAt(start - 1) == '\r')
+                            if (start - 1 >= 0 && start - 1 < text.length() && text.charAt(start - 1) == '\r')
                             {
                                 start--;
                             }
@@ -641,11 +625,9 @@ public class GuiMultipleLineTextField extends Gui implements IEventNode
             }
             else if (isCtrlDown() && key == Keyboard.KEY_Z && isEditable)
             {
-                
             }
             else if (isCtrlDown() && key == Keyboard.KEY_Y && isEditable)
             {
-                
             }
             else if (key == Keyboard.KEY_RETURN && isEditable)
             {
