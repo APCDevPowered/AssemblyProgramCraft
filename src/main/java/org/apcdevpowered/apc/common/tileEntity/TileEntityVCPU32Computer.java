@@ -75,6 +75,15 @@ public class TileEntityVCPU32Computer extends TileEntity implements IInventory, 
             e.printStackTrace();
         }
     }
+    private VirtualMachine getVM()
+    {
+        if (loadVMUUID != null)
+        {
+            loadVM(loadVMUUID);
+            loadVMUUID = null;
+        }
+        return vm;
+    }
     public void recheckConnectedDevice(List<TileEntityExternalDevice> deviceList)
     {
         HashMap<Integer, TileEntityExternalDevice> portDeviceMap = new HashMap<Integer, TileEntityExternalDevice>();
@@ -103,9 +112,9 @@ public class TileEntityVCPU32Computer extends TileEntity implements IInventory, 
             {
                 connectedDeviceListEntryIterator.remove();
                 entry.getValue().lockedComputerPos = null;
-                if (vm != null)
+                if (getVM() != null)
                 {
-                    vm.removeExternalDevices(entry.getKey());
+                    getVM().removeExternalDevices(entry.getKey());
                 }
             }
             else if (portDeviceMap.get(entry.getKey()) != entry.getValue())
@@ -113,10 +122,10 @@ public class TileEntityVCPU32Computer extends TileEntity implements IInventory, 
                 entry.setValue(portDeviceMap.get(entry.getKey()));
                 portDeviceMap.get(entry.getKey()).lockedComputerPos = ComputerPos.form(this);
                 entry.getValue().lockedComputerPos = null;
-                if (vm != null)
+                if (getVM() != null)
                 {
-                    vm.removeExternalDevices(entry.getKey());
-                    vm.addExternalDevices(portDeviceMap.get(entry.getKey()).getExternalDevice(), entry.getKey());
+                    getVM().removeExternalDevices(entry.getKey());
+                    getVM().addExternalDevices(portDeviceMap.get(entry.getKey()).getExternalDevice(), entry.getKey());
                 }
             }
         }
@@ -128,9 +137,9 @@ public class TileEntityVCPU32Computer extends TileEntity implements IInventory, 
             {
                 connectedDeviceList.put(entry.getKey(), entry.getValue());
                 entry.getValue().lockedComputerPos = ComputerPos.form(this);
-                if (vm != null)
+                if (getVM() != null)
                 {
-                    vm.addExternalDevices(entry.getValue().getExternalDevice(), entry.getKey());
+                    getVM().addExternalDevices(entry.getValue().getExternalDevice(), entry.getKey());
                 }
             }
             else if (connectedDeviceList.get(entry.getKey()) != entry.getValue())
@@ -139,10 +148,10 @@ public class TileEntityVCPU32Computer extends TileEntity implements IInventory, 
                 connectedDeviceList.put(entry.getKey(), entry.getValue());
                 entry.getValue().lockedComputerPos = ComputerPos.form(this);
                 connectedDeviceList.get(entry.getKey()).lockedComputerPos = null;
-                if (vm != null)
+                if (getVM() != null)
                 {
-                    vm.removeExternalDevices(entry.getKey());
-                    vm.addExternalDevices(entry.getValue().getExternalDevice(), entry.getKey());
+                    getVM().removeExternalDevices(entry.getKey());
+                    getVM().addExternalDevices(entry.getValue().getExternalDevice(), entry.getKey());
                 }
             }
         }
@@ -209,7 +218,7 @@ public class TileEntityVCPU32Computer extends TileEntity implements IInventory, 
     public void onChunkUnload()
     {
         super.onChunkUnload();
-        if (getWorld().isRemote || vm == null)
+        if (getWorld().isRemote || getVM() == null)
         {
             return;
         }
@@ -218,7 +227,7 @@ public class TileEntityVCPU32Computer extends TileEntity implements IInventory, 
     }
     public void onWorldUnload(World world)
     {
-        if (getWorld().isRemote || vm == null)
+        if (getWorld().isRemote || getVM() == null)
         {
             return;
         }
@@ -232,7 +241,7 @@ public class TileEntityVCPU32Computer extends TileEntity implements IInventory, 
         {
             return;
         }
-        if (vm != null)
+        if (getVM() != null)
         {
             shutdownVM();
         }
@@ -273,10 +282,7 @@ public class TileEntityVCPU32Computer extends TileEntity implements IInventory, 
     }
     public void init()
     {
-        if (loadVMUUID != null)
-        {
-            loadVM(loadVMUUID);
-        }
+        getVM();
         TileEntityVCPU32ComputerConnector connector = this.getConnectedConnector(getWorld().getBlockState(getPos()));
         if (connector != null)
         {
@@ -315,7 +321,7 @@ public class TileEntityVCPU32Computer extends TileEntity implements IInventory, 
                 }
                 else
                 {
-                    if (vm == null)
+                    if (getVM() == null)
                     {
                         return;
                     }
@@ -333,8 +339,8 @@ public class TileEntityVCPU32Computer extends TileEntity implements IInventory, 
     }
     private void shutdownVM()
     {
-        vm.shutdownVM();
-        vm.loadBIOS(null);
+        getVM().shutdownVM();
+        getVM().loadBIOS(null);
     }
     private void startVM()
     {
@@ -343,14 +349,14 @@ public class TileEntityVCPU32Computer extends TileEntity implements IInventory, 
             setRuntimeError(true);
             return;
         }
-        if (vm == null)
+        if (getVM() == null)
         {
             vm = new VirtualMachine(true);
             Iterator<Entry<Integer, TileEntityExternalDevice>> iterator = connectedDeviceList.entrySet().iterator();
             while (iterator.hasNext())
             {
                 Entry<Integer, TileEntityExternalDevice> entry = iterator.next();
-                vm.addExternalDevices(entry.getValue().getExternalDevice(), entry.getKey());
+                getVM().addExternalDevices(entry.getValue().getExternalDevice(), entry.getKey());
             }
         }
         ProgramPackage program = new ProgramPackage();
@@ -379,8 +385,8 @@ public class TileEntityVCPU32Computer extends TileEntity implements IInventory, 
             setRuntimeError(true);
             return;
         }
-        vm.loadBIOS(program);
-        vm.startVM(false);
+        getVM().loadBIOS(program);
+        getVM().startVM(false);
     }
     public Packet getDescriptionPacket()
     {
@@ -403,7 +409,7 @@ public class TileEntityVCPU32Computer extends TileEntity implements IInventory, 
             if (this.computerContents[var3] != null)
             {
                 NBTTagCompound var4 = new NBTTagCompound();
-                var4.setByte("Slot", (byte) var3);
+                var4.setByte("slot", (byte) var3);
                 this.computerContents[var3].writeToNBT(var4);
                 var2.appendTag(var4);
             }
@@ -411,12 +417,12 @@ public class TileEntityVCPU32Computer extends TileEntity implements IInventory, 
         par1NBTTagCompound.setTag("items", var2);
         par1NBTTagCompound.setBoolean("powerStatus", this.powerStatus);
         par1NBTTagCompound.setBoolean("runtimeError", this.runtimeError);
-        if (vm != null)
+        if (getVM() != null)
         {
             UUID uuid;
             try
             {
-                uuid = VMDataHelper.writeToData(worldObj, vm);
+                uuid = VMDataHelper.writeToData(worldObj, getVM());
             }
             catch (NodeIOException e)
             {
@@ -433,7 +439,7 @@ public class TileEntityVCPU32Computer extends TileEntity implements IInventory, 
         for (int var3 = 0; var3 < var2.tagCount(); ++var3)
         {
             NBTTagCompound var4 = (NBTTagCompound) var2.getCompoundTagAt(var3);
-            int var5 = var4.getByte("Slot") & 255;
+            int var5 = var4.getByte("slot") & 255;
             if (var5 >= 0 && var5 < this.computerContents.length)
             {
                 this.computerContents[var5] = ItemStack.loadItemStackFromNBT(var4);
@@ -590,16 +596,16 @@ public class TileEntityVCPU32Computer extends TileEntity implements IInventory, 
     }
     public void gamePaused()
     {
-        if (vm != null)
+        if (getVM() != null)
         {
-            vm.suspendVM();
+            getVM().suspendVM();
         }
     }
     public void gameResume()
     {
-        if (vm != null)
+        if (getVM() != null)
         {
-            vm.resumeVM();
+            getVM().resumeVM();
         }
     }
     @Override
