@@ -359,8 +359,9 @@ public class GuiMultipleLineTextField extends Gui implements IEventNode
     {
         if (cursor < text.length())
         {
-            cursor++;
-            if (cursor - 1 >= 0 && cursor - 1 < text.length() && text.charAt(cursor - 1) == '\r')
+            int offset = text.offsetByCodePoints(cursor, 1) - cursor;
+            cursor = cursor + offset;
+            if (cursor - offset >= 0 && cursor - offset < text.length() && text.charAt(cursor - offset) == '\r')
             {
                 if (cursor >= 0 && cursor < text.length() && text.charAt(cursor) == '\n')
                 {
@@ -377,10 +378,11 @@ public class GuiMultipleLineTextField extends Gui implements IEventNode
     {
         if (cursor > 0)
         {
-            cursor--;
+            int offset = text.offsetByCodePoints(cursor, -1) - cursor;
+            cursor = cursor + offset;
             if (cursor >= 0 && cursor < text.length() && text.charAt(cursor) == '\n')
             {
-                if (cursor - 1 >= 0 && cursor - 1 < text.length() && text.charAt(cursor - 1) == '\r')
+                if (cursor + offset >= 0 && cursor + offset < text.length() && text.charAt(cursor + offset) == '\r')
                 {
                     cursor--;
                 }
@@ -560,7 +562,19 @@ public class GuiMultipleLineTextField extends Gui implements IEventNode
                 }
                 else
                 {
-                    text = (text.substring(0, cursor) + text.substring((cursor + 1 <= text.length() ? cursor + 1 : text.length()), text.length()));
+                    if(cursor < text.length())
+                    {
+                        int start = cursor;
+                        int end = text.offsetByCodePoints(cursor, 1);
+                        if(cursor >= 0 && cursor < text.length() && text.charAt(cursor) == '\r')
+                        {
+                            if(cursor + 1 >= 0 && cursor + 1 < text.length() && text.charAt(cursor + 1) == '\n')
+                            {
+                                end++;
+                            }
+                        }
+                        text = (text.substring(0, start) + text.substring((end <= text.length() ? end : text.length()), text.length()));
+                    }
                 }
             }
             else if (Keyboard.KEY_BACK == key && isEditable)
@@ -581,10 +595,22 @@ public class GuiMultipleLineTextField extends Gui implements IEventNode
                 }
                 else
                 {
-                    text = (text.substring(0, (cursor - 1 >= 0 ? cursor - 1 : 0)) + text.substring(cursor, text.length()));
-                    backwardCursor();
-                    selectedFrom = cursor;
-                    selectedTo = cursor;
+                    if(cursor > 0)
+                    {
+                        int start = text.offsetByCodePoints(cursor, -1);
+                        int end = cursor;
+                        if(start >= 0 && start < text.length() && text.charAt(start) == '\n')
+                        {
+                            if(start - 1 >= 0 && start - 1 < text.length() && text.charAt(start - 1) == '\r')
+                            {
+                                start--;
+                            }
+                        }
+                        text = (text.substring(0, start) + text.substring((end <= text.length() ? end : text.length()), text.length()));
+                        setCursorSafety(start, false);
+                        selectedFrom = start;
+                        selectedTo = start;
+                    }
                 }
             }
             else if (isCtrlDown() && key == Keyboard.KEY_A)
