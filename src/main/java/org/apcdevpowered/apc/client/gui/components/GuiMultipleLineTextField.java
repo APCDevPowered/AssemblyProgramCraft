@@ -736,9 +736,9 @@ public class GuiMultipleLineTextField extends Gui implements IEventNode
         scollBoard.mouseReleased(key, mouseX, mouseY);
     }
     @Override
-    public void mouseWheel(boolean state)
+    public void mouseWheel(int wheel)
     {
-        scollBoard.mouseWheel(state);
+        scollBoard.mouseWheel(wheel);
     }
     @Override
     public void mouseMove(int mouseX, int mouseY, int offsetX, int offsetY)

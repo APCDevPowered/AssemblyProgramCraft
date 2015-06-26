@@ -11,7 +11,7 @@ public interface IEventNode
     public void keyReleased(char character, int key);
     public void mousePressed(int key, int mouseX, int mouseY);
     public void mouseReleased(int key, int mouseX, int mouseY);
-    public void mouseWheel(boolean state);
+    public void mouseWheel(int wheel);
     public void mouseMove(int mouseX, int mouseY, int offsetX, int offsetY);
     public void setFocused(boolean isFocused);
     public boolean isFocused();

@@ -125,9 +125,9 @@ public class GuiInfoWindow extends Gui implements IEventNode
         textField.mouseReleased(key, mouseX, mouseY);
     }
     @Override
-    public void mouseWheel(boolean state)
+    public void mouseWheel(int wheel)
     {
-        textField.mouseWheel(state);
+        textField.mouseWheel(wheel);
     }
     @Override
     public void mouseMove(int mouseX, int mouseY, int offsetX, int offsetY)

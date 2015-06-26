@@ -145,8 +145,8 @@ public class GuiBIOSWriter extends GuiContainer
                 int wheel = Mouse.getEventDWheel();
                 if (wheel != 0)
                 {
-                    textField.mouseWheel((wheel < 0) ? false : true);
-                    guiInfoWindow.mouseWheel((wheel < 0) ? false : true);
+                    textField.mouseWheel(wheel);
+                    guiInfoWindow.mouseWheel(wheel);
                 }
                 else
                 {

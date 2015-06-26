@@ -218,18 +218,11 @@ public class GuiScrollBoard extends Gui implements IEventNode
         }
     }
     @Override
-    public void mouseWheel(boolean state)
+    public void mouseWheel(int wheel)
     {
         if (isFocused)
         {
-            if (state == true)
-            {
-                scrollV -= 30;
-            }
-            else
-            {
-                scrollV += 30;
-            }
+            scrollV -= wheel / 4;
             checkBorder();
         }
     }
