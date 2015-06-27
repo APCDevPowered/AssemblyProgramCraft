@@ -202,14 +202,14 @@ public class GuiMultipleLineTextField extends Gui implements IEventNode
         String[] strArray = StringTools.getLines(text);
         int lineY = getLineY();
         int lineX = getLineX();
-        int offsetWidth = fontRenderer.getStringWidth(strArray[lineY].substring(0, lineX)) + (strArray[lineY].substring(0, lineX).length() - 1) * FONT_SPACTING_H;
+        int offsetWidth = getStringWidth(strArray[lineY].substring(0, lineX));
         int offsetPos = 0;
         String targetLine = strArray[pos];
         int codePointCount = targetLine.codePointCount(0, targetLine.length());
         for (int codePoint = 0; codePoint <= codePointCount; codePoint++)
         {
             int index = targetLine.offsetByCodePoints(0, codePoint);
-            if (offsetWidth <= fontRenderer.getStringWidth(targetLine.substring(0, index)) + codePoint * FONT_SPACTING_H)
+            if (offsetWidth <= getStringWidth(targetLine.substring(0, index)))
             {
                 offsetPos = index;
                 break;
@@ -821,16 +821,16 @@ public class GuiMultipleLineTextField extends Gui implements IEventNode
     public int getMultipleLineTextMaxWidth(String str)
     {
         int width = FONT_SPACTING_LEFT + FONT_SPACTING_RIGHT;
-        String[] strarray = StringTools.getLines(text);
-        for (int i = 0; i < strarray.length; i++)
+        String[] strarray = StringTools.getLines(str);
+        for (int lineIndex = 0; lineIndex < strarray.length; lineIndex++)
         {
-            String line = strarray[i];
+            String line = strarray[lineIndex];
             int currentLineWidth = FONT_SPACTING_LEFT + FONT_SPACTING_RIGHT;
-            for (int j = 0; j < line.length(); j++)
+            for (int index = 0; index < line.length(); index++)
             {
-                char c = line.charAt(j);
+                char c = line.charAt(index);
                 currentLineWidth += getCharWidth(c);
-                if (j != line.length() - 1)
+                if (index != line.length() - 1)
                 {
                     currentLineWidth += FONT_SPACTING_H;
                 }
@@ -1013,13 +1013,13 @@ public class GuiMultipleLineTextField extends Gui implements IEventNode
     }
     public int getCharWidth(char par1)
     {
-        if (par1 == 167)
+        if (par1 == ' ')
         {
-            return -1;
+            return 1;
         }
-        else if (par1 == 32)
+        else if (par1 == '\t')
         {
-            return 3;
+            return getCharWidth(' ') * 4 + FONT_SPACTING_H * 3;
         }
         else
         {
@@ -1040,6 +1040,20 @@ public class GuiMultipleLineTextField extends Gui implements IEventNode
                 return 0;
             }
         }
+    }
+    public int getStringWidth(String str)
+    {
+        int width = 0;
+        for (int index = 0; index < str.length(); index++)
+        {
+            char c = str.charAt(index);
+            width += getCharWidth(c);
+            if (index != str.length() - 1)
+            {
+                width += FONT_SPACTING_H;
+            }
+        }
+        return width;
     }
     public int getXPos()
     {
