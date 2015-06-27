@@ -14,7 +14,7 @@ import net.minecraft.util.ResourceLocation;
 @SideOnly(Side.CLIENT)
 public class GuiScrollBoard extends Gui implements IEventNode
 {
-    private static final ResourceLocation scrollTextures = new ResourceLocation("AssemblyProgramCraft:textures/gui/scroll.png");
+    private static final ResourceLocation scrollTextures = new ResourceLocation("AssemblyProgramCraft:textures/gui/gui_components_scroll.png");
     private int xPos;
     private int yPos;
     private final int width;

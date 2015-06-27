@@ -29,7 +29,7 @@ import net.minecraft.util.ResourceLocation;
 @SideOnly(Side.CLIENT)
 public class GuiBIOSWriter extends GuiContainer
 {
-    private static final ResourceLocation guiBIOSWriteTextures = new ResourceLocation("AssemblyProgramCraft:textures/gui/gui-bios-writer.png");
+    private static final ResourceLocation guiBIOSWriteTextures = new ResourceLocation("AssemblyProgramCraft:textures/gui/gui_bios_writer.png");
     private static HistoryManager historyManagerCache = new HistoryManager();
     private static String programCache = "";
     private GuiMultipleLineTextField textField;
