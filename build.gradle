@@ -42,8 +42,8 @@ version = "${project.minecraft.version}-${versionMajor}.${versionMinor}.${versio
 group= "org.apcdevpowered" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "AssemblyProgramCraft"
 
-sourceCompatibility = 1.7
-targetCompatibility = 1.7
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
 
 dependencies {
     // you may put jars on which you depend on in ./libs

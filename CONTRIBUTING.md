@@ -5,19 +5,19 @@ APC项目欢迎任何人提交代码，如果你想对此项目做出贡献，�
 ## 必须的材料
 
 * 你需要一个Git客户端来克隆和提交代码，我们推荐使用[Git Extensions](https://github.com/gitextensions/gitextensions)来提交代码。这比使用Shell或命令行提示符要方便得多。
-* 你需要[JDK](http://www.oracle.com/technetwork/java/javase/downloads/index.html)来编译和运行代码。
+* 你需要[JDK](http://www.oracle.com/technetwork/java/javase/downloads/index.html)来编译和运行代码，请使用jdk8或以上版本。
 * 你需要一个文本编辑器或者IDE（集成开发环境）来编辑代码，我们推荐使用[Eclipse](http://www.eclipse.org/downloads/)。
 
 ## 克隆代码到本地
 
 ### 使用命令行
 
-* 转到或新建你的开发目录。
+* 转到或新建你的开发目录，例如'D:\\APCDev'、'$HOME/APCDev'。
 * 运行'git clone [https://github.com/APCDevPowered/AssemblyProgramCraft.git](https://github.com/APCDevPowered/AssemblyProgramCraft.git)'，这会创建一个名为AssemblyProgramCraft的文件夹，并包含所有必要的文件。
 
 ### 使用Git Extensions
 
-* 转到或新建你的开发目录。
+* 转到或新建你的开发目录，例如'D:\\APCDev'、'$HOME/APCDev'。
 * 右键空白处选择'GitExt Clone...'。
 * 在要克隆的档案库处填入'[https://github.com/APCDevPowered/AssemblyProgramCraft.git](https://github.com/APCDevPowered/AssemblyProgramCraft.git)'。
 * 点击'克隆'。
@@ -102,7 +102,7 @@ APC项目欢迎任何人提交代码，如果你想对此项目做出贡献，�
 * Minecraft版本，Minecraft的版本号，例如1.8、1.6.4等。
 * 主要版本，Mod的主要版本号，只有当Mod在玩法、功能等地方有重大更新，或整体代码有大量重构时才更新。
 * 次要版本，Mod的次要版本号，当Mod在玩法、功能上有里程碑性质的更新，或将不兼容以前版本的某些或全部内容，或更新到新的Minecraft版本时更新。
-* 修订版本，Mod的修订版本号，当Mod在更新普通的玩法、功能，或对上一个版本的重要Bug进行修复时更新，除了Bug导致的特殊情况外，必须上一版本的内容。
+* 修订版本，Mod的修订版本号，当Mod在更新普通的玩法、功能，或对上一个版本的重要Bug进行修复时更新，除了Bug导致的特殊情况外，必须兼容上一版本的内容。
 * 构建版本，Mod的构建版本号，当Mod在被构建后更新。
 * 开发阶段，当前Mod的开发阶段，可由此判断当前版本的稳定性，有snapshot、alpha、beta、rc和release。
 
