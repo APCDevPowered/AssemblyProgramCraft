@@ -12,7 +12,7 @@ import net.minecraft.world.World;
  * 
  * @author yuxuanchiadm
  * @see org.apcdevpowered.apc.common.tileEntity.TileEntityExternalDevice300BytesStorage
- * @see org.apcdevpowered.vcpu32.extdev.ExternalDevice300BytesStorage
+ * @see org.apcdevpowered.vcpu32.vm.extdev.ExternalDevice300BytesStorage
  * @since a1.0.0
  */
 public class BlockExternalDevice300BytesStorage extends BlockExternlaDevice

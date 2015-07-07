@@ -1,4 +1,4 @@
-package org.apcdevpowered.vcpu32.extdev;
+package org.apcdevpowered.vcpu32.vm.extdev;
 
 import org.apcdevpowered.apc.common.tileEntity.TileEntityExternalDeviceRedstoneController;
 import org.apcdevpowered.vcpu32.vm.AbstractExternalDevice;

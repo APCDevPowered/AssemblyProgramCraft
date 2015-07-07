@@ -25,7 +25,7 @@ import net.minecraft.world.World;
  * 
  * @author yuxuanchiadm
  * @see org.apcdevpowered.apc.common.tileEntity.TileEntityExternalDeviceKeyboard
- * @see org.apcdevpowered.vcpu32.extdev.ExternalDeviceKeyboard
+ * @see org.apcdevpowered.vcpu32.vm.extdev.ExternalDeviceKeyboard
  * @see org.apcdevpowered.apc.client.renderer.tileentity.RenderTileEntityExternalDeviceKeyboard
  * @since a1.0.0
  */

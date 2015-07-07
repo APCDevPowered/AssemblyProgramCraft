@@ -18,7 +18,7 @@ import net.minecraft.world.World;
  * 
  * @author yuxuanchiadm
  * @see org.apcdevpowered.apc.common.tileEntity.TileEntityExternalDeviceRedstoneController
- * @see org.apcdevpowered.vcpu32.extdev.ExternalDeviceRedstoneController
+ * @see org.apcdevpowered.vcpu32.vm.extdev.ExternalDeviceRedstoneController
  * @see net.minecraft.block.BlockRedstoneWire
  * @since a1.0.0
  */

@@ -1,7 +1,7 @@
 package org.apcdevpowered.apc.common.tileEntity;
 
-import org.apcdevpowered.vcpu32.extdev.ExternalDeviceRedstoneController;
 import org.apcdevpowered.vcpu32.vm.AbstractExternalDevice;
+import org.apcdevpowered.vcpu32.vm.extdev.ExternalDeviceRedstoneController;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;

@@ -1,4 +1,4 @@
-package org.apcdevpowered.vcpu32.extdev;
+package org.apcdevpowered.vcpu32.vm.extdev;
 
 import org.apcdevpowered.apc.common.tileEntity.TileEntityExternalDeviceNumberMonitor;
 import org.apcdevpowered.vcpu32.vm.AbstractExternalDevice;

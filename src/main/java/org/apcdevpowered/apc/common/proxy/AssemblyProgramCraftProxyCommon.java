@@ -19,7 +19,7 @@ import org.apcdevpowered.apc.common.tileEntity.TileEntityVCPU32ComputerConnector
 import org.apcdevpowered.apc.common.tileEntity.TileEntityVCPU32ComputerWire;
 import org.apcdevpowered.apc.common.util.WorldHelper;
 import org.apcdevpowered.vcpu32.asm.CompileLogger;
-import org.apcdevpowered.vcpu32.extdev.ExternalDeviceKeyboard;
+import org.apcdevpowered.vcpu32.vm.extdev.ExternalDeviceKeyboard;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.server.MinecraftServer;

@@ -17,7 +17,7 @@ import net.minecraft.world.World;
  * 
  * @author yuxuanchiadm
  * @see org.apcdevpowered.apc.common.tileEntity.TileEntityExternalDeviceNoteBox
- * @see org.apcdevpowered.vcpu32.extdev.ExternalDeviceNoteBox
+ * @see org.apcdevpowered.vcpu32.vm.extdev.ExternalDeviceNoteBox
  * @see net.minecraft.block.BlockNote
  * @since a1.1.3
  */

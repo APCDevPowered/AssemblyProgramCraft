@@ -1,8 +1,8 @@
 package org.apcdevpowered.apc.common.tileEntity;
 
 import org.apcdevpowered.apc.common.block.BlockExternalDeviceKeyboard;
-import org.apcdevpowered.vcpu32.extdev.ExternalDeviceKeyboard;
 import org.apcdevpowered.vcpu32.vm.AbstractExternalDevice;
+import org.apcdevpowered.vcpu32.vm.extdev.ExternalDeviceKeyboard;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.EnumFacing;

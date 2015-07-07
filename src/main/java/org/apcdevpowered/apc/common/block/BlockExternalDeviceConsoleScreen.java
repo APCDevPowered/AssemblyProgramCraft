@@ -21,7 +21,7 @@ import net.minecraft.world.World;
  * 
  * @author yuxuanchiadm
  * @see org.apcdevpowered.apc.common.tileEntity.TileEntityExternalDeviceConsoleScreen
- * @see org.apcdevpowered.vcpu32.extdev.ExternalDeviceConsoleScreen
+ * @see org.apcdevpowered.vcpu32.vm.extdev.ExternalDeviceConsoleScreen
  * @see org.apcdevpowered.apc.client.renderer.tileentity.RenderTileEntityExternalDeviceConsoleScreen
  * @see org.apcdevpowered.apc.common.block.BlockExpansionConsoleScreen
  * @since a1.0.0

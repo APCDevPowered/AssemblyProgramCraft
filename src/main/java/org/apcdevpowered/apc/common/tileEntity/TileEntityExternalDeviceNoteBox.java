@@ -1,8 +1,8 @@
 package org.apcdevpowered.apc.common.tileEntity;
 
 import org.apcdevpowered.apc.common.init.AssemblyProgramCraftBlocks;
-import org.apcdevpowered.vcpu32.extdev.ExternalDeviceNoteBox;
 import org.apcdevpowered.vcpu32.vm.AbstractExternalDevice;
+import org.apcdevpowered.vcpu32.vm.extdev.ExternalDeviceNoteBox;
 
 import net.minecraft.nbt.NBTTagCompound;
 

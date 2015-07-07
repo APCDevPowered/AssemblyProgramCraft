@@ -3,8 +3,8 @@ package org.apcdevpowered.apc.common.tileEntity;
 import org.apcdevpowered.apc.common.AssemblyProgramCraft;
 import org.apcdevpowered.apc.common.block.BlockExternalDeviceNumberMonitor;
 import org.apcdevpowered.apc.common.network.AssemblyProgramCraftPacket;
-import org.apcdevpowered.vcpu32.extdev.ExternalDeviceNumberMonitor;
 import org.apcdevpowered.vcpu32.vm.AbstractExternalDevice;
+import org.apcdevpowered.vcpu32.vm.extdev.ExternalDeviceNumberMonitor;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.nbt.NBTTagCompound;

@@ -5,8 +5,8 @@ import java.util.Arrays;
 import org.apcdevpowered.apc.common.AssemblyProgramCraft;
 import org.apcdevpowered.apc.common.block.BlockExternalDeviceMonitor;
 import org.apcdevpowered.apc.common.network.AssemblyProgramCraftPacket;
-import org.apcdevpowered.vcpu32.extdev.ExternalDeviceMonitor;
 import org.apcdevpowered.vcpu32.vm.AbstractExternalDevice;
+import org.apcdevpowered.vcpu32.vm.extdev.ExternalDeviceMonitor;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.nbt.NBTTagCompound;

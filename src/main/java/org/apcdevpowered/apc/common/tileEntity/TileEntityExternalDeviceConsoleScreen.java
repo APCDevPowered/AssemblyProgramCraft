@@ -9,8 +9,8 @@ import org.apcdevpowered.apc.common.network.AssemblyProgramCraftPacket;
 import org.apcdevpowered.apc.common.util.FlatMaximumRectangleFinder;
 import org.apcdevpowered.apc.common.util.FlatWorldViewer;
 import org.apcdevpowered.apc.common.util.FlatWorldViewer.Surface;
-import org.apcdevpowered.vcpu32.extdev.ExternalDeviceConsoleScreen;
 import org.apcdevpowered.vcpu32.vm.AbstractExternalDevice;
+import org.apcdevpowered.vcpu32.vm.extdev.ExternalDeviceConsoleScreen;
 import org.lwjgl.util.Rectangle;
 
 import net.minecraftforge.fml.relauncher.Side;
