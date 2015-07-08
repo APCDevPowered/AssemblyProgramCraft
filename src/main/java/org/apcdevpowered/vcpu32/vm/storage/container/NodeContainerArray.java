@@ -198,7 +198,7 @@ public final class NodeContainerArray extends NodeContainer<NodeContainerArray>
             {
                 return 0;
             }
-            return elementArray.lastKey();
+            return elementArray.lastKey() + 1;
         }
     }
     @Override

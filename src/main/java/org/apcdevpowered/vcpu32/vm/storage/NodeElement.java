@@ -8,14 +8,14 @@ import org.apcdevpowered.vcpu32.vm.storage.exception.ElementTypeMismatchExceptio
 public abstract class NodeElement implements Cloneable
 {
     private transient Object parentLock = new Object();
-    private ElementParentCach<?> elementParentCach;
+    private ElementParentCache<?> elementParentCache;
     
-    private static final class ElementParentCach<C extends NodeContainer<C>>
+    private static final class ElementParentCache<C extends NodeContainer<C>>
     {
         private final ElementKey<C> key;
         private final NodeContainer<C> parent;
         
-        protected ElementParentCach(ElementKey<C> key, NodeContainer<C> parent)
+        protected ElementParentCache(ElementKey<C> key, NodeContainer<C> parent)
         {
             this.key = key;
             this.parent = parent;
@@ -41,7 +41,7 @@ public abstract class NodeElement implements Cloneable
     {
         synchronized (parentLock)
         {
-            return elementParentCach == null ? null : elementParentCach.getParent();
+            return elementParentCache == null ? null : elementParentCache.getParent();
         }
     }
     public final <C extends NodeContainer<C>> C getParent(Class<C> clazz) throws ElementParentNotFoundException, ElementTypeMismatchException
@@ -69,7 +69,7 @@ public abstract class NodeElement implements Cloneable
     {
         synchronized (parentLock)
         {
-            return elementParentCach == null ? null : elementParentCach.getKey();
+            return elementParentCache == null ? null : elementParentCache.getKey();
         }
     }
     public <E extends NodeElement> E castElemenet(Class<E> clazz) throws ElementTypeMismatchException
@@ -84,7 +84,7 @@ public abstract class NodeElement implements Cloneable
     {
         synchronized (parentLock)
         {
-            elementParentCach.removeFromParent();
+            elementParentCache.removeFromParent();
         }
     }
     protected <C extends NodeContainer<C>> void setParent(ElementKey<C> key, NodeContainer<C> parent)
@@ -95,14 +95,14 @@ public abstract class NodeElement implements Cloneable
         }
         synchronized (parentLock)
         {
-            this.elementParentCach = new ElementParentCach<C>(key, parent);
+            this.elementParentCache = new ElementParentCache<C>(key, parent);
         }
     }
     protected void resetParent()
     {
         synchronized (parentLock)
         {
-            elementParentCach = null;
+            elementParentCache = null;
         }
     }
 }
