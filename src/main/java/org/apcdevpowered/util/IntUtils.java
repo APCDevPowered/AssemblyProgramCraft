@@ -152,4 +152,68 @@ public class IntUtils
         }
         return true;
     }
+    public static String toBinaryUintString(int i)
+    {
+        return toBinaryUintString(i, false);
+    }
+    public static String toOctalUintString(int i)
+    {
+        return toOctalUintString(i, false);
+    }
+    public static String toDecimalUintString(int i)
+    {
+        return toDecimalUintString(i, false);
+    }
+    public static String toHexUintString(int i)
+    {
+        return toHexUintString(i, false);
+    }
+    public static String toBinaryUintString(int i, boolean fixBit)
+    {
+        String str = Integer.toUnsignedString(i, 2);
+        if (fixBit == true)
+        {
+            for (int j = str.length(); j < 32; j++)
+            {
+                str = "0" + str;
+            }
+        }
+        return str;
+    }
+    public static String toOctalUintString(int i, boolean fixBit)
+    {
+        String str = Integer.toUnsignedString(i, 8);
+        if (fixBit == true)
+        {
+            for (int j = str.length(); j < 32; j++)
+            {
+                str = "0" + str;
+            }
+        }
+        return str;
+    }
+    public static String toDecimalUintString(int i, boolean fixBit)
+    {
+        String str = Integer.toUnsignedString(i, 10);
+        if (fixBit == true)
+        {
+            for (int j = str.length(); j < 10; j++)
+            {
+                str = "0" + str;
+            }
+        }
+        return str;
+    }
+    public static String toHexUintString(int i, boolean fixBit)
+    {
+        String str = Integer.toUnsignedString(i, 16);
+        if (fixBit == true)
+        {
+            for (int j = str.length(); j < 8; j++)
+            {
+                str = "0" + str;
+            }
+        }
+        return str;
+    }
 }

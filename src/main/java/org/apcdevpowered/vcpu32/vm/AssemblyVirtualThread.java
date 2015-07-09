@@ -11,7 +11,6 @@ import org.apcdevpowered.util.BitUtils;
 import org.apcdevpowered.util.DynamicSparseArray;
 import org.apcdevpowered.util.HandlerAllocateList;
 import org.apcdevpowered.util.IntUtils;
-import org.apcdevpowered.util.UnsignedUtils;
 import org.apcdevpowered.vcpu32.vm.debugger.impl.ThreadReferenceImpl;
 import org.apcdevpowered.vcpu32.vm.storage.container.NodeContainerArray;
 import org.apcdevpowered.vcpu32.vm.storage.container.NodeContainerArray.NodeContainerArrayEntry;
@@ -4160,7 +4159,7 @@ public class AssemblyVirtualThread
                     // [end]
                     else
                     {
-                        System.out.println("[VCPU-32]不正确的机器指令 0x" + UnsignedUtils.toHexUintString(optInfo[0], true) + " ，线程 0x" + UnsignedUtils.toHexUintString(handlerValue, true) + "（" + threadName + "）终止");
+                        System.out.println("[VCPU-32]不正确的机器指令 0x" + IntUtils.toHexUintString(optInfo[0], true) + " ，线程 0x" + IntUtils.toHexUintString(handlerValue, true) + "（" + threadName + "）终止");
                         halt();
                     }
                     yield();

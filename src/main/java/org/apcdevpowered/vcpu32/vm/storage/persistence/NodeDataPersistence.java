@@ -13,7 +13,7 @@ import java.util.Date;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apcdevpowered.util.StreamHelper;
+import org.apcdevpowered.util.StreamUtils;
 import org.apcdevpowered.vcpu32.vm.storage.NodeElement;
 import org.apcdevpowered.vcpu32.vm.storage.exception.ElementTypeMismatchException;
 import org.apcdevpowered.vcpu32.vm.storage.exception.UnsupportedVersionException;
@@ -66,13 +66,13 @@ public abstract class NodeDataPersistence
         {
             throw new NullPointerException();
         }
-        int magicNumber = StreamHelper.readInt(stream);
+        int magicNumber = StreamUtils.readInt(stream);
         if (NodeDataPersistence.magicNumber != magicNumber)
         {
             throw new IOException("Incorrect magic number 0x" + Integer.toHexString(magicNumber));
         }
-        int version = StreamHelper.readInt(stream);
-        long timestamp = StreamHelper.readLong(stream);
+        int version = StreamUtils.readInt(stream);
+        long timestamp = StreamUtils.readLong(stream);
         NodeDataPersistence impl = getImpl(version);
         logger.trace("Loading node data. Version " + version + ". Timestamp " + timestamp + "(" + timestampFormatter.format(new Date(timestamp)) + ").");
         E element = impl.readElement(stream, clazz);
@@ -124,9 +124,9 @@ public abstract class NodeDataPersistence
             throw new NullPointerException();
         }
         NodeDataPersistence impl = getImpl(version);
-        StreamHelper.writeInt(stream, magicNumber);
-        StreamHelper.writeInt(stream, version);
-        StreamHelper.writeLong(stream, timestamp);
+        StreamUtils.writeInt(stream, magicNumber);
+        StreamUtils.writeInt(stream, version);
+        StreamUtils.writeLong(stream, timestamp);
         logger.trace("Saving node data. Version " + version + ". Timestamp " + timestamp + "(" + timestampFormatter.format(new Date(timestamp)) + ").");
         impl.writeElement(stream, element);
         logger.trace("Node data saved.");

@@ -8,7 +8,7 @@ import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.UUID;
 
-public class StreamHelper
+public class StreamUtils
 {
     public static final int BYTE_SINGLE_INCREASE_MAX_CAPACITY = 512;
     public static final int INT_SINGLE_INCREASE_MAX_CAPACITY = 512;

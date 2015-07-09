@@ -10,9 +10,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
+import org.apcdevpowered.util.IntUtils;
 import org.apcdevpowered.util.SingleEntry;
 import org.apcdevpowered.util.StringUtils;
-import org.apcdevpowered.util.UnsignedUtils;
 import org.apcdevpowered.vcpu32.asm.DebugInfo;
 import org.apcdevpowered.vcpu32.asm.OperatorsManager;
 import org.apcdevpowered.vcpu32.asm.ProgramPackage;
@@ -57,9 +57,9 @@ public class Disassembler
             {
                 String assemblyString = name + (parsValue.length == 0 ? "" : " ");
                 boolean isFirst = true;
-                for(String par : parsValue)
+                for (String par : parsValue)
                 {
-                    if(isFirst)
+                    if (isFirst)
                     {
                         isFirst = false;
                     }
@@ -79,6 +79,7 @@ public class Disassembler
         public class Label extends Construct
         {
             public String name = "";
+            
             public String getAssemblyString()
             {
                 return ":" + name;
@@ -88,6 +89,7 @@ public class Disassembler
                 return 0;
             }
         }
+        
         public ArrayList<Construct> abstractSyntaxTree = new ArrayList<Construct>();
         public int startRAM;
         public int startStaticRAM;
@@ -96,10 +98,10 @@ public class Disassembler
         public void addAtOffset(int offset, Construct construct)
         {
             int astIndex = 0;
-            for(int currentOffset = 0;currentOffset <= offset && astIndex < abstractSyntaxTree.size();)
+            for (int currentOffset = 0; currentOffset <= offset && astIndex < abstractSyntaxTree.size();)
             {
                 currentOffset += abstractSyntaxTree.get(astIndex).getUsedBytes();
-                if(currentOffset <= offset)
+                if (currentOffset <= offset)
                 {
                     astIndex++;
                 }
@@ -108,23 +110,23 @@ public class Disassembler
         }
         public boolean isBetweenInsn(int offset)
         {
-            if(offset < startRAM)
+            if (offset < startRAM)
             {
                 return false;
             }
-            if(offset == startRAM)
+            if (offset == startRAM)
             {
                 return true;
             }
             int currentIdx = 0;
-            for(int astIdx = 0;astIdx < abstractSyntaxTree.size();astIdx++)
+            for (int astIdx = 0; astIdx < abstractSyntaxTree.size(); astIdx++)
             {
                 currentIdx += abstractSyntaxTree.get(astIdx).getUsedBytes();
-                if(currentIdx > offset - startRAM)
+                if (currentIdx > offset - startRAM)
                 {
                     return false;
                 }
-                if(currentIdx == offset - startRAM)
+                if (currentIdx == offset - startRAM)
                 {
                     return true;
                 }
@@ -136,28 +138,28 @@ public class Disassembler
             StringBuilder builder = new StringBuilder();
             Iterator<Construct> iterator = abstractSyntaxTree.iterator();
             int line = 1;
-            while(iterator.hasNext())
+            while (iterator.hasNext())
             {
                 Construct construct = iterator.next();
-                if(builder.length() != 0)
+                if (builder.length() != 0)
                 {
-                    if(debugInfo == null)
+                    if (debugInfo == null)
                     {
                         builder.append('\n');
                         line++;
                     }
                     else
                     {
-                        if(construct.getLineNumber() < 0)
+                        if (construct.getLineNumber() < 0)
                         {
                             builder.append('\n');
                             line++;
                         }
                         else
                         {
-                            if(construct.getLineNumber() > line)
+                            if (construct.getLineNumber() > line)
                             {
-                                while(construct.getLineNumber() > line)
+                                while (construct.getLineNumber() > line)
                                 {
                                     builder.append('\n');
                                     line++;
@@ -175,6 +177,7 @@ public class Disassembler
             return builder.toString();
         }
     }
+    
     public static String decompile(ProgramPackage programPackage)
     {
         return decompile(programPackage, true, true);
@@ -182,24 +185,19 @@ public class Disassembler
     public static String decompile(ProgramPackage programPackage, boolean labelAnalyze, boolean staticDataAnalyze)
     {
         AbstractSyntaxTree abstractSyntaxTree = new AbstractSyntaxTree();
-        List<SingleEntry<Integer, Integer>> readedStaticDataList = new ArrayList<SingleEntry<Integer,Integer>>();
+        List<SingleEntry<Integer, Integer>> readedStaticDataList = new ArrayList<SingleEntry<Integer, Integer>>();
         List<SingleEntry<String, Integer>> staticStringDataList = new ArrayList<SingleEntry<String, Integer>>();
-        
         abstractSyntaxTree.startRAM = programPackage.startRAM;
         abstractSyntaxTree.startStaticRAM = programPackage.startStaticRAM;
         abstractSyntaxTree.debugInfo = programPackage.debugInfo;
-       
         int[] programByteCode = new int[programPackage.programEnd];
         System.arraycopy(programPackage.data, 0, programByteCode, 0, programPackage.programEnd);
-        
         int[] staticData = new int[programPackage.staticRAMEnd - programPackage.programEnd];
         System.arraycopy(programPackage.data, programPackage.programEnd, staticData, 0, programPackage.staticRAMEnd - programPackage.programEnd);
-        
-        for(int pointer = 0;pointer < programByteCode.length;)
+        for (int pointer = 0; pointer < programByteCode.length;)
         {
             int offset = pointer;
             int opcode = programByteCode[pointer];
-            
             int parCount = getParCount(opcode);
             int byteCode = getByteCode(opcode);
             String byteCodeName = getInsnName(byteCode);
@@ -209,7 +207,6 @@ public class Disassembler
             getParsData(programByteCode, offset + 1, parsData);
             String[] parsValue = new String[parCount];
             getParsValue(staticData, parsType, parsData, parsValue, abstractSyntaxTree, readedStaticDataList, staticStringDataList);
-            
             Instruction instruction = abstractSyntaxTree.new Instruction();
             instruction.name = byteCodeName;
             instruction.parCount = parCount;
@@ -218,14 +215,13 @@ public class Disassembler
             instruction.parsType = parsType;
             instruction.lineNumber = abstractSyntaxTree.debugInfo.getLineNumberByOffset(offset);
             abstractSyntaxTree.abstractSyntaxTree.add(instruction);
-            
             pointer += (parCount + 1);
         }
-        if(labelAnalyze)
+        if (labelAnalyze)
         {
             runLabelAnalyze(abstractSyntaxTree);
         }
-        if(staticDataAnalyze)
+        if (staticDataAnalyze)
         {
             runStaticDataAnalyze(abstractSyntaxTree, readedStaticDataList, staticData, staticStringDataList);
         }
@@ -233,14 +229,15 @@ public class Disassembler
     }
     public static void runStaticDataAnalyze(AbstractSyntaxTree abstractSyntaxTree, List<SingleEntry<Integer, Integer>> readedStaticDataList, int[] staticData, List<SingleEntry<String, Integer>> staticStringDataList)
     {
-        nextData:for(int i = 0;i < staticData.length;i++)
+        nextData:
+        for (int i = 0; i < staticData.length; i++)
         {
             int data = staticData[i];
-            for(SingleEntry<Integer, Integer> entry: readedStaticDataList)
+            for (SingleEntry<Integer, Integer> entry : readedStaticDataList)
             {
                 int from = entry.getKey();
                 int to = entry.getKey() + entry.getValue() - 1;
-                if(i >= from && i <= to)
+                if (i >= from && i <= to)
                 {
                     continue nextData;
                 }
@@ -250,11 +247,11 @@ public class Disassembler
             instruction.parCount = 2;
             instruction.parsValue = new String[instruction.parCount];
             instruction.parsValue[0] = Integer.valueOf(i).toString();
-            instruction.parsValue[1] = "0x" + UnsignedUtils.toHexUintString(data).toUpperCase();
+            instruction.parsValue[1] = "0x" + IntUtils.toHexUintString(data).toUpperCase();
             instruction.lineNumber = -1;
             abstractSyntaxTree.abstractSyntaxTree.add(instruction);
         }
-        for(SingleEntry<String, Integer> entry : staticStringDataList)
+        for (SingleEntry<String, Integer> entry : staticStringDataList)
         {
             DummyInstruction instruction = abstractSyntaxTree.new DummyInstruction();
             instruction.name = "STRAT";
@@ -271,32 +268,29 @@ public class Disassembler
         int autoLabelID = 0;
         Map<Integer, Set<String>> offsetLabelMap = new HashMap<Integer, Set<String>>();
         Set<String> usedLabelSet = new HashSet<String>();
-        
         offsetLabelMap.putAll(abstractSyntaxTree.debugInfo.getOffsetLabelMap());
         usedLabelSet.addAll(abstractSyntaxTree.debugInfo.getLabelOffsetMap().keySet());
-        
-        for(Construct construct : abstractSyntaxTree.abstractSyntaxTree)
+        for (Construct construct : abstractSyntaxTree.abstractSyntaxTree)
         {
-            if(construct instanceof Instruction)
+            if (construct instanceof Instruction)
             {
-                Instruction instruction = (Instruction)construct;
-                if(instruction.name.equals("JSR") || instruction.name.equals("CALL") || instruction.name.equals("CRT"))
+                Instruction instruction = (Instruction) construct;
+                if (instruction.name.equals("JSR") || instruction.name.equals("CALL") || instruction.name.equals("CRT"))
                 {
-                    if(instruction.parsType[0] == 3)
+                    if (instruction.parsType[0] == 3)
                     {
                         int parValue = instruction.parsData[0];
                         int offset = parValue - abstractSyntaxTree.startRAM;
-                        if(!offsetLabelMap.containsKey(offset))
+                        if (!offsetLabelMap.containsKey(offset))
                         {
                             offsetLabelMap.put(offset, new LinkedHashSet<String>());
                         }
                         Set<String> labels = offsetLabelMap.get(offset);
-                        if(labels.size() == 0)
+                        if (labels.size() == 0)
                         {
                             String labelName;
-                            while(usedLabelSet.contains(labelName = ("L" + autoLabelID++)))
+                            while (usedLabelSet.contains(labelName = ("L" + autoLabelID++)))
                             {
-                                
                             }
                             labels.add(labelName);
                             usedLabelSet.add(labelName);
@@ -310,9 +304,9 @@ public class Disassembler
                 }
             }
         }
-        for(Entry<Integer, Set<String>> entry : offsetLabelMap.entrySet())
+        for (Entry<Integer, Set<String>> entry : offsetLabelMap.entrySet())
         {
-            for(String labelName : entry.getValue())
+            for (String labelName : entry.getValue())
             {
                 Label label = abstractSyntaxTree.new Label();
                 label.name = labelName;
@@ -324,7 +318,7 @@ public class Disassembler
     public static String getInsnName(int insnData)
     {
         Operator operator = OperatorsManager.fromInsnData(insnData);
-        if(operator == null)
+        if (operator == null)
         {
             return null;
         }
@@ -332,28 +326,28 @@ public class Disassembler
     }
     public static void getParsValue(int[] staticData, int[] parsType, int[] parsData, String[] parsValue, AbstractSyntaxTree abstractSyntaxTree, List<SingleEntry<Integer, Integer>> readedStaticDataList, List<SingleEntry<String, Integer>> staticStringDataList)
     {
-        for(int i = 0;i < parsType.length;i++)
+        for (int i = 0; i < parsType.length; i++)
         {
             int parType = parsType[i];
             int parData = parsData[i];
-            if(parType == 1) //访问寄存器
+            if (parType == 1) // 访问寄存器
             {
                 parsValue[i] = Register.fromData(parData).getImage();
             }
-            else if(parType == 2) //直接寻址访问内存
+            else if (parType == 2) // 直接寻址访问内存
             {
                 parsValue[i] = "[" + parData + "]";
             }
-            else if(parType == 3) //数值
+            else if (parType == 3) // 数值
             {
                 parsValue[i] = String.valueOf(parData);
             }
-            else if(parType == 4) //字符串
+            else if (parType == 4) // 字符串
             {
                 String sourceString;
                 try
                 {
-                    sourceString  = StringUtils.readIntArrayToString(staticData, parData - abstractSyntaxTree.startStaticRAM);
+                    sourceString = StringUtils.readIntArrayToString(staticData, parData - abstractSyntaxTree.startStaticRAM);
                 }
                 catch (Exception e)
                 {
@@ -363,64 +357,64 @@ public class Disassembler
                 StringBuilder builder = new StringBuilder();
                 builder.append("\"");
                 int codePointCount = sourceString.codePointCount(0, sourceString.length());
-                for(int j = 0;j < codePointCount;j++)
+                for (int j = 0; j < codePointCount; j++)
                 {
                     int codePoint = sourceString.codePointAt(j);
-                    if(codePoint == '\b')
+                    if (codePoint == '\b')
                     {
                         builder.append("\\b");
                     }
-                    else if(codePoint == '\f')
+                    else if (codePoint == '\f')
                     {
                         builder.append("\\f");
                     }
-                    else if(codePoint == '\n')
+                    else if (codePoint == '\n')
                     {
                         builder.append("\\n");
                     }
-                    else if(codePoint == '\r')
+                    else if (codePoint == '\r')
                     {
                         builder.append("\\r");
                     }
-                    else if(codePoint == '\t')
+                    else if (codePoint == '\t')
                     {
                         builder.append("\\t");
                     }
-                    else if(codePoint == '"')
+                    else if (codePoint == '"')
                     {
                         builder.append("\\\"");
                     }
-                    else if(codePoint == '\'')
+                    else if (codePoint == '\'')
                     {
                         builder.append("\\\'");
                     }
-                    else if(codePoint == '\\')
+                    else if (codePoint == '\\')
                     {
                         builder.append("\\\\");
                     }
-                    else if(isCommonChar(codePoint))
+                    else if (isCommonChar(codePoint))
                     {
                         builder.appendCodePoint(codePoint);
                     }
                     else
                     {
                         char[] chars = Character.toChars(codePoint);
-                        for(char c : chars)
+                        for (char c : chars)
                         {
                             builder.append("\\u");
-                            String charUnicodeString = UnsignedUtils.toHexUintString(c);
+                            String charUnicodeString = IntUtils.toHexUintString(c);
                             int fix = 4 - charUnicodeString.length();
-                            if(fix == 0)
+                            if (fix == 0)
                             {
                                 builder.append(charUnicodeString);
                             }
-                            else if(fix < 0)
+                            else if (fix < 0)
                             {
                                 builder.append(charUnicodeString.substring(charUnicodeString.length() - 4, charUnicodeString.length()));
                             }
                             else
                             {
-                                for(int k = 0;k < fix;k++)
+                                for (int k = 0; k < fix; k++)
                                 {
                                     builder.append("0");
                                 }
@@ -435,7 +429,7 @@ public class Disassembler
                 staticStringDataList.add(new SingleEntry<String, Integer>(builder.toString(), parData - abstractSyntaxTree.startStaticRAM));
                 parsValue[i] = Integer.valueOf(parData).toString();
             }
-            else if(parType == 5) //用寄存器值寻址访问内存
+            else if (parType == 5) // 用寄存器值寻址访问内存
             {
                 parsValue[i] = '[' + Register.fromData(parData).getImage() + ']';
             }
@@ -483,19 +477,19 @@ public class Disassembler
         int par3 = (opcode >> 23) & 7;
         int par4 = (opcode >> 20) & 7;
         int parCount = 0;
-        if(par1 != 0)
+        if (par1 != 0)
         {
             parCount++;
         }
-        if(par2 != 0)
+        if (par2 != 0)
         {
             parCount++;
         }
-        if(par3 != 0)
+        if (par3 != 0)
         {
             parCount++;
         }
-        if(par4 != 0)
+        if (par4 != 0)
         {
             parCount++;
         }
@@ -503,7 +497,7 @@ public class Disassembler
     }
     public static void getParsData(int[] programByteCode, int idx, int[] parsData)
     {
-        for(int i = 0;i < parsData.length;i++)
+        for (int i = 0; i < parsData.length; i++)
         {
             parsData[i] = programByteCode[idx + i];
         }
@@ -515,22 +509,22 @@ public class Disassembler
         int par2 = (opcode >> 26) & 7;
         int par3 = (opcode >> 23) & 7;
         int par4 = (opcode >> 20) & 7;
-        if(parCount == 1)
+        if (parCount == 1)
         {
             parsType[0] = par1;
         }
-        else if(parCount == 2)
+        else if (parCount == 2)
         {
             parsType[0] = par1;
             parsType[1] = par2;
         }
-        else if(parCount == 3)
+        else if (parCount == 3)
         {
             parsType[0] = par1;
             parsType[1] = par2;
             parsType[2] = par3;
         }
-        else if(parCount == 4)
+        else if (parCount == 4)
         {
             parsType[0] = par1;
             parsType[1] = par2;
