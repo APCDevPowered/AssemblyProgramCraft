@@ -8,7 +8,7 @@ import java.util.WeakHashMap;
 
 import net.minecraft.world.World;
 
-import org.apcdevpowered.util.io.DirectoryLock;
+import org.apcdevpowered.util.DirectoryLock;
 import org.apcdevpowered.vcpu32.asm.ProgramPackage;
 import org.apcdevpowered.vcpu32.vm.storage.container.NodeContainerMap;
 import org.apcdevpowered.vcpu32.vm.storage.exception.ElementNotFoundException;

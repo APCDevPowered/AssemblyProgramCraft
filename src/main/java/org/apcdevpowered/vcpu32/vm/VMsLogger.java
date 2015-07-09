@@ -1,7 +1,7 @@
 package org.apcdevpowered.vcpu32.vm;
 
 import org.apcdevpowered.apc.common.config.ConfigSystem;
-import org.apcdevpowered.util.array.DynamicSparseArray;
+import org.apcdevpowered.util.DynamicSparseArray;
 import org.apcdevpowered.vcpu32.vm.AssemblyVirtualThread.AVThreadStackFrame;
 
 import static org.apcdevpowered.vcpu32.vm.Registers.*;

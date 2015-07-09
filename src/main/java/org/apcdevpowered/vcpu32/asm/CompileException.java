@@ -9,15 +9,10 @@ import org.apcdevpowered.vcpu32.asm.OperatorsManager.ParImageFormatException;
 public class CompileException extends RuntimeException
 {
     private static final long serialVersionUID = -6388625872870770936L;
-
     public static final int UNKNOWN = 0;
-    
     public static final int LABEL_CONFLICT = 1;
-    
     public static final int INCMP_PAR_DATATYPE = 2;
-    
     public static final int WRONG_PAR_IMAGE_FORMAT = 3;
-    
     public final int type;
     private int lineNumber;
     
@@ -58,12 +53,12 @@ public class CompileException extends RuntimeException
             {
                 StringBuilder builder = new StringBuilder();
                 builder.append("Label conflict error occurred during complete.");
-                if(lineNumber > 0)
+                if (lineNumber > 0)
                 {
                     builder.append("\n\tat line: ");
                     builder.append(lineNumber);
                 }
-                if(getCause() != null)
+                if (getCause() != null)
                 {
                     LabelConflictException e = (LabelConflictException) getCause();
                     builder.append("\n\tLabel \"");
@@ -78,18 +73,18 @@ public class CompileException extends RuntimeException
             {
                 StringBuilder builder = new StringBuilder();
                 builder.append("Incompatible parameter datatype error occurred during complete.");
-                if(lineNumber > 0)
+                if (lineNumber > 0)
                 {
                     builder.append("\n\tat line: ");
                     builder.append(lineNumber);
                 }
-                if(getCause() != null)
+                if (getCause() != null)
                 {
-                    IncmpParException e = (IncmpParException)getCause();
+                    IncmpParException e = (IncmpParException) getCause();
                     builder.append("\n\tParameter ");
                     builder.append(e.getParIndex());
                     builder.append(" with datatype <");
-                    if(e.getDatatype() == null)
+                    if (e.getDatatype() == null)
                     {
                         builder.append(DatatypeManager.typeVoid.getTypeName());
                     }
@@ -98,7 +93,7 @@ public class CompileException extends RuntimeException
                         builder.append(e.getDatatype().getTypeName());
                     }
                     builder.append('>');
-                    if(e.getCmpParDatatypes() == null)
+                    if (e.getCmpParDatatypes() == null)
                     {
                         builder.append(" must be datatype ");
                         builder.append("<");
@@ -109,9 +104,9 @@ public class CompileException extends RuntimeException
                     {
                         builder.append(" must be datatype ");
                         boolean isFirstDataType = true;
-                        for(Datatype<?> datatype : e.getCmpParDatatypes().getDatatypes())
+                        for (Datatype<?> datatype : e.getCmpParDatatypes().getDatatypes())
                         {
-                            if(!isFirstDataType)
+                            if (!isFirstDataType)
                             {
                                 builder.append(", ");
                             }
@@ -131,18 +126,18 @@ public class CompileException extends RuntimeException
             {
                 StringBuilder builder = new StringBuilder();
                 builder.append("Wrong parameter image error occurred during complete.");
-                if(lineNumber > 0)
+                if (lineNumber > 0)
                 {
                     builder.append("\n\tat line: ");
                     builder.append(lineNumber);
                 }
-                if(getCause() != null)
+                if (getCause() != null)
                 {
-                    ParImageFormatException e1 = (ParImageFormatException)getCause();
+                    ParImageFormatException e1 = (ParImageFormatException) getCause();
                     builder.append("\n\tParameter ");
                     builder.append(e1.getParIndex());
                     builder.append(" with datatype <");
-                    if(e1.getDatatype() == null)
+                    if (e1.getDatatype() == null)
                     {
                         builder.append(DatatypeManager.typeVoid.getTypeName());
                     }
@@ -151,9 +146,9 @@ public class CompileException extends RuntimeException
                         builder.append(e1.getDatatype().getTypeName());
                     }
                     builder.append('>');
-                    if(e1.getCause() != null)
+                    if (e1.getCause() != null)
                     {
-                        ImageFormatException e2 = (ImageFormatException)e1.getCause();
+                        ImageFormatException e2 = (ImageFormatException) e1.getCause();
                         builder.append("\n\t");
                         builder.append(e2.getMessage());
                     }

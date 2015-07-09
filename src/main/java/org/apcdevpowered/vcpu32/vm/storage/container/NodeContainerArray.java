@@ -10,7 +10,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 
-import org.apcdevpowered.util.reflection.GenericsUtil;
+import org.apcdevpowered.util.GenericsUtil;
 import org.apcdevpowered.vcpu32.vm.storage.ElementKey;
 import org.apcdevpowered.vcpu32.vm.storage.NodeContainer;
 import org.apcdevpowered.vcpu32.vm.storage.NodeElement;

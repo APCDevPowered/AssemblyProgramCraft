@@ -7,7 +7,7 @@ import org.apcdevpowered.apc.client.gui.event.IEventNode;
 import org.apcdevpowered.apc.common.util.history.HistoryApplyException;
 import org.apcdevpowered.apc.common.util.history.HistoryManager;
 import org.apcdevpowered.apc.common.util.history.HistoryManager.HistoryEntry;
-import org.apcdevpowered.util.string.StringTools;
+import org.apcdevpowered.util.StringUtils;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
@@ -118,7 +118,7 @@ public class GuiMultipleLineTextField extends Gui implements IEventNode
         while (tmpPos <= cursor)
         {
             lineX++;
-            tmpPos = StringTools.indexOfLineEndIncludeCRLN(text, tmpPos) + 1;
+            tmpPos = StringUtils.indexOfLineEndIncludeCRLN(text, tmpPos) + 1;
             if (tmpPos == 0)
             {
                 break;
@@ -127,7 +127,7 @@ public class GuiMultipleLineTextField extends Gui implements IEventNode
         tmpPos = 0;
         for (int i = 0; i < (lineX - 1); i++)
         {
-            tmpPos = StringTools.indexOfLineEndIncludeCRLN(text, tmpPos) + 1;
+            tmpPos = StringUtils.indexOfLineEndIncludeCRLN(text, tmpPos) + 1;
         }
         if (cursor < text.length() && text.charAt(cursor) == '\n')
         {
@@ -140,7 +140,7 @@ public class GuiMultipleLineTextField extends Gui implements IEventNode
     }
     public int getLineLength(int pos)
     {
-        String[] lines = StringTools.getLines(text);
+        String[] lines = StringUtils.getLines(text);
         if (pos < 0)
         {
             return 0;
@@ -170,7 +170,7 @@ public class GuiMultipleLineTextField extends Gui implements IEventNode
         while (tmpPos <= cursor)
         {
             lineY++;
-            tmpPos = StringTools.indexOfLineEndIncludeCRLN(text, tmpPos) + 1;
+            tmpPos = StringUtils.indexOfLineEndIncludeCRLN(text, tmpPos) + 1;
             if (tmpPos == 0)
             {
                 break;
@@ -180,7 +180,7 @@ public class GuiMultipleLineTextField extends Gui implements IEventNode
     }
     public int getLinesCount()
     {
-        return StringTools.getLines(text).length;
+        return StringUtils.getLines(text).length;
     }
     public void setLineY(int pos)
     {
@@ -197,9 +197,9 @@ public class GuiMultipleLineTextField extends Gui implements IEventNode
         int basePos = 0;
         for (int i = 0; i < pos; i++)
         {
-            basePos = StringTools.indexOfLineEndIncludeCRLN(text, basePos) + 1;
+            basePos = StringUtils.indexOfLineEndIncludeCRLN(text, basePos) + 1;
         }
-        String[] strArray = StringTools.getLines(text);
+        String[] strArray = StringUtils.getLines(text);
         int lineY = getLineY();
         int lineX = getLineX();
         int offsetWidth = getStringWidth(strArray[lineY].substring(0, lineX));
@@ -417,7 +417,7 @@ public class GuiMultipleLineTextField extends Gui implements IEventNode
     {
         int lineX = getLineX();
         int lineY = getLineY();
-        String cursorAtLine = StringTools.getLines(text)[lineY];
+        String cursorAtLine = StringUtils.getLines(text)[lineY];
         int horizontalPos = 0;
         int verticalPos = 0;
         horizontalPos = FONT_SPACTING_LEFT;
@@ -764,7 +764,7 @@ public class GuiMultipleLineTextField extends Gui implements IEventNode
         {
             lineY = 0;
         }
-        String[] strarray = StringTools.getLines(text);
+        String[] strarray = StringUtils.getLines(text);
         if (lineY >= strarray.length - 1)
         {
             lineY = strarray.length - 1;
@@ -790,7 +790,7 @@ public class GuiMultipleLineTextField extends Gui implements IEventNode
         int fromIndex = 0;
         for (int i = 0; i < lineY; i++)
         {
-            fromIndex = StringTools.indexOfLineEndIncludeCRLN(text, fromIndex) + 1;
+            fromIndex = StringUtils.indexOfLineEndIncludeCRLN(text, fromIndex) + 1;
         }
         setCursorSafety(fromIndex + lineX, false);
     }
@@ -815,13 +815,13 @@ public class GuiMultipleLineTextField extends Gui implements IEventNode
     public int getMultipleLineTextMaxHeigth(String str)
     {
         int heigth = FONT_HEIGHT + FONT_SPACTING_UP + FONT_SPACTING_DOWN;
-        heigth += ((FONT_HEIGHT + FONT_SPACTING_V) * StringTools.countLines(str));
+        heigth += ((FONT_HEIGHT + FONT_SPACTING_V) * StringUtils.countLines(str));
         return heigth;
     }
     public int getMultipleLineTextMaxWidth(String str)
     {
         int width = FONT_SPACTING_LEFT + FONT_SPACTING_RIGHT;
-        String[] strarray = StringTools.getLines(str);
+        String[] strarray = StringUtils.getLines(str);
         for (int lineIndex = 0; lineIndex < strarray.length; lineIndex++)
         {
             String line = strarray[lineIndex];

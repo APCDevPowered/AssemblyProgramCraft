@@ -72,7 +72,7 @@ public class CompileVisitor implements IRetArguVisitor<FragmentProgram, CompileC
     public FragmentProgram visit(AbstractSyntaxTree abstractSyntaxTree, CompileContext context)
     {
         FragmentProgram program = null;
-        if(abstractSyntaxTree.nodeOptional.present())
+        if (abstractSyntaxTree.nodeOptional.present())
         {
             program = abstractSyntaxTree.nodeOptional.node.accept(this, context);
         }
@@ -88,7 +88,7 @@ public class CompileVisitor implements IRetArguVisitor<FragmentProgram, CompileC
         FragmentProgram program = stmList.stm.accept(this, context);
         try
         {
-            if(stmList.nodeOptional.present())
+            if (stmList.nodeOptional.present())
             {
                 program.merge(stmList.nodeOptional.node.accept(this, context));
             }
@@ -98,7 +98,7 @@ public class CompileVisitor implements IRetArguVisitor<FragmentProgram, CompileC
             switch (e.type)
             {
                 case MergeException.LABEL_CONFLICT:
-                    if(e.getCause() != null)
+                    if (e.getCause() != null)
                     {
                         throw new CompileException(CompileException.LABEL_CONFLICT, e.getLineNumber(), e.getCause());
                     }
@@ -118,11 +118,11 @@ public class CompileVisitor implements IRetArguVisitor<FragmentProgram, CompileC
         FragmentProgram program = null;
         switch (stm.nodeChoice.which)
         {
-            //Insn
+        // Insn
             case 0:
                 program = stm.nodeChoice.choice.accept(this, context);
                 break;
-            //LabelDef
+            // LabelDef
             case 1:
                 program = stm.nodeChoice.choice.accept(this, context);
                 break;
@@ -139,96 +139,96 @@ public class CompileVisitor implements IRetArguVisitor<FragmentProgram, CompileC
         int lineNumber = insn.nodeToken.beginLine;
         List<Datatype<?>> datatypes = new ArrayList<Datatype<?>>();
         List<String> parImages = new ArrayList<String>();
-        if(insn.nodeOptional != null)
+        if (insn.nodeOptional != null)
         {
-            ParList parList = (ParList)insn.nodeOptional.node;
-            while(parList != null)
+            ParList parList = (ParList) insn.nodeOptional.node;
+            while (parList != null)
             {
                 Par par = parList.par;
                 switch (par.nodeChoice.which)
                 {
-                    //Dec
+                // Dec
                     case 0:
                     {
-                        NodeToken token = (NodeToken)par.nodeChoice.choice;
+                        NodeToken token = (NodeToken) par.nodeChoice.choice;
                         datatypes.add(DatatypeManager.typeDec);
                         parImages.add(token.tokenImage);
                         break;
                     }
-                    //Hex
+                    // Hex
                     case 1:
                     {
-                        NodeToken token = (NodeToken)par.nodeChoice.choice;
+                        NodeToken token = (NodeToken) par.nodeChoice.choice;
                         datatypes.add(DatatypeManager.typeHex);
                         parImages.add(token.tokenImage);
                         break;
                     }
-                    //Oct
+                    // Oct
                     case 2:
                     {
-                        NodeToken token = (NodeToken)par.nodeChoice.choice;
+                        NodeToken token = (NodeToken) par.nodeChoice.choice;
                         datatypes.add(DatatypeManager.typeOct);
                         parImages.add(token.tokenImage);
                         break;
                     }
-                    //Bin
+                    // Bin
                     case 3:
                     {
-                        NodeToken token = (NodeToken)par.nodeChoice.choice;
+                        NodeToken token = (NodeToken) par.nodeChoice.choice;
                         datatypes.add(DatatypeManager.typeBin);
                         parImages.add(token.tokenImage);
                         break;
                     }
-                    //Reg
+                    // Reg
                     case 4:
                     {
-                        NodeToken token = (NodeToken)par.nodeChoice.choice;
+                        NodeToken token = (NodeToken) par.nodeChoice.choice;
                         datatypes.add(DatatypeManager.typeReg);
                         parImages.add(token.tokenImage);
                         break;
                     }
-                    //Mem
+                    // Mem
                     case 5:
-                        NodeSequence sequence = (NodeSequence)par.nodeChoice.choice;
-                        NodeChoice choice = (NodeChoice)sequence.nodes.get(1);
+                        NodeSequence sequence = (NodeSequence) par.nodeChoice.choice;
+                        NodeChoice choice = (NodeChoice) sequence.nodes.get(1);
                         switch (choice.which)
                         {
-                            //Reg
+                        // Reg
                             case 0:
                             {
-                                NodeToken token = (NodeToken)choice.choice;
+                                NodeToken token = (NodeToken) choice.choice;
                                 datatypes.add(DatatypeManager.typeMemReg);
                                 parImages.add("[" + token.tokenImage + "]");
                                 break;
                             }
-                            //Dec
+                            // Dec
                             case 1:
                             {
-                                NodeToken token = (NodeToken)choice.choice;
+                                NodeToken token = (NodeToken) choice.choice;
                                 datatypes.add(DatatypeManager.typeMemDec);
                                 parImages.add("[" + token.tokenImage + "]");
                                 break;
                             }
-                            //Hex
+                            // Hex
                             case 2:
                             {
-                                NodeToken token = (NodeToken)choice.choice;
+                                NodeToken token = (NodeToken) choice.choice;
                                 datatypes.add(DatatypeManager.typeMemHex);
                                 parImages.add("[" + token.tokenImage + "]");
                                 break;
                             }
-                            //Oct
+                            // Oct
                             case 3:
                             {
-                                NodeToken token = (NodeToken)choice.choice;
+                                NodeToken token = (NodeToken) choice.choice;
                                 datatypes.add(DatatypeManager.typeMemOct);
                                 parImages.add("[" + token.tokenImage + "]");
                                 break;
                             }
-                            //Bin
+                            // Bin
                             case 4:
                             {
-                                NodeToken token = (NodeToken)choice.choice;
+                                NodeToken token = (NodeToken) choice.choice;
                                 datatypes.add(DatatypeManager.typeMemBin);
                                 parImages.add("[" + token.tokenImage + "]");
                                 break;
@@ -237,34 +237,34 @@ public class CompileVisitor implements IRetArguVisitor<FragmentProgram, CompileC
                                 throw new CompileException(CompileException.UNKNOWN);
                         }
                         break;
-                    //String
+                    // String
                     case 6:
                     {
-                        NodeToken token = (NodeToken)par.nodeChoice.choice;
+                        NodeToken token = (NodeToken) par.nodeChoice.choice;
                         datatypes.add(DatatypeManager.typeString);
                         parImages.add(token.tokenImage);
                         break;
                     }
-                    //Char
+                    // Char
                     case 7:
                     {
-                        NodeToken token = (NodeToken)par.nodeChoice.choice;
+                        NodeToken token = (NodeToken) par.nodeChoice.choice;
                         datatypes.add(DatatypeManager.typeChar);
                         parImages.add(token.tokenImage);
                         break;
                     }
-                    //Label
+                    // Label
                     case 8:
                     {
-                        NodeToken token = (NodeToken)par.nodeChoice.choice;
+                        NodeToken token = (NodeToken) par.nodeChoice.choice;
                         datatypes.add(DatatypeManager.typeLabel);
                         parImages.add(token.tokenImage);
                         break;
                     }
-                    //Real
+                    // Real
                     case 9:
                     {
-                        NodeToken token = (NodeToken)par.nodeChoice.choice;
+                        NodeToken token = (NodeToken) par.nodeChoice.choice;
                         datatypes.add(DatatypeManager.typeReal);
                         parImages.add(token.tokenImage);
                         break;
@@ -272,9 +272,9 @@ public class CompileVisitor implements IRetArguVisitor<FragmentProgram, CompileC
                     default:
                         throw new CompileException(CompileException.UNKNOWN);
                 }
-                if(parList.nodeOptional.node != null)
+                if (parList.nodeOptional.node != null)
                 {
-                    parList = (ParList)((NodeSequence)parList.nodeOptional.node).nodes.get(1);
+                    parList = (ParList) ((NodeSequence) parList.nodeOptional.node).nodes.get(1);
                 }
                 else
                 {
@@ -316,7 +316,7 @@ public class CompileVisitor implements IRetArguVisitor<FragmentProgram, CompileC
             throw new CompileException(CompileException.LABEL_CONFLICT, labelDef.nodeToken.beginLine, e);
         }
         return program;
-    }    
+    }
     @Override
     public FragmentProgram visit(ParList parList, CompileContext context)
     {

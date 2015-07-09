@@ -1,4 +1,4 @@
-package org.apcdevpowered.util.io;
+package org.apcdevpowered.util;
 
 import java.io.EOFException;
 import java.io.IOException;
@@ -192,7 +192,6 @@ public class StreamHelper
         }
         return bytes;
     }
-    
     public static int[] readIntArrayFully(InputStream inputStream, int length) throws IOException
     {
         if (length < 0)

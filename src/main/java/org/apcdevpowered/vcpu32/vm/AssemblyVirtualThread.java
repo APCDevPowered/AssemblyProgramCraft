@@ -7,11 +7,11 @@ import java.util.Map;
 import java.util.Stack;
 import java.util.concurrent.ConcurrentSkipListSet;
 
-import org.apcdevpowered.util.array.DynamicSparseArray;
-import org.apcdevpowered.util.bit.BitTools;
-import org.apcdevpowered.util.collection.HandlerAllocateList;
-import org.apcdevpowered.util.integer.IntTools;
-import org.apcdevpowered.util.unsigned.UnsignedTools;
+import org.apcdevpowered.util.BitUtils;
+import org.apcdevpowered.util.DynamicSparseArray;
+import org.apcdevpowered.util.HandlerAllocateList;
+import org.apcdevpowered.util.IntUtils;
+import org.apcdevpowered.util.UnsignedUtils;
 import org.apcdevpowered.vcpu32.vm.debugger.impl.ThreadReferenceImpl;
 import org.apcdevpowered.vcpu32.vm.storage.container.NodeContainerArray;
 import org.apcdevpowered.vcpu32.vm.storage.container.NodeContainerArray.NodeContainerArrayEntry;
@@ -486,12 +486,12 @@ public class AssemblyVirtualThread
     // ********工具函数定义开始********
     public static void getOptInfo(int opt, int optInfo[])
     {
-        optInfo[0] = BitTools.copyBit(opt, 0, 0, 0, 12);
-        optInfo[1] = BitTools.copyBit(opt, 29, 0, 0, 3);
-        optInfo[2] = BitTools.copyBit(opt, 26, 0, 0, 3);
-        optInfo[3] = BitTools.copyBit(opt, 23, 0, 0, 3);
-        optInfo[4] = BitTools.copyBit(opt, 20, 0, 0, 3);
-        optInfo[5] = BitTools.copyBit(opt, 12, 0, 0, 8);
+        optInfo[0] = BitUtils.copyBit(opt, 0, 0, 0, 12);
+        optInfo[1] = BitUtils.copyBit(opt, 29, 0, 0, 3);
+        optInfo[2] = BitUtils.copyBit(opt, 26, 0, 0, 3);
+        optInfo[3] = BitUtils.copyBit(opt, 23, 0, 0, 3);
+        optInfo[4] = BitUtils.copyBit(opt, 20, 0, 0, 3);
+        optInfo[5] = BitUtils.copyBit(opt, 12, 0, 0, 8);
     }
     public static int getParCount(int[] optInfo)
     {
@@ -1002,8 +1002,8 @@ public class AssemblyVirtualThread
         if (threadSuspendHandlerList != null)
         {
             NodeContainerMap threadSuspendHandlerListNodeContainerMap = new NodeContainerMap();
-            threadSuspendHandlerListNodeContainerMap.addElement(NodeContainerMap.makeKey("handlerList"), IntTools.toIntArray(threadSuspendHandlerList.getHandlerList().keySet().toArray(new Integer[0])));
-            threadSuspendHandlerListNodeContainerMap.addElement(NodeContainerMap.makeKey("closedHandlerList"), IntTools.toIntArray(threadSuspendHandlerList.getClosedHandlerList().toArray(new Integer[0])));
+            threadSuspendHandlerListNodeContainerMap.addElement(NodeContainerMap.makeKey("handlerList"), IntUtils.castToPrimitiveArray(threadSuspendHandlerList.getHandlerList().keySet().toArray(new Integer[0])));
+            threadSuspendHandlerListNodeContainerMap.addElement(NodeContainerMap.makeKey("closedHandlerList"), IntUtils.castToPrimitiveArray(threadSuspendHandlerList.getClosedHandlerList().toArray(new Integer[0])));
             avtNodeContainerMap.addElement(NodeContainerMap.makeKey("threadSuspendHandlerList"), threadSuspendHandlerListNodeContainerMap);
         }
     }
@@ -1125,8 +1125,8 @@ public class AssemblyVirtualThread
         if (threadSuspendHandlerList != null)
         {
             NBTTagCompound threadSuspendHandlerListNbtTagCompound = new NBTTagCompound();
-            threadSuspendHandlerListNbtTagCompound.setIntArray("handlerList", IntTools.toIntArray(threadSuspendHandlerList.getHandlerList().keySet().toArray(new Integer[0])));
-            threadSuspendHandlerListNbtTagCompound.setIntArray("closedHandlerList", IntTools.toIntArray(threadSuspendHandlerList.getClosedHandlerList().toArray(new Integer[0])));
+            threadSuspendHandlerListNbtTagCompound.setIntArray("handlerList", IntUtils.castToPrimitiveArray(threadSuspendHandlerList.getHandlerList().keySet().toArray(new Integer[0])));
+            threadSuspendHandlerListNbtTagCompound.setIntArray("closedHandlerList", IntUtils.castToPrimitiveArray(threadSuspendHandlerList.getClosedHandlerList().toArray(new Integer[0])));
             avtNbtTagCompound.setTag("threadSuspendHandlerList", threadSuspendHandlerListNbtTagCompound);
         }
     }
@@ -1353,7 +1353,7 @@ public class AssemblyVirtualThread
             stackFrameNodeContainerMap.addElement(NodeContainerMap.makeKey("returnAddress"), returnAddress);
             stackFrameNodeContainerMap.addElement(NodeContainerMap.makeKey("enterAddress"), enterAddress);
             stackFrameNodeContainerMap.addElement(NodeContainerMap.makeKey("parLength"), parLength);
-            stackFrameNodeContainerMap.addElement(NodeContainerMap.makeKey("stack"), IntTools.toIntArray(stack.toArray(new Integer[stack.length()])));
+            stackFrameNodeContainerMap.addElement(NodeContainerMap.makeKey("stack"), IntUtils.castToPrimitiveArray(stack.toArray(new Integer[stack.length()])));
         }
         public void readFromNode(NodeContainerMap stackFrameNodeContainerMap) throws ElementNotFoundException, ElementTypeMismatchException
         {
@@ -1374,7 +1374,7 @@ public class AssemblyVirtualThread
             if (stackdata != null)
             {
                 stack.clear();
-                stack.addAll(IntTools.toIntegerArray(stackdata));
+                stack.addAll(IntUtils.castToWrapperArray(stackdata));
             }
         }
         @Deprecated
@@ -1393,7 +1393,7 @@ public class AssemblyVirtualThread
             Stackframenbttagcompound.setInteger("returnAddress", returnAddress);
             Stackframenbttagcompound.setInteger("enterAddress", enterAddress);
             Stackframenbttagcompound.setInteger("parLength", parLength);
-            Stackframenbttagcompound.setIntArray("stack", IntTools.toIntArray(stack.toArray(new Integer[stack.length()])));
+            Stackframenbttagcompound.setIntArray("stack", IntUtils.castToPrimitiveArray(stack.toArray(new Integer[stack.length()])));
         }
         @Deprecated
         public void readFromNBT(NBTTagCompound Stackframenbttagcompound)
@@ -1415,7 +1415,7 @@ public class AssemblyVirtualThread
             if (stackdata != null)
             {
                 stack.clear();
-                stack.addAll(IntTools.toIntegerArray(stackdata));
+                stack.addAll(IntUtils.castToWrapperArray(stackdata));
             }
         }
         @Override
@@ -4160,7 +4160,7 @@ public class AssemblyVirtualThread
                     // [end]
                     else
                     {
-                        System.out.println("[VCPU-32]不正确的机器指令 0x" + UnsignedTools.read16RadixUintValue(optInfo[0], true) + " ，线程 0x" + UnsignedTools.read16RadixUintValue(handlerValue, true) + "（" + threadName + "）终止");
+                        System.out.println("[VCPU-32]不正确的机器指令 0x" + UnsignedUtils.toHexUintString(optInfo[0], true) + " ，线程 0x" + UnsignedUtils.toHexUintString(handlerValue, true) + "（" + threadName + "）终止");
                         halt();
                     }
                     yield();

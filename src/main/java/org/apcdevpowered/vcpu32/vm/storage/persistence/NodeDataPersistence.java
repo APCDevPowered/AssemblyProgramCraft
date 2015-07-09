@@ -13,7 +13,7 @@ import java.util.Date;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apcdevpowered.util.io.StreamHelper;
+import org.apcdevpowered.util.StreamHelper;
 import org.apcdevpowered.vcpu32.vm.storage.NodeElement;
 import org.apcdevpowered.vcpu32.vm.storage.exception.ElementTypeMismatchException;
 import org.apcdevpowered.vcpu32.vm.storage.exception.UnsupportedVersionException;

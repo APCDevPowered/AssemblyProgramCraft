@@ -7,7 +7,7 @@ import java.util.Set;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 
-import org.apcdevpowered.util.integer.IntTools;
+import org.apcdevpowered.util.IntUtils;
 import org.apcdevpowered.vcpu32.vm.storage.container.NodeContainerArray;
 import org.apcdevpowered.vcpu32.vm.storage.container.NodeContainerArray.NodeContainerArrayEntry;
 import org.apcdevpowered.vcpu32.vm.storage.container.NodeContainerMap;
@@ -296,7 +296,7 @@ public class DebugInfo implements Cloneable
         {
             NodeContainerMap entryNodeContainerArray = new NodeContainerMap();
             entryNodeContainerArray.addElement(NodeContainerMap.makeKey("key"), entry.getKey());
-            entryNodeContainerArray.addElement(NodeContainerMap.makeKey("value"), IntTools.toIntArray(entry.getValue()));
+            entryNodeContainerArray.addElement(NodeContainerMap.makeKey("value"), IntUtils.castToPrimitiveArray(entry.getValue()));
             lineNumberOffsetMapNodeContainerArray.add(entryNodeContainerArray);
         }
         debugInfoNodeContainerMap.addElement(NodeContainerMap.makeKey("lineNumberOffsetMap"), lineNumberOffsetMapNodeContainerArray);
@@ -359,7 +359,7 @@ public class DebugInfo implements Cloneable
         for (NodeContainerArrayEntry entry : lineNumberOffsetMapNodeContainerArray.entrySet())
         {
             NodeContainerMap entryNodeContainerMap = entry.getValue().castElemenet(NodeContainerMap.class);
-            lineNumberOffsetMap.put(entryNodeContainerMap.getElement(NodeContainerMap.makeKey("key"), NodeScalarInteger.class).getData(), IntTools.addToIntegerCollection(new LinkedHashSet<Integer>(), entryNodeContainerMap.getElement(NodeContainerMap.makeKey("value"), NodeScalarIntegerArray.class).getData()));
+            lineNumberOffsetMap.put(entryNodeContainerMap.getElement(NodeContainerMap.makeKey("key"), NodeScalarInteger.class).getData(), IntUtils.addToCollection(new LinkedHashSet<Integer>(), entryNodeContainerMap.getElement(NodeContainerMap.makeKey("value"), NodeScalarIntegerArray.class).getData()));
         }
         NodeContainerArray labelLineNumberMapNodeContainerArray = debugInfoNodeContainerMap.getArray(NodeContainerMap.makeKey("labelLineNumberMap"));
         for (NodeContainerArrayEntry entry : labelLineNumberMapNodeContainerArray.entrySet())
@@ -415,7 +415,7 @@ public class DebugInfo implements Cloneable
         {
             NBTTagCompound entryNbtTagCompound = new NBTTagCompound();
             entryNbtTagCompound.setInteger("key", entry.getKey());
-            entryNbtTagCompound.setIntArray("value", IntTools.toIntArray(entry.getValue()));
+            entryNbtTagCompound.setIntArray("value", IntUtils.castToPrimitiveArray(entry.getValue()));
             lineNumberOffsetMapNBTTagList.appendTag(entryNbtTagCompound);
         }
         debugInfoNBTTagCompound.setTag("lineNumberOffsetMap", lineNumberOffsetMapNBTTagList);
@@ -479,7 +479,7 @@ public class DebugInfo implements Cloneable
         for (int i = 0; i < lineNumberOffsetMapNBTTagList.tagCount(); i++)
         {
             NBTTagCompound entryNbtTagCompound = lineNumberOffsetMapNBTTagList.getCompoundTagAt(i);
-            lineNumberOffsetMap.put(entryNbtTagCompound.getInteger("key"), IntTools.addToIntegerCollection(new LinkedHashSet<Integer>(), entryNbtTagCompound.getIntArray("value")));
+            lineNumberOffsetMap.put(entryNbtTagCompound.getInteger("key"), IntUtils.addToCollection(new LinkedHashSet<Integer>(), entryNbtTagCompound.getIntArray("value")));
         }
         NBTTagList labelLineNumberMapNBTTagList = debugInfoNBTTagCompound.getTagList("labelLineNumberMap", 10);
         for (int i = 0; i < labelLineNumberMapNBTTagList.tagCount(); i++)

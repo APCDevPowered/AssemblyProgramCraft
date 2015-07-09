@@ -3,18 +3,15 @@ package org.apcdevpowered.vcpu32.asm;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apcdevpowered.util.bit.BitTools;
-import org.apcdevpowered.util.integer.IntTools;
+import org.apcdevpowered.util.BitUtils;
 
 public class DatatypeManager
 {
     public static enum Register
     {
         A(0x01), B(0x02), C(0x03), X(0x04), Y(0x05), Z(0x06), I(0x07), J(0x08), O(0x09), PC(0x0A), SP(0x0B);
-        
         private final String image;
         private final int data;
-        
         private static Map<String, Register> imageRegisterMap = new HashMap<String, Register>();
         private static Map<Integer, Register> dataRegisterMap = new HashMap<Integer, Register>();
         
@@ -26,7 +23,7 @@ public class DatatypeManager
         
         static
         {
-            for(Register register : values())
+            for (Register register : values())
             {
                 imageRegisterMap.put(register.image, register);
                 dataRegisterMap.put(register.data, register);
@@ -41,7 +38,6 @@ public class DatatypeManager
         {
             return data;
         }
-        
         public static Register fromImage(String image)
         {
             return imageRegisterMap.get(image);
@@ -51,7 +47,6 @@ public class DatatypeManager
             return dataRegisterMap.get(data);
         }
     }
-    
     public static abstract class Datatype<V>
     {
         public final int parInsnBits;
@@ -64,22 +59,18 @@ public class DatatypeManager
         public abstract void writeData(String image, FragmentProgram program, int optSlotIndex, int parIndex) throws ImageFormatException;
         public abstract int getData(String image) throws ImageFormatException;
         public abstract String getTypeName();
-        
         protected void setOptParType(FragmentProgram program, int optSlotIndex, int parIndex)
         {
             int operator = program.getSlots().get(optSlotIndex);
-            operator = BitTools.copyBit(parInsnBits, 0, operator, 29 - (parIndex - 1) * 3, 3);
+            operator = BitUtils.copyBit(parInsnBits, 0, operator, 29 - (parIndex - 1) * 3, 3);
             program.getSlots().set(optSlotIndex, operator);
         }
     }
     public static class ImageFormatException extends Exception
     {
         private static final long serialVersionUID = -7623290452565869813L;
-
         public static final int UNKNOWN = 0;
-        
         public static final int NUM_NOT_IN_RANGE = 1;
-        
         public final int type;
         
         public ImageFormatException()
@@ -107,12 +98,14 @@ public class DatatypeManager
         @Override
         public Integer getValue(String image) throws ImageFormatException
         {
-            Integer i = IntTools.parseDec(image);
-            if(i == null)
+            try
+            {
+                return Integer.parseInt(image, 10);
+            }
+            catch (NumberFormatException e)
             {
                 throw new ImageFormatException(ImageFormatException.NUM_NOT_IN_RANGE);
             }
-            return i;
         }
         @Override
         public void writeData(String image, FragmentProgram program, int optSlotIndex, int parIndex) throws ImageFormatException
@@ -137,12 +130,14 @@ public class DatatypeManager
         @Override
         public Integer getValue(String image) throws ImageFormatException
         {
-            Integer i = IntTools.parseHex(image.substring(2));
-            if(i == null)
+            try
+            {
+                return Integer.parseUnsignedInt(image.substring(2), 16);
+            }
+            catch (NumberFormatException e)
             {
                 throw new ImageFormatException(ImageFormatException.NUM_NOT_IN_RANGE);
             }
-            return i;
         }
         @Override
         public void writeData(String image, FragmentProgram program, int optSlotIndex, int parIndex) throws ImageFormatException
@@ -167,12 +162,14 @@ public class DatatypeManager
         @Override
         public Integer getValue(String image) throws ImageFormatException
         {
-            Integer i = IntTools.parseOct(image.substring(1));
-            if(i == null)
+            try
+            {
+                return Integer.parseUnsignedInt(image.substring(1), 8);
+            }
+            catch (NumberFormatException e)
             {
                 throw new ImageFormatException(ImageFormatException.NUM_NOT_IN_RANGE);
             }
-            return i;
         }
         @Override
         public void writeData(String image, FragmentProgram program, int optSlotIndex, int parIndex) throws ImageFormatException
@@ -197,12 +194,14 @@ public class DatatypeManager
         @Override
         public Integer getValue(String image) throws ImageFormatException
         {
-            Integer i = IntTools.parseBin(image.substring(0, image.length() - 1));
-            if(i == null)
+            try
+            {
+                return Integer.parseUnsignedInt(image.substring(2), 2);
+            }
+            catch (NumberFormatException e)
             {
                 throw new ImageFormatException(ImageFormatException.NUM_NOT_IN_RANGE);
             }
-            return i;
         }
         @Override
         public void writeData(String image, FragmentProgram program, int optSlotIndex, int parIndex) throws ImageFormatException
@@ -277,12 +276,14 @@ public class DatatypeManager
         @Override
         public Integer getValue(String image) throws ImageFormatException
         {
-            Integer i = IntTools.parseDec(image.substring(1, image.length() - 1));
-            if(i == null)
+            try
+            {
+                return Integer.parseInt(image.substring(1, image.length() - 1), 10);
+            }
+            catch (NumberFormatException e)
             {
                 throw new ImageFormatException(ImageFormatException.NUM_NOT_IN_RANGE);
             }
-            return i;
         }
         @Override
         public void writeData(String image, FragmentProgram program, int optSlotIndex, int parIndex) throws ImageFormatException
@@ -307,12 +308,14 @@ public class DatatypeManager
         @Override
         public Integer getValue(String image) throws ImageFormatException
         {
-            Integer i = IntTools.parseHex(image.substring(3, image.length() - 1));
-            if(i == null)
+            try
+            {
+                return Integer.parseUnsignedInt(image.substring(3, image.length() - 1), 16);
+            }
+            catch (NumberFormatException e)
             {
                 throw new ImageFormatException(ImageFormatException.NUM_NOT_IN_RANGE);
             }
-            return i;
         }
         @Override
         public void writeData(String image, FragmentProgram program, int optSlotIndex, int parIndex) throws ImageFormatException
@@ -337,12 +340,14 @@ public class DatatypeManager
         @Override
         public Integer getValue(String image) throws ImageFormatException
         {
-            Integer i = IntTools.parseOct(image.substring(2, image.length() - 1));
-            if(i == null)
+            try
+            {
+                return Integer.parseUnsignedInt(image.substring(2, image.length() - 1), 8);
+            }
+            catch (NumberFormatException e)
             {
                 throw new ImageFormatException(ImageFormatException.NUM_NOT_IN_RANGE);
             }
-            return i;
         }
         @Override
         public void writeData(String image, FragmentProgram program, int optSlotIndex, int parIndex) throws ImageFormatException
@@ -367,12 +372,14 @@ public class DatatypeManager
         @Override
         public Integer getValue(String image) throws ImageFormatException
         {
-            Integer i = IntTools.parseBin(image.substring(1, image.length() - 2));
-            if(i == null)
+            try
+            {
+                return Integer.parseUnsignedInt(image.substring(3, image.length() - 1), 2);
+            }
+            catch (NumberFormatException e)
             {
                 throw new ImageFormatException(ImageFormatException.NUM_NOT_IN_RANGE);
             }
-            return i;
         }
         @Override
         public void writeData(String image, FragmentProgram program, int optSlotIndex, int parIndex) throws ImageFormatException
@@ -400,11 +407,11 @@ public class DatatypeManager
             String stringValue = image.substring(1, image.length() - 1);
             int codePointIndex = 0;
             StringBuilder builder = new StringBuilder();
-            while(codePointIndex < stringValue.codePointCount(0, stringValue.length()))
+            while (codePointIndex < stringValue.codePointCount(0, stringValue.length()))
             {
                 int currentCodePoint = stringValue.codePointAt(codePointIndex);
                 codePointIndex++;
-                if(currentCodePoint == '\\')
+                if (currentCodePoint == '\\')
                 {
                     int nextCodePoint = stringValue.codePointAt(codePointIndex);
                     codePointIndex++;
@@ -481,26 +488,26 @@ public class DatatypeManager
             int codePointIndex = 0;
             int currentCodePoint = charValue.codePointAt(codePointIndex);
             codePointIndex++;
-            if(currentCodePoint == '\\')
+            if (currentCodePoint == '\\')
             {
                 int nextCodePoint = charValue.codePointAt(codePointIndex);
                 codePointIndex++;
                 switch (nextCodePoint)
                 {
                     case 'b':
-                        return (int)'\b';
+                        return (int) '\b';
                     case 'f':
-                        return (int)'\f';
+                        return (int) '\f';
                     case 'n':
-                        return (int)'\n';
+                        return (int) '\n';
                     case 'r':
-                        return (int)'\r';
+                        return (int) '\r';
                     case 't':
-                        return (int)'\t';
+                        return (int) '\t';
                     case '"':
-                        return (int)'"';
+                        return (int) '"';
                     case '\\':
-                        return (int)'\\';
+                        return (int) '\\';
                     case 'u':
                         int codePoint1 = charValue.codePointAt(codePointIndex + 0);
                         int codePoint2 = charValue.codePointAt(codePointIndex + 1);

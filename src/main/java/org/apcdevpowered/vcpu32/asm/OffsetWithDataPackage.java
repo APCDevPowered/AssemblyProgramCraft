@@ -7,14 +7,12 @@ public class OffsetWithDataPackage<T> implements Cloneable
     
     public OffsetWithDataPackage()
     {
-        
     }
     public OffsetWithDataPackage(T data, int offset)
     {
         this.data = data;
         this.offset = offset;
     }
-    
     @Override
     public OffsetWithDataPackage<T> clone()
     {

@@ -5,7 +5,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Set;
 
-import org.apcdevpowered.util.io.StreamHelper;
+import org.apcdevpowered.util.StreamHelper;
 import org.apcdevpowered.vcpu32.vm.storage.NodeElement;
 import org.apcdevpowered.vcpu32.vm.storage.container.NodeContainerArray;
 import org.apcdevpowered.vcpu32.vm.storage.container.NodeContainerArray.NodeContainerArrayElementKey;

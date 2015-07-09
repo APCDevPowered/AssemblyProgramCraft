@@ -1,6 +1,6 @@
 package org.apcdevpowered.vcpu32.vm.extdev;
 
-import org.apcdevpowered.util.array.ArrayTools;
+import org.apcdevpowered.util.ArrayUtils;
 import org.apcdevpowered.vcpu32.vm.AbstractExternalDevice;
 
 import net.minecraft.nbt.NBTTagCompound;
@@ -46,7 +46,7 @@ public class ExternalDevice300BytesStorage extends AbstractExternalDevice
         {
             return;
         }
-        ArrayTools.safeArraycopy(values, 0, data, idx, values.length);
+        ArrayUtils.safeArraycopy(values, 0, data, idx, values.length);
     }
     public int[] getMemoryValues(int idx, int length)
     {
@@ -59,7 +59,7 @@ public class ExternalDevice300BytesStorage extends AbstractExternalDevice
             return new int[length];
         }
         int[] tempArray = new int[length];
-        ArrayTools.safeArraycopy(data, idx, tempArray, 0, length);
+        ArrayUtils.safeArraycopy(data, idx, tempArray, 0, length);
         return tempArray;
     }
     public boolean shutDown()

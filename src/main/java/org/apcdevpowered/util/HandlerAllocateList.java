@@ -1,4 +1,4 @@
-package org.apcdevpowered.util.collection;
+package org.apcdevpowered.util;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -24,7 +24,7 @@ public class HandlerAllocateList<V>
     public HandlerAllocateList(int cleanPerAllocate, Map<Integer, V> handlerList, List<Integer> closedHandlerList)
     {
         this.cleanPerAllocate = cleanPerAllocate;
-        if(handlerList != null)
+        if (handlerList != null)
         {
             this.handlerList = new HashMap<Integer, V>(handlerList);
         }
@@ -32,7 +32,7 @@ public class HandlerAllocateList<V>
         {
             this.handlerList = new HashMap<Integer, V>();
         }
-        if(closedHandlerList != null)
+        if (closedHandlerList != null)
         {
             this.closedHandlerList = new ArrayList<Integer>(closedHandlerList);
         }
@@ -41,11 +41,10 @@ public class HandlerAllocateList<V>
             this.closedHandlerList = new ArrayList<Integer>();
         }
     }
-    
     public synchronized int allocate(V value)
     {
         int handler;
-        if(!closedHandlerList.isEmpty())
+        if (!closedHandlerList.isEmpty())
         {
             handler = closedHandlerList.remove(0);
             handlerList.put(handler, value);
@@ -56,14 +55,14 @@ public class HandlerAllocateList<V>
             handlerList.put(handler, value);
         }
         cleanCount++;
-        if(cleanCount >= cleanPerAllocate)
+        if (cleanCount >= cleanPerAllocate)
         {
             int max = handlerList.size() - 1;
             Iterator<Integer> iterator = closedHandlerList.iterator();
-            while(iterator.hasNext())
+            while (iterator.hasNext())
             {
                 int closedHandler = iterator.next();
-                if(closedHandler > max)
+                if (closedHandler > max)
                 {
                     iterator.remove();
                 }
@@ -73,7 +72,7 @@ public class HandlerAllocateList<V>
     }
     public synchronized boolean free(int handler)
     {
-        if(handlerList.containsKey(handler))
+        if (handlerList.containsKey(handler))
         {
             handlerList.remove(handler);
             closedHandlerList.add(handler);
@@ -98,7 +97,6 @@ public class HandlerAllocateList<V>
     {
         return handlerList.isEmpty();
     }
-    
     public Map<Integer, V> getHandlerList()
     {
         return handlerList;

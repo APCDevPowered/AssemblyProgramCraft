@@ -2,7 +2,7 @@ package org.apcdevpowered.apc.common.block;
 
 import org.apcdevpowered.apc.common.creativetab.AssemblyProgramCraftCreativeTabs;
 import org.apcdevpowered.apc.common.tileEntity.TileEntityVCPU32Computer;
-import org.apcdevpowered.util.integer.IntTools;
+import org.apcdevpowered.util.IntUtils;
 
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
@@ -92,7 +92,7 @@ public class BlockVCPU32Computer extends BlockContainer
     {
         if (side.getAxis().isHorizontal())
         {
-            EnumFacing facingSide = EnumFacing.getHorizontal(IntTools.cycleInt(((EnumFacing) state.getValue(FACING)).getHorizontalIndex() - side.getHorizontalIndex(), EnumFacing.HORIZONTALS.length));
+            EnumFacing facingSide = EnumFacing.getHorizontal(IntUtils.cycleInt(((EnumFacing) state.getValue(FACING)).getHorizontalIndex() - side.getHorizontalIndex(), EnumFacing.HORIZONTALS.length));
             float offX = 0.0F;
             float offY = 0.0F;
             if(side == EnumFacing.NORTH)

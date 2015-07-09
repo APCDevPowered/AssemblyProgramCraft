@@ -1,4 +1,4 @@
-package org.apcdevpowered.util.array;
+package org.apcdevpowered.util;
 
 import java.util.Arrays;
 import java.util.Iterator;
@@ -32,43 +32,43 @@ public class DynamicSparseArray<T> implements Iterable<T>, Cloneable
     @SuppressWarnings("unchecked")
     public T get(int index)
     {
-        if(index < 0)
+        if (index < 0)
         {
             throw new ArrayIndexOutOfBoundsException();
         }
-        if(index >= arr.length || index >= length)
+        if (index >= arr.length || index >= length)
         {
             return null;
         }
-        return (T)arr[index];
+        return (T) arr[index];
     }
     public void set(int index, T value)
     {
-        if(index < 0)
+        if (index < 0)
         {
             throw new ArrayIndexOutOfBoundsException();
         }
-        if(index >= arr.length)
+        if (index >= arr.length)
         {
             arr = Arrays.copyOf(arr, index + 1 + minExpandSide);
         }
         arr[index] = value;
-        if(index + 1 > length)
+        if (index + 1 > length)
         {
             length = index + 1;
         }
     }
     public void remove(int index)
     {
-        if(index < 0)
+        if (index < 0)
         {
             throw new ArrayIndexOutOfBoundsException();
         }
-        if(index >= arr.length || index >= length)
+        if (index >= arr.length || index >= length)
         {
             return;
         }
-        if(index == length - 1)
+        if (index == length - 1)
         {
             length--;
         }
@@ -85,7 +85,7 @@ public class DynamicSparseArray<T> implements Iterable<T>, Cloneable
     }
     public void push(T value)
     {
-        if(length + 1 > arr.length)
+        if (length + 1 > arr.length)
         {
             arr = Arrays.copyOf(arr, length + minExpandSide);
         }
@@ -95,23 +95,23 @@ public class DynamicSparseArray<T> implements Iterable<T>, Cloneable
     @SuppressWarnings("unchecked")
     public T pop()
     {
-        if(length < 1 || arr.length < 1)
+        if (length < 1 || arr.length < 1)
         {
             return null;
         }
         length--;
-        T tmp = (T)arr[length];
+        T tmp = (T) arr[length];
         arr[length] = null;
         return tmp;
     }
     @SuppressWarnings("unchecked")
     public T shift()
     {
-        if(length < 1 || arr.length < 1)
+        if (length < 1 || arr.length < 1)
         {
             return null;
         }
-        T tmp = (T)arr[0];
+        T tmp = (T) arr[0];
         arr = Arrays.copyOfRange(arr, 1, arr.length);
         length--;
         return tmp;
@@ -119,13 +119,13 @@ public class DynamicSparseArray<T> implements Iterable<T>, Cloneable
     public void addAll(T[] array)
     {
         int addLength = array.length;
-        if(length + addLength > arr.length)
+        if (length + addLength > arr.length)
         {
             int remaining = arr.length - length;
             int less = addLength - remaining;
             arr = Arrays.copyOf(arr, length + minExpandSide * ((less % minExpandSide == 0) ? (less / minExpandSide) : (less / minExpandSide + 1)));
         }
-        for(T t : array)
+        for (T t : array)
         {
             arr[length] = t;
             length++;
@@ -134,13 +134,13 @@ public class DynamicSparseArray<T> implements Iterable<T>, Cloneable
     public void addAll(DynamicSparseArray<T> array)
     {
         int addLength = array.length;
-        if(length + addLength > arr.length)
+        if (length + addLength > arr.length)
         {
             int remaining = arr.length - length;
             int less = addLength - remaining;
             arr = Arrays.copyOf(arr, length + minExpandSide * ((less % minExpandSide == 0) ? (less / minExpandSide) : (less / minExpandSide + 1)));
         }
-        for(T t : array)
+        for (T t : array)
         {
             arr[length] = t;
             length++;
@@ -148,27 +148,27 @@ public class DynamicSparseArray<T> implements Iterable<T>, Cloneable
     }
     public void copyData(T[] array, int srcPos, int destPos, int length)
     {
-        if(array == null)
+        if (array == null)
         {
             throw new NullPointerException();
         }
-        if(srcPos < 0 || destPos < 0 || length < 0 || srcPos + length > array.length)
+        if (srcPos < 0 || destPos < 0 || length < 0 || srcPos + length > array.length)
         {
             throw new ArrayIndexOutOfBoundsException();
         }
         int needLength = destPos + length + 1;
-        if(needLength > arr.length)
+        if (needLength > arr.length)
         {
-            if(needLength / minExpandSide != 0)
+            if (needLength / minExpandSide != 0)
             {
                 needLength += (minExpandSide - (needLength % minExpandSide));
             }
             arr = Arrays.copyOf(arr, needLength);
         }
-        for(int i = 0;i < length;i++)
+        for (int i = 0; i < length; i++)
         {
             arr[destPos + i] = array[srcPos + i];
-            if(destPos + i + 1 > this.length)
+            if (destPos + i + 1 > this.length)
             {
                 this.length = destPos + i + 1;
             }
@@ -176,27 +176,27 @@ public class DynamicSparseArray<T> implements Iterable<T>, Cloneable
     }
     public void copyData(DynamicSparseArray<T> array, int srcPos, int destPos, int length)
     {
-        if(array == null)
+        if (array == null)
         {
             throw new NullPointerException();
         }
-        if(srcPos < 0 || destPos < 0 || length < 0 || srcPos + length > array.length)
+        if (srcPos < 0 || destPos < 0 || length < 0 || srcPos + length > array.length)
         {
             throw new ArrayIndexOutOfBoundsException();
         }
         int needLength = destPos + length + 1;
-        if(needLength > arr.length)
+        if (needLength > arr.length)
         {
-            if(needLength / minExpandSide != 0)
+            if (needLength / minExpandSide != 0)
             {
                 needLength += (minExpandSide - (needLength % minExpandSide));
             }
             arr = Arrays.copyOf(arr, needLength);
         }
-        for(int i = 0;i < length;i++)
+        for (int i = 0; i < length; i++)
         {
             arr[destPos + i] = array.get(srcPos + i);
-            if(destPos + i + 1 > this.length)
+            if (destPos + i + 1 > this.length)
             {
                 this.length = destPos + i + 1;
             }
@@ -209,9 +209,9 @@ public class DynamicSparseArray<T> implements Iterable<T>, Cloneable
     @SuppressWarnings("unchecked")
     public T[] toArray(T[] aobj)
     {
-        if(aobj.length < length)
+        if (aobj.length < length)
         {
-            return (T[])Arrays.copyOf(arr, arr.length >= length ? length : arr.length, aobj.getClass());
+            return (T[]) Arrays.copyOf(arr, arr.length >= length ? length : arr.length, aobj.getClass());
         }
         System.arraycopy(arr, 0, aobj, 0, arr.length >= length ? length : arr.length);
         return aobj;
@@ -219,9 +219,9 @@ public class DynamicSparseArray<T> implements Iterable<T>, Cloneable
     public void length(int length)
     {
         this.length = (length < 0 ? 0 : length);
-        if(arr.length > length)
+        if (arr.length > length)
         {
-            Arrays.fill(arr, length, arr.length, (Object)null);
+            Arrays.fill(arr, length, arr.length, (Object) null);
         }
     }
     public int length()
@@ -242,6 +242,7 @@ public class DynamicSparseArray<T> implements Iterable<T>, Cloneable
         return new Iterator<T>()
         {
             private int pointer = 0;
+            
             @Override
             public boolean hasNext()
             {
@@ -250,7 +251,7 @@ public class DynamicSparseArray<T> implements Iterable<T>, Cloneable
             @Override
             public T next()
             {
-                if(pointer < DynamicSparseArray.this.length())
+                if (pointer < DynamicSparseArray.this.length())
                 {
                     return DynamicSparseArray.this.get(pointer++);
                 }

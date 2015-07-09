@@ -1,20 +1,18 @@
-package org.apcdevpowered.util.collection;
+package org.apcdevpowered.util;
 
-public class SingleEntry<K,V>
+public class SingleEntry<K, V>
 {
     private K key;
     private V value;
     
     public SingleEntry()
     {
-        
     }
     public SingleEntry(K key, V value)
     {
         this.key = key;
         this.value = value;
     }
-    
     public K getKey()
     {
         return key;

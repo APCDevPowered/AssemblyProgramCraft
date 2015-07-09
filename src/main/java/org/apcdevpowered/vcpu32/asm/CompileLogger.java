@@ -10,7 +10,6 @@ public class CompileLogger
         @Override
         public void log(String info)
         {
-            
         }
         @Override
         public String toString()
@@ -31,7 +30,6 @@ public class CompileLogger
             return "";
         }
     };
-    
     private List<String> logs = new ArrayList<String>();
     
     public void log(String info)

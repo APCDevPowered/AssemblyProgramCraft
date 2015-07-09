@@ -1,4 +1,4 @@
-package org.apcdevpowered.util.reflection;
+package org.apcdevpowered.util;
 
 public class GenericsUtil
 {

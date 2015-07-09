@@ -1,4 +1,4 @@
-package org.apcdevpowered.util.io;
+package org.apcdevpowered.util;
 
 import java.io.File;
 import java.io.IOException;
@@ -11,8 +11,6 @@ import java.nio.file.OpenOption;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.apcdevpowered.util.reflection.GenericsUtil;
 
 public final class DirectoryLock
 {
@@ -39,7 +37,7 @@ public final class DirectoryLock
                 return true;
             }
             wattingCount++;
-            while(lockCount > 0 || pendingLock)
+            while (lockCount > 0 || pendingLock)
             {
                 try
                 {
@@ -47,7 +45,7 @@ public final class DirectoryLock
                 }
                 catch (InterruptedException e)
                 {
-                    if(wattingCount == 0)
+                    if (wattingCount == 0)
                     {
                         synchronized (threadLock)
                         {
@@ -70,7 +68,7 @@ public final class DirectoryLock
         {
             synchronized (threadLock)
             {
-                if(fileChannel == null)
+                if (fileChannel == null)
                 {
                     File lockFile = new File(directory, ".lock");
                     FileChannel fileChannel;
@@ -194,7 +192,7 @@ public final class DirectoryLock
             lockCount--;
             if (lockCount <= 0)
             {
-                if(wattingCount <= 0)
+                if (wattingCount <= 0)
                 {
                     synchronized (threadLock)
                     {

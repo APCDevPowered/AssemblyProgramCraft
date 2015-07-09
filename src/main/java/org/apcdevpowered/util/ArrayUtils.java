@@ -1,49 +1,39 @@
-package org.apcdevpowered.util.array;
+package org.apcdevpowered.util;
 
 import java.lang.reflect.Array;
 
-import org.apcdevpowered.util.integer.IntTools;
-
-public class ArrayTools
+public class ArrayUtils
 {
     public static void safeArraycopy(Object src, int srcPos, Object dest, int destPos, int length)
     {
-        if(!src.getClass().isArray() || !dest.getClass().isArray())
+        if (!src.getClass().isArray() || !dest.getClass().isArray())
         {
             throw new ArrayStoreException();
         }
-        
-        if(length <= 0)
+        if (length <= 0)
         {
             return;
         }
-        
         int srcLength = getArrayLength(src);
         int destLength = getArrayLength(dest);
-        
         Object temp = Array.newInstance(src.getClass().getComponentType(), length);
-        
         {
-            int safeSrcStart = IntTools.betweenMinMax(srcPos, 0, srcLength);
-            int safeTmpStart = IntTools.betweenMinMax(safeSrcStart - srcPos, 0, length);
-            int safeSrcLength = IntTools.betweenMinMax(IntTools.betweenMinMax(length, 0, srcLength - safeSrcStart), 0, Math.max(0, length - safeTmpStart));
-            
+            int safeSrcStart = IntUtils.betweenMinMax(srcPos, 0, srcLength);
+            int safeTmpStart = IntUtils.betweenMinMax(safeSrcStart - srcPos, 0, length);
+            int safeSrcLength = IntUtils.betweenMinMax(IntUtils.betweenMinMax(length, 0, srcLength - safeSrcStart), 0, Math.max(0, length - safeTmpStart));
             System.arraycopy(src, safeSrcStart, temp, safeTmpStart, safeSrcLength);
         }
-        
         {
-            int safeTmpStart = IntTools.betweenMinMax(0 - destPos, 0, length);
-            int safeDestStart = IntTools.betweenMinMax(destPos, 0, destLength);
-            int safeTmpLength = IntTools.betweenMinMax(length - safeTmpStart, 0, Math.max(0, destLength - safeDestStart));
-            
+            int safeTmpStart = IntUtils.betweenMinMax(0 - destPos, 0, length);
+            int safeDestStart = IntUtils.betweenMinMax(destPos, 0, destLength);
+            int safeTmpLength = IntUtils.betweenMinMax(length - safeTmpStart, 0, Math.max(0, destLength - safeDestStart));
             System.arraycopy(temp, safeTmpStart, dest, safeDestStart, safeTmpLength);
         }
     }
     public static void safeSet(Object array, int index, Object value)
     {
         int arrayLength = getArrayLength(array);
-        
-        if(index >= 0 && index < arrayLength)
+        if (index >= 0 && index < arrayLength)
         {
             Array.set(array, index, value);
         }
@@ -51,8 +41,7 @@ public class ArrayTools
     public static void safeSetBoolean(Object array, int index, boolean value)
     {
         int arrayLength = getArrayLength(array);
-        
-        if(index >= 0 && index < arrayLength)
+        if (index >= 0 && index < arrayLength)
         {
             Array.setBoolean(array, index, value);
         }
@@ -60,8 +49,7 @@ public class ArrayTools
     public static void safeSetByte(Object array, int index, byte value)
     {
         int arrayLength = getArrayLength(array);
-        
-        if(index >= 0 && index < arrayLength)
+        if (index >= 0 && index < arrayLength)
         {
             Array.setByte(array, index, value);
         }
@@ -69,8 +57,7 @@ public class ArrayTools
     public static void safeSetChar(Object array, int index, char value)
     {
         int arrayLength = getArrayLength(array);
-        
-        if(index >= 0 && index < arrayLength)
+        if (index >= 0 && index < arrayLength)
         {
             Array.setChar(array, index, value);
         }
@@ -78,8 +65,7 @@ public class ArrayTools
     public static void safeSetShort(Object array, int index, short value)
     {
         int arrayLength = getArrayLength(array);
-        
-        if(index >= 0 && index < arrayLength)
+        if (index >= 0 && index < arrayLength)
         {
             Array.setShort(array, index, value);
         }
@@ -87,8 +73,7 @@ public class ArrayTools
     public static void safeSetInt(Object array, int index, int value)
     {
         int arrayLength = getArrayLength(array);
-        
-        if(index >= 0 && index < arrayLength)
+        if (index >= 0 && index < arrayLength)
         {
             Array.setInt(array, index, value);
         }
@@ -96,8 +81,7 @@ public class ArrayTools
     public static void safeSetLong(Object array, int index, long value)
     {
         int arrayLength = getArrayLength(array);
-        
-        if(index >= 0 && index < arrayLength)
+        if (index >= 0 && index < arrayLength)
         {
             Array.setLong(array, index, value);
         }
@@ -105,8 +89,7 @@ public class ArrayTools
     public static void safeSetFloat(Object array, int index, float value)
     {
         int arrayLength = getArrayLength(array);
-        
-        if(index >= 0 && index < arrayLength)
+        if (index >= 0 && index < arrayLength)
         {
             Array.setFloat(array, index, value);
         }
@@ -114,8 +97,7 @@ public class ArrayTools
     public static void safeSetDouble(Object array, int index, double value)
     {
         int arrayLength = getArrayLength(array);
-        
-        if(index >= 0 && index < arrayLength)
+        if (index >= 0 && index < arrayLength)
         {
             Array.setDouble(array, index, value);
         }
@@ -123,8 +105,7 @@ public class ArrayTools
     public static Object safeGet(Object array, int index)
     {
         int arrayLength = getArrayLength(array);
-        
-        if(index >= 0 && index < arrayLength)
+        if (index >= 0 && index < arrayLength)
         {
             return Array.get(array, index);
         }
@@ -133,8 +114,7 @@ public class ArrayTools
     public static boolean safeGetBoolean(Object array, int index)
     {
         int arrayLength = getArrayLength(array);
-        
-        if(index >= 0 && index < arrayLength)
+        if (index >= 0 && index < arrayLength)
         {
             return Array.getBoolean(array, index);
         }
@@ -143,8 +123,7 @@ public class ArrayTools
     public static byte safeGetByte(Object array, int index)
     {
         int arrayLength = getArrayLength(array);
-        
-        if(index >= 0 && index < arrayLength)
+        if (index >= 0 && index < arrayLength)
         {
             return Array.getByte(array, index);
         }
@@ -153,8 +132,7 @@ public class ArrayTools
     public static char safeGetChar(Object array, int index)
     {
         int arrayLength = getArrayLength(array);
-        
-        if(index >= 0 && index < arrayLength)
+        if (index >= 0 && index < arrayLength)
         {
             return Array.getChar(array, index);
         }
@@ -163,8 +141,7 @@ public class ArrayTools
     public static short safeGetShort(Object array, int index)
     {
         int arrayLength = getArrayLength(array);
-        
-        if(index >= 0 && index < arrayLength)
+        if (index >= 0 && index < arrayLength)
         {
             return Array.getShort(array, index);
         }
@@ -173,8 +150,7 @@ public class ArrayTools
     public static int safeGetInt(Object array, int index)
     {
         int arrayLength = getArrayLength(array);
-        
-        if(index >= 0 && index < arrayLength)
+        if (index >= 0 && index < arrayLength)
         {
             return Array.getInt(array, index);
         }
@@ -183,8 +159,7 @@ public class ArrayTools
     public static long safeGetLong(Object array, int index)
     {
         int arrayLength = getArrayLength(array);
-        
-        if(index >= 0 && index < arrayLength)
+        if (index >= 0 && index < arrayLength)
         {
             return Array.getLong(array, index);
         }
@@ -193,8 +168,7 @@ public class ArrayTools
     public static float safeGetFloat(Object array, int index)
     {
         int arrayLength = getArrayLength(array);
-        
-        if(index >= 0 && index < arrayLength)
+        if (index >= 0 && index < arrayLength)
         {
             return Array.getFloat(array, index);
         }
@@ -203,8 +177,7 @@ public class ArrayTools
     public static double safeGetDouble(Object array, int index)
     {
         int arrayLength = getArrayLength(array);
-        
-        if(index >= 0 && index < arrayLength)
+        if (index >= 0 && index < arrayLength)
         {
             return Array.getDouble(array, index);
         }
@@ -216,18 +189,17 @@ public class ArrayTools
     }
     public static String dumpArray(Object array)
     {
-        if(!array.getClass().isArray())
+        if (!array.getClass().isArray())
         {
             throw new IllegalArgumentException();
         }
         int length = getArrayLength(array);
-        
         StringBuilder builder = new StringBuilder();
         builder.append('[');
         boolean isFirst = true;
-        for(int index = 0;index < length;index++)
+        for (int index = 0; index < length; index++)
         {
-            if(isFirst)
+            if (isFirst)
             {
                 isFirst = false;
             }

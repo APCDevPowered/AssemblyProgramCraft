@@ -10,9 +10,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
-import org.apcdevpowered.util.collection.SingleEntry;
-import org.apcdevpowered.util.string.StringTools;
-import org.apcdevpowered.util.unsigned.UnsignedTools;
+import org.apcdevpowered.util.SingleEntry;
+import org.apcdevpowered.util.StringUtils;
+import org.apcdevpowered.util.UnsignedUtils;
 import org.apcdevpowered.vcpu32.asm.DebugInfo;
 import org.apcdevpowered.vcpu32.asm.OperatorsManager;
 import org.apcdevpowered.vcpu32.asm.ProgramPackage;
@@ -250,7 +250,7 @@ public class Disassembler
             instruction.parCount = 2;
             instruction.parsValue = new String[instruction.parCount];
             instruction.parsValue[0] = Integer.valueOf(i).toString();
-            instruction.parsValue[1] = "0x" + UnsignedTools.read16RadixUintValue(data).toUpperCase();
+            instruction.parsValue[1] = "0x" + UnsignedUtils.toHexUintString(data).toUpperCase();
             instruction.lineNumber = -1;
             abstractSyntaxTree.abstractSyntaxTree.add(instruction);
         }
@@ -353,7 +353,7 @@ public class Disassembler
                 String sourceString;
                 try
                 {
-                    sourceString  = StringTools.readIntArrayToString(staticData, parData - abstractSyntaxTree.startStaticRAM);
+                    sourceString  = StringUtils.readIntArrayToString(staticData, parData - abstractSyntaxTree.startStaticRAM);
                 }
                 catch (Exception e)
                 {
@@ -408,7 +408,7 @@ public class Disassembler
                         for(char c : chars)
                         {
                             builder.append("\\u");
-                            String charUnicodeString = UnsignedTools.read16RadixUintValue(c);
+                            String charUnicodeString = UnsignedUtils.toHexUintString(c);
                             int fix = 4 - charUnicodeString.length();
                             if(fix == 0)
                             {
