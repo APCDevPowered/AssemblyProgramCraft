@@ -11,6 +11,9 @@ options
     
     JTB_P = "org.apcdevpowered.vcpu32.asm.parser";
     JTB_F = true;
+    JTB_IA = true;
+    JTB_JD = true;
+    JTB_TK = true;
 }
 
 PARSER_BEGIN(VCPU32Parser)

@@ -67,6 +67,10 @@ dependencies {
 
 }
 
+compileJava {
+    options.encoding = 'UTF-8'
+}
+
 processResources
 {
     // this will ensure that this task is redone when the versions change.
@@ -85,8 +89,4 @@ processResources
     from(sourceSets.main.resources.srcDirs) {
         exclude 'mcmod.info'
     }
-}
-
-tasks.withType(JavaCompile) {
-    options.encoding = 'UTF-8'
 }
