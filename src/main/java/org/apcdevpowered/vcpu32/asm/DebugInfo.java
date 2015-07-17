@@ -1,6 +1,5 @@
 package org.apcdevpowered.vcpu32.asm;
 
-import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
@@ -120,7 +119,7 @@ public class DebugInfo implements Cloneable
     {
         if (lineNumberOffsetMap.containsKey(lineNumber))
         {
-            return Collections.unmodifiableSet(lineNumberOffsetMap.get(lineNumber));
+            return new LinkedHashSet<Integer>(lineNumberOffsetMap.get(lineNumber));
         }
         return null;
     }
@@ -136,7 +135,7 @@ public class DebugInfo implements Cloneable
     {
         if (lineNumberLableMap.containsKey(lineNumber))
         {
-            return Collections.unmodifiableSet(lineNumberLableMap.get(lineNumber));
+            return new LinkedHashSet<String>(lineNumberLableMap.get(lineNumber));
         }
         return null;
     }
@@ -152,33 +151,51 @@ public class DebugInfo implements Cloneable
     {
         if (offsetLabelMap.containsKey(offset))
         {
-            return Collections.unmodifiableSet(offsetLabelMap.get(offset));
+            return new LinkedHashSet<String>(offsetLabelMap.get(offset));
         }
         return null;
     }
     public synchronized Map<Integer, Integer> getOffsetLineNumberMap()
     {
-        return Collections.synchronizedMap(offsetLineNumberMap);
+        Map<Integer, Integer> offsetLineNumberMap = new TreeMap<Integer, Integer>();
+        offsetLineNumberMap.putAll(this.offsetLineNumberMap);
+        return offsetLineNumberMap;
     }
     public synchronized Map<Integer, Set<Integer>> getLineNumberOffsetMap()
     {
-        return Collections.synchronizedMap(lineNumberOffsetMap);
+        Map<Integer, Set<Integer>> lineNumberOffsetMap = new TreeMap<Integer, Set<Integer>>();
+        this.lineNumberOffsetMap.forEach((Integer lineNumber, Set<Integer> offsetSet) -> {
+            lineNumberOffsetMap.put(lineNumber, new LinkedHashSet<Integer>(offsetSet));
+        });
+        return lineNumberOffsetMap;
     }
     public synchronized Map<String, Integer> getLabelLineNumberMap()
     {
-        return Collections.synchronizedMap(labelLineNumberMap);
+        Map<String, Integer> labelLineNumberMap = new TreeMap<String, Integer>();
+        labelLineNumberMap.putAll(this.labelLineNumberMap);
+        return labelLineNumberMap;
     }
     public synchronized Map<Integer, Set<String>> getLineNumberLableMap()
     {
-        return Collections.synchronizedMap(lineNumberLableMap);
+        Map<Integer, Set<String>> lineNumberLableMap = new TreeMap<Integer, Set<String>>();
+        this.lineNumberLableMap.forEach((Integer lineNumber, Set<String> lableSet) -> {
+            lineNumberLableMap.put(lineNumber, new LinkedHashSet<String>(lableSet));
+        });
+        return lineNumberLableMap;
     }
     public synchronized Map<String, Integer> getLabelOffsetMap()
     {
-        return Collections.synchronizedMap(labelOffsetMap);
+        Map<String, Integer> labelOffsetMap = new TreeMap<String, Integer>();
+        labelOffsetMap.putAll(this.labelOffsetMap);
+        return labelOffsetMap;
     }
     public synchronized Map<Integer, Set<String>> getOffsetLabelMap()
     {
-        return Collections.synchronizedMap(offsetLabelMap);
+        Map<Integer, Set<String>> offsetLabelMap = new TreeMap<Integer, Set<String>>();
+        this.offsetLabelMap.forEach((Integer offset, Set<String> lableSet) -> {
+            offsetLabelMap.put(offset, new LinkedHashSet<String>(lableSet));
+        });
+        return offsetLabelMap;
     }
     public synchronized DebugInfo merge(DebugInfo debugInfo, int offset)
     {
@@ -273,11 +290,17 @@ public class DebugInfo implements Cloneable
     {
         DebugInfo debugInfo = new DebugInfo();
         debugInfo.offsetLineNumberMap.putAll(offsetLineNumberMap);
-        debugInfo.lineNumberOffsetMap.putAll(lineNumberOffsetMap);
+        lineNumberOffsetMap.forEach((Integer lineNumber, Set<Integer> offsetSet) -> {
+            debugInfo.lineNumberOffsetMap.put(lineNumber, new LinkedHashSet<Integer>(offsetSet));
+        });
         debugInfo.labelLineNumberMap.putAll(labelLineNumberMap);
-        debugInfo.lineNumberLableMap.putAll(lineNumberLableMap);
+        lineNumberLableMap.forEach((Integer lineNumber, Set<String> lableSet) -> {
+            debugInfo.lineNumberLableMap.put(lineNumber, new LinkedHashSet<String>(lableSet));
+        });
         debugInfo.labelOffsetMap.putAll(labelOffsetMap);
-        debugInfo.offsetLabelMap.putAll(offsetLabelMap);
+        offsetLabelMap.forEach((Integer offset, Set<String> lableSet) -> {
+            debugInfo.offsetLabelMap.put(offset, new LinkedHashSet<String>(lableSet));
+        });
         return debugInfo;
     }
     public void writeToNode(NodeContainerMap debugInfoNodeContainerMap)

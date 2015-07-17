@@ -1,8 +1,6 @@
 package org.apcdevpowered.vcpu32.disasm;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -189,7 +187,7 @@ public class Disassembler
         List<SingleEntry<String, Integer>> staticStringDataList = new ArrayList<SingleEntry<String, Integer>>();
         abstractSyntaxTree.startRAM = programPackage.startRAM;
         abstractSyntaxTree.startStaticRAM = programPackage.startStaticRAM;
-        abstractSyntaxTree.debugInfo = programPackage.debugInfo;
+        abstractSyntaxTree.debugInfo = programPackage.debugInfo.clone();
         int[] programByteCode = new int[programPackage.programEnd];
         System.arraycopy(programPackage.data, 0, programByteCode, 0, programPackage.programEnd);
         int[] staticData = new int[programPackage.staticRAMEnd - programPackage.programEnd];
@@ -266,10 +264,8 @@ public class Disassembler
     public static void runLabelAnalyze(AbstractSyntaxTree abstractSyntaxTree)
     {
         int autoLabelID = 0;
-        Map<Integer, Set<String>> offsetLabelMap = new HashMap<Integer, Set<String>>();
-        Set<String> usedLabelSet = new HashSet<String>();
-        offsetLabelMap.putAll(abstractSyntaxTree.debugInfo.getOffsetLabelMap());
-        usedLabelSet.addAll(abstractSyntaxTree.debugInfo.getLabelOffsetMap().keySet());
+        Map<Integer, Set<String>> offsetLabelMap = abstractSyntaxTree.debugInfo.getOffsetLabelMap();
+        Set<String> usedLabelSet = abstractSyntaxTree.debugInfo.getLabelOffsetMap().keySet();
         for (Construct construct : abstractSyntaxTree.abstractSyntaxTree)
         {
             if (construct instanceof Instruction)
