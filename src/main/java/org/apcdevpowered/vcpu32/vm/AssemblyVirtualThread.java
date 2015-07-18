@@ -32,6 +32,9 @@ public class AssemblyVirtualThread
     private int PC = -1;
     // 调用栈帧
     private Stack<AVThreadStackFrame> stack = new Stack<AVThreadStackFrame>();
+    private int maxStackFrame = 65536;
+    private int maxStackSize = 256;
+    // 线程数据
     private String threadName;
     private VirtualMachine vm;
     private AssemblyVirtualThread parentThread;
@@ -107,6 +110,7 @@ public class AssemblyVirtualThread
         }
         return ThreadState.RUNNABLE;
     }
+    
     public int getPC()
     {
         return PC;
@@ -713,6 +717,22 @@ public class AssemblyVirtualThread
             halt();
         }
     }
+    public int getMaxStackFrame()
+    {
+        return maxStackFrame;
+    }
+    public void setMaxStackFrame(int maxStackFrame)
+    {
+        this.maxStackFrame = maxStackFrame;
+    }
+    public int getMaxStackSize()
+    {
+        return maxStackSize;
+    }
+    public void setMaxStackSize(int maxStackSize)
+    {
+        this.maxStackSize = maxStackSize;
+    }
     protected void pushInCurrentStackFrame(int num)
     {
         if (stack.isEmpty())
@@ -807,6 +827,12 @@ public class AssemblyVirtualThread
     }
     protected void enterMethod(int enterAddress, int parLength, int returnAddress)
     {
+        if (stack.size() >= maxStackFrame)
+        {
+            System.out.println("[VCPU-32]栈帧溢出上限" + maxStackFrame);
+            halt();
+            return;
+        }
         AVThreadStackFrame stackFrame = new AVThreadStackFrame();
         stackFrame.enterAddress = enterAddress;
         stackFrame.parLength = parLength;
@@ -958,6 +984,8 @@ public class AssemblyVirtualThread
             }
             avtNodeContainerMap.addElement(NodeContainerMap.makeKey("stack"), stackNodeContainerArray);
         }
+        avtNodeContainerMap.addElement(NodeContainerMap.makeKey("maxStackFrame"), maxStackFrame);
+        avtNodeContainerMap.addElement(NodeContainerMap.makeKey("maxStackSize"), maxStackSize);
         avtNodeContainerMap.addElement(NodeContainerMap.makeKey("threadName"), threadName);
         if (parentThread != null)
         {
@@ -1020,6 +1048,8 @@ public class AssemblyVirtualThread
                 stack.add(stackFrame);
             }
         }
+        maxStackFrame = avtNodeContainerMap.getElement(NodeContainerMap.makeKey("maxStackFrame"), NodeScalarInteger.class).getData();
+        maxStackSize = avtNodeContainerMap.getElement(NodeContainerMap.makeKey("maxStackSize"), NodeScalarInteger.class).getData();
         threadName = avtNodeContainerMap.getElement(NodeContainerMap.makeKey("threadName"), NodeScalarString.class).getData();
         if (avtNodeContainerMap.hasElement(NodeContainerMap.makeKey("parentThreadHandlerValue")))
         {
@@ -1081,6 +1111,8 @@ public class AssemblyVirtualThread
             }
             avtNbtTagCompound.setTag("stack", stackNbtTagList);
         }
+        avtNbtTagCompound.setInteger("maxStackFrame", maxStackFrame);
+        avtNbtTagCompound.setInteger("maxStackSize", maxStackSize);
         avtNbtTagCompound.setString("threadName", threadName);
         if (parentThread != null)
         {
@@ -1144,6 +1176,8 @@ public class AssemblyVirtualThread
                 stack.add(stackFrame);
             }
         }
+        maxStackFrame = avtNbtTagCompound.getInteger("maxStackFrame");
+        maxStackSize = avtNbtTagCompound.getInteger("maxStackSize");
         threadName = avtNbtTagCompound.getString("threadName");
         parentThreadHandlerValue = avtNbtTagCompound.getInteger("parentThreadHandlerValue");
         startRAM = avtNbtTagCompound.getInteger("startRAM");
@@ -1292,6 +1326,12 @@ public class AssemblyVirtualThread
                 halt();
                 return;
             }
+            if (SP >= maxStackSize)
+            {
+                System.out.println("[VCPU-32]函数栈溢出上限" + maxStackSize);
+                halt();
+                return;
+            }
             stack.set(SP++, value);
         }
         public int pop()
@@ -1299,6 +1339,12 @@ public class AssemblyVirtualThread
             if (SP < 1)
             {
                 System.out.println("[VCPU-32]栈指针寄存器值不正确");
+                halt();
+                return 0;
+            }
+            if (SP > maxStackSize)
+            {
+                System.out.println("[VCPU-32]函数栈溢出上限" + maxStackSize);
                 halt();
                 return 0;
             }
@@ -1312,7 +1358,13 @@ public class AssemblyVirtualThread
                 halt();
                 return;
             }
-            stack.copyData(stack, 0, stack.length(), stack.length());
+            if (SP + num > maxStackSize)
+            {
+                System.out.println("[VCPU-32]函数栈溢出上限" + maxStackSize);
+                halt();
+                return;
+            }
+            stack.copyData(stack, stack.length() - num, stack.length(), num);
             SP += num;
         }
         public void swap()
@@ -1320,6 +1372,12 @@ public class AssemblyVirtualThread
             if (SP < 2)
             {
                 System.out.println("[VCPU-32]栈指针寄存器值不正确");
+                halt();
+                return;
+            }
+            if (SP > maxStackSize)
+            {
+                System.out.println("[VCPU-32]函数栈溢出上限" + maxStackSize);
                 halt();
                 return;
             }
