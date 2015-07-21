@@ -21,9 +21,10 @@ public interface ThreadReference extends Mirror
     boolean isSuspended();
     boolean isAtBreakpoint();
     int frameCount() throws IncompatibleThreadStateException;
-    List<? extends StackFrame> frames() throws IncompatibleThreadStateException;
-    StackFrame frame(int index) throws IncompatibleThreadStateException;
-    List<? extends StackFrame> frames(int start, int length) throws IncompatibleThreadStateException;
+    StackFrameReference frameCurrent() throws IncompatibleThreadStateException;
+    StackFrameReference frame(int index) throws IncompatibleThreadStateException;
+    List<? extends StackFrameReference> frames() throws IncompatibleThreadStateException;
+    List<? extends StackFrameReference> frames(int start, int length) throws IncompatibleThreadStateException;
     List<? extends MonitorReference> ownedMonitors() throws IncompatibleThreadStateException;
     MonitorReference currentContendedMonitor() throws IncompatibleThreadStateException;
 }

@@ -15,14 +15,12 @@ import org.apcdevpowered.vcpu32.vm.debugger.request.InvalidRequestStateException
 public abstract class EventRequestImpl implements EventRequest
 {
     private VirtualMachineReferenceImpl virtualMachineReference;
-    
     private EventRequestManagerImpl eventRequestManager;
     private boolean isEnabled;
     private int suspendPolicy;
     private Map<Object, Object> properties = new HashMap<Object, Object>();
-    
     private List<IFilter> filterList = new ArrayList<IFilter>();
-
+    
     public EventRequestImpl(VirtualMachineReferenceImpl virtualMachineReference, EventRequestManagerImpl eventRequestManager)
     {
         this.virtualMachineReference = virtualMachineReference;
@@ -41,11 +39,11 @@ public abstract class EventRequestImpl implements EventRequest
     @Override
     public void setEnabled(boolean val)
     {
-        if(!isVaild())
+        if (!isVaild())
         {
             throw new InvalidRequestStateException();
         }
-        if(isEnabled != val)
+        if (isEnabled != val)
         {
             isEnabled = val;
             requestStateChange(isEnabled);
@@ -64,11 +62,11 @@ public abstract class EventRequestImpl implements EventRequest
     @Override
     public void addCountFilter(int count)
     {
-        if(isEnabled() || !isVaild())
+        if (isEnabled() || !isVaild())
         {
             throw new InvalidRequestStateException();
         }
-        if(count < 1)
+        if (count < 1)
         {
             throw new IllegalArgumentException();
         }
@@ -77,11 +75,11 @@ public abstract class EventRequestImpl implements EventRequest
     @Override
     public void setSuspendPolicy(int policy)
     {
-        if(isEnabled() || !isVaild())
+        if (isEnabled() || !isVaild())
         {
             throw new InvalidRequestStateException();
         }
-        if(policy != SUSPEND_NONE && policy != SUSPEND_EVENT_THREAD && policy != SUSPEND_ALL)
+        if (policy != SUSPEND_NONE && policy != SUSPEND_EVENT_THREAD && policy != SUSPEND_ALL)
         {
             throw new IllegalArgumentException();
         }
@@ -95,9 +93,9 @@ public abstract class EventRequestImpl implements EventRequest
     @Override
     public void putProperty(Object key, Object value)
     {
-        synchronized(properties)
+        synchronized (properties)
         {
-            if(value == null)
+            if (value == null)
             {
                 properties.remove(key);
             }
@@ -110,17 +108,16 @@ public abstract class EventRequestImpl implements EventRequest
     @Override
     public Object getProperty(Object key)
     {
-        synchronized(properties)
+        synchronized (properties)
         {
             return properties.get(key);
         }
     }
-    
     public boolean filterEvent(EventImpl event)
     {
-        synchronized(filterList)
+        synchronized (filterList)
         {
-            if(!filterList.isEmpty())
+            if (!filterList.isEmpty())
             {
                 IFilter filter = filterList.get(0);
                 return filter.filterEvent(this, event);
@@ -130,21 +127,21 @@ public abstract class EventRequestImpl implements EventRequest
     }
     public void addFilter(IFilter filter)
     {
-        synchronized(filterList)
+        synchronized (filterList)
         {
             filterList.add(filter);
         }
     }
     public void removeCurrentFilter()
     {
-        synchronized(filterList)
+        synchronized (filterList)
         {
             filterList.remove(0);
         }
     }
     public int getFilterNum()
     {
-        synchronized(filterList)
+        synchronized (filterList)
         {
             return filterList.size();
         }

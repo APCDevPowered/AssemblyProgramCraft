@@ -16,9 +16,9 @@ public class ThreadFilter implements IFilter
     @Override
     public boolean filterEvent(EventRequestImpl eventRequest, EventImpl event)
     {
-        if(event instanceof ThreadedEventImpl)
+        if (event instanceof ThreadedEventImpl)
         {
-            return ((ThreadedEventImpl)event).thread().equals(threadReference);
+            return ((ThreadedEventImpl) event).thread().equals(threadReference);
         }
         return false;
     }

@@ -7,7 +7,6 @@ import org.apcdevpowered.vcpu32.vm.debugger.event.EventIterator;
 public class EventIteratorImpl implements EventIterator<EventImpl>
 {
     private EventSetImpl eventSet;
-    
     private int cursor = 0;
     
     public EventIteratorImpl(EventSetImpl eventSet)

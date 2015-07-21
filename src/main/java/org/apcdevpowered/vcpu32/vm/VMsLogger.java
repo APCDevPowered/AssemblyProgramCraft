@@ -8,7 +8,7 @@ import static org.apcdevpowered.vcpu32.vm.Registers.*;
 
 public class VMsLogger
 {
-    public static void printThreadCreatedInfo(int StartRAM,String ThreadName)
+    public static void printThreadCreatedInfo(int startRAM,String threadName)
     {
         if(ConfigSystem.debugMode == false)
         {
@@ -20,22 +20,22 @@ public class VMsLogger
             "---------------------------------------------------" + "\n" + 
             "Thread Created" + "\n" + 
             "---------------------------------------------------" + "\n" +           
-            "StartRAM: " + StartRAM + "\n" + 
-            "ThreadName: " + ThreadName + "\n" + 
+            "StartRAM: " + startRAM + "\n" + 
+            "ThreadName: " + threadName + "\n" + 
             "---------------------------------------------------"
         );
     }
-    public static void printThreadInfo(AssemblyVirtualThread AVT)
+    public static void printThreadInfo(AssemblyVirtualThread avThread)
     {
         if(ConfigSystem.debugMode == false)
         {
             return;
         }
-        if(AVT == null || AVT.getVM() == null)
+        if(avThread == null || avThread.getVM() == null)
         {
             return;
         }
-        AVThreadStackFrame stackFrame = AVT.getStack().peek();
+        AVThreadStackFrame stackFrame = avThread.getStack().peek();
         int A = stackFrame.getRegisterValue(REG_A);
         int B = stackFrame.getRegisterValue(REG_B);
         int C = stackFrame.getRegisterValue(REG_C);
@@ -49,7 +49,7 @@ public class VMsLogger
         String tempStr = 
             "                                                                " + "\n" + 
             "---------------------------------------------------" + "\n" + 
-            "VM Running Thread:" + AVT.getThreadName() + "\n" + 
+            "VM Running Thread:" + avThread.getThreadName() + "\n" + 
             "---------------------------------------------------" + "\n" + 
             "General StackFrame Register:" + "\n" + 
             "---------------------------------------------------" + "\n" + 
@@ -69,13 +69,16 @@ public class VMsLogger
             "---------------------------------------------------" + "\n" + 
             "Special Thread Register:" + "\n" + 
             "---------------------------------------------------" + "\n" + 
-            "Register PC is:" + AVT.getPC() + "\n" + 
+            "Register PC is:" + avThread.getPC() + "\n" + 
             "---------------------------------------------------" + "\n" + 
             "Stack Info:" + "\n" + 
             "---------------------------------------------------" + "\n" + 
-            "StackNum:" + AVT.getStack().size() + "\n" + 
-            "StackFrameData:"+ "\n";
-        DynamicSparseArray<Integer> stack = stackFrame.stack;
+            "StackNum:" + avThread.getStack().size() + "\n" + 
+            "CurrentStackFrameEnterAddress:" + stackFrame.getEnterAddress() + "\n" + 
+            "CurrentStackFrameReturnAddress:" + stackFrame.getReturnAddress() + "\n" + 
+            "CurrentStackFrameParLength:" + stackFrame.getParLength() + "\n" + 
+            "CurrentStackFrameStack:"+ "\n";
+        DynamicSparseArray<Integer> stack = stackFrame.getStack();
         for(int i = 0;i < SP;i++)
         {
             Integer value = stack.get(i);

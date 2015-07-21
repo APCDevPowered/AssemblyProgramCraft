@@ -9,10 +9,9 @@ public class MethodEntryRequestImpl extends ThreadedRequestImpl implements Metho
     {
         super(virtualMachineReference, eventRequestManager);
     }
-    
     @Override
     protected void requestStateChange(boolean isEnable)
     {
-        
+        virtualMachine().getHander().setMethodEntryRequestState(this, isEnable);
     }
 }

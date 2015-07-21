@@ -14,14 +14,12 @@ import org.apcdevpowered.vcpu32.vm.debugger.request.EventRequestManager;
 public class EventRequestManagerImpl implements EventRequestManager
 {
     private VirtualMachineReferenceImpl virtualMachineReference;
-    
     private List<EventRequestImpl> eventRequestList = new ArrayList<EventRequestImpl>();
     
     public EventRequestManagerImpl(VirtualMachineReferenceImpl virtualMachineReference)
     {
         this.virtualMachineReference = virtualMachineReference;
     }
-    
     @Override
     public VirtualMachineReferenceImpl virtualMachine()
     {
@@ -31,7 +29,7 @@ public class EventRequestManagerImpl implements EventRequestManager
     public ThreadStartRequestImpl createThreadStartRequest()
     {
         ThreadStartRequestImpl threadStartRequest = new ThreadStartRequestImpl(virtualMachineReference, this);
-        synchronized(eventRequestList)
+        synchronized (eventRequestList)
         {
             eventRequestList.add(threadStartRequest);
         }
@@ -41,7 +39,7 @@ public class EventRequestManagerImpl implements EventRequestManager
     public ThreadDeathRequestImpl createThreadDeathRequest()
     {
         ThreadDeathRequestImpl threadDeathRequest = new ThreadDeathRequestImpl(virtualMachineReference, this);
-        synchronized(eventRequestList)
+        synchronized (eventRequestList)
         {
             eventRequestList.add(threadDeathRequest);
         }
@@ -51,7 +49,7 @@ public class EventRequestManagerImpl implements EventRequestManager
     public MethodEntryRequestImpl createMethodEntryRequest()
     {
         MethodEntryRequestImpl methodEntryRequest = new MethodEntryRequestImpl(virtualMachineReference, this);
-        synchronized(eventRequestList)
+        synchronized (eventRequestList)
         {
             eventRequestList.add(methodEntryRequest);
         }
@@ -61,7 +59,7 @@ public class EventRequestManagerImpl implements EventRequestManager
     public MethodExitRequestImpl createMethodExitRequest()
     {
         MethodExitRequestImpl methodExitRequest = new MethodExitRequestImpl(virtualMachineReference, this);
-        synchronized(eventRequestList)
+        synchronized (eventRequestList)
         {
             eventRequestList.add(methodExitRequest);
         }
@@ -70,12 +68,12 @@ public class EventRequestManagerImpl implements EventRequestManager
     @Override
     public StepRequestImpl createStepRequest(ThreadReference thread, int size, int depth)
     {
-        if(!(thread instanceof ThreadReferenceImpl))
+        if (!(thread instanceof ThreadReferenceImpl))
         {
             throw new IllegalArgumentException();
         }
-        StepRequestImpl stepRequest = new StepRequestImpl(virtualMachineReference, this, (ThreadReferenceImpl)thread, size, depth);
-        synchronized(eventRequestList)
+        StepRequestImpl stepRequest = new StepRequestImpl(virtualMachineReference, this, (ThreadReferenceImpl) thread, size, depth);
+        synchronized (eventRequestList)
         {
             eventRequestList.add(stepRequest);
         }
@@ -84,12 +82,12 @@ public class EventRequestManagerImpl implements EventRequestManager
     @Override
     public BreakpointRequestImpl createBreakpointRequest(Location location)
     {
-        if(!(location instanceof LocationImpl))
+        if (!(location instanceof LocationImpl))
         {
             throw new IllegalArgumentException();
         }
-        BreakpointRequestImpl breakpointRequest = new BreakpointRequestImpl(virtualMachineReference, this, (LocationImpl)location);
-        synchronized(eventRequestList)
+        BreakpointRequestImpl breakpointRequest = new BreakpointRequestImpl(virtualMachineReference, this, (LocationImpl) location);
+        synchronized (eventRequestList)
         {
             eventRequestList.add(breakpointRequest);
         }
@@ -98,12 +96,12 @@ public class EventRequestManagerImpl implements EventRequestManager
     @Override
     public AccessWatchpointRequestImpl createAccessWatchpointRequest(Location location) throws UnsupportedOperationException
     {
-        if(!(location instanceof LocationImpl))
+        if (!(location instanceof LocationImpl))
         {
             throw new IllegalArgumentException();
         }
-        AccessWatchpointRequestImpl accessWatchpointRequest = new AccessWatchpointRequestImpl(virtualMachineReference, this, (LocationImpl)location);
-        synchronized(eventRequestList)
+        AccessWatchpointRequestImpl accessWatchpointRequest = new AccessWatchpointRequestImpl(virtualMachineReference, this, (LocationImpl) location);
+        synchronized (eventRequestList)
         {
             eventRequestList.add(accessWatchpointRequest);
         }
@@ -112,12 +110,12 @@ public class EventRequestManagerImpl implements EventRequestManager
     @Override
     public ModificationWatchpointRequestImpl createModificationWatchpointRequest(Location location) throws UnsupportedOperationException
     {
-        if(!(location instanceof LocationImpl))
+        if (!(location instanceof LocationImpl))
         {
             throw new IllegalArgumentException();
         }
-        ModificationWatchpointRequestImpl modificationWatchpointRequest = new ModificationWatchpointRequestImpl(virtualMachineReference, this, (LocationImpl)location);
-        synchronized(eventRequestList)
+        ModificationWatchpointRequestImpl modificationWatchpointRequest = new ModificationWatchpointRequestImpl(virtualMachineReference, this, (LocationImpl) location);
+        synchronized (eventRequestList)
         {
             eventRequestList.add(modificationWatchpointRequest);
         }
@@ -127,7 +125,7 @@ public class EventRequestManagerImpl implements EventRequestManager
     public VMDeathRequestImpl createVMDeathRequest() throws UnsupportedOperationException
     {
         VMDeathRequestImpl vmDeathRequest = new VMDeathRequestImpl(virtualMachineReference, this);
-        synchronized(eventRequestList)
+        synchronized (eventRequestList)
         {
             eventRequestList.add(vmDeathRequest);
         }
@@ -136,9 +134,9 @@ public class EventRequestManagerImpl implements EventRequestManager
     @Override
     public void deleteEventRequest(EventRequest eventRequest)
     {
-        synchronized(eventRequestList)
+        synchronized (eventRequestList)
         {
-            if(eventRequestList.contains(eventRequest))
+            if (eventRequestList.contains(eventRequest))
             {
                 eventRequest.disable();
                 eventRequestList.remove(eventRequest);
@@ -148,11 +146,11 @@ public class EventRequestManagerImpl implements EventRequestManager
     @Override
     public void deleteEventRequests(List<? extends EventRequest> eventRequests)
     {
-        synchronized(eventRequestList)
+        synchronized (eventRequestList)
         {
-            for(EventRequest eventRequest : eventRequests)
+            for (EventRequest eventRequest : eventRequests)
             {
-                if(eventRequestList.contains(eventRequest))
+                if (eventRequestList.contains(eventRequest))
                 {
                     eventRequest.disable();
                     eventRequestList.remove(eventRequest);
@@ -213,11 +211,11 @@ public class EventRequestManagerImpl implements EventRequestManager
     private <R extends EventRequestImpl> List<R> getEventRequests(Class<R> clazz)
     {
         List<R> result = new ArrayList<R>();
-        synchronized(eventRequestList)
+        synchronized (eventRequestList)
         {
-            for(EventRequestImpl eventRequest : eventRequestList)
+            for (EventRequestImpl eventRequest : eventRequestList)
             {
-                if(clazz.isAssignableFrom(eventRequest.getClass()))
+                if (clazz.isAssignableFrom(eventRequest.getClass()))
                 {
                     result.add(clazz.cast(eventRequest));
                 }
@@ -227,7 +225,7 @@ public class EventRequestManagerImpl implements EventRequestManager
     }
     protected boolean isVaild(EventRequestImpl eventRequest)
     {
-        synchronized(eventRequestList)
+        synchronized (eventRequestList)
         {
             return eventRequestList.contains(eventRequest);
         }

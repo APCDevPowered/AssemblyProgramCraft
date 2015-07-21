@@ -21,6 +21,8 @@ import org.apcdevpowered.vcpu32.vm.debugger.impl.event.ThreadDeathEventImpl;
 import org.apcdevpowered.vcpu32.vm.debugger.impl.event.ThreadStartEventImpl;
 import org.apcdevpowered.vcpu32.vm.debugger.impl.event.VMDeathEventImpl;
 import org.apcdevpowered.vcpu32.vm.debugger.impl.event.VMStartEventImpl;
+import org.apcdevpowered.vcpu32.vm.debugger.impl.request.MethodEntryRequestImpl;
+import org.apcdevpowered.vcpu32.vm.debugger.impl.request.MethodExitRequestImpl;
 import org.apcdevpowered.vcpu32.vm.debugger.impl.request.ThreadDeathRequestImpl;
 import org.apcdevpowered.vcpu32.vm.debugger.impl.request.ThreadStartRequestImpl;
 import org.apcdevpowered.vcpu32.vm.debugger.impl.request.VMDeathRequestImpl;
@@ -1035,6 +1037,46 @@ public class VirtualMachine
             else
             {
                 enabledThreadDeathRequestList.remove(request);
+            }
+        }
+    }
+    
+    protected List<MethodEntryRequestImpl> enabledMethodEntryRequestList = new ArrayList<MethodEntryRequestImpl>();
+    
+    public void setMethodEntryRequestState(MethodEntryRequestImpl request, boolean isEnable)
+    {
+        synchronized (enabledMethodEntryRequestList)
+        {
+            if (isEnable)
+            {
+                if (!enabledMethodEntryRequestList.contains(request))
+                {
+                    enabledMethodEntryRequestList.add(request);
+                }
+            }
+            else
+            {
+                enabledMethodEntryRequestList.remove(request);
+            }
+        }
+    }
+    
+    protected List<MethodExitRequestImpl> enabledMethodExitRequestList = new ArrayList<MethodExitRequestImpl>();
+    
+    public void setMethodExitRequestState(MethodExitRequestImpl request, boolean isEnable)
+    {
+        synchronized (enabledMethodExitRequestList)
+        {
+            if (isEnable)
+            {
+                if (!enabledMethodExitRequestList.contains(request))
+                {
+                    enabledMethodExitRequestList.add(request);
+                }
+            }
+            else
+            {
+                enabledMethodExitRequestList.remove(request);
             }
         }
     }

@@ -9,7 +9,6 @@ public class ThreadDeathRequestImpl extends ThreadedRequestImpl implements Threa
     {
         super(virtualMachineReference, eventRequestManager);
     }
-    
     @Override
     protected void requestStateChange(boolean isEnable)
     {

@@ -14,7 +14,6 @@ public class ThreadedEventImpl extends EventImpl implements ThreadedEvent
         super(virtualMachineReference, eventRequest);
         this.threadReference = thread;
     }
-
     @Override
     public ThreadReferenceImpl thread()
     {

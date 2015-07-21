@@ -9,10 +9,9 @@ public class MethodExitRequestImpl extends ThreadedRequestImpl implements Method
     {
         super(virtualMachineReference, eventRequestManager);
     }
-    
     @Override
     protected void requestStateChange(boolean isEnable)
     {
-        
+        virtualMachine().getHander().setMethodExitRequestState(this, isEnable);
     }
 }

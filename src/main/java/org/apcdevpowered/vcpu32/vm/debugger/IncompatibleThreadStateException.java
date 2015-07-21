@@ -6,7 +6,6 @@ public class IncompatibleThreadStateException extends Exception
     
     public IncompatibleThreadStateException()
     {
-        
     }
     public IncompatibleThreadStateException(String s)
     {

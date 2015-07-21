@@ -6,7 +6,6 @@ public class InvalidRequestStateException extends RuntimeException
     
     public InvalidRequestStateException()
     {
-        
     }
     public InvalidRequestStateException(String s)
     {

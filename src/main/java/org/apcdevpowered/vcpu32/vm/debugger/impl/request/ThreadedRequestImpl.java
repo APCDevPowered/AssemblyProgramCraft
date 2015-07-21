@@ -13,18 +13,17 @@ public abstract class ThreadedRequestImpl extends EventRequestImpl implements Th
     {
         super(virtualMachineReference, eventRequestManager);
     }
-
     @Override
     public void addThreadFilter(ThreadReference thread)
     {
-        if(isEnabled() || !isVaild())
+        if (isEnabled() || !isVaild())
         {
             throw new InvalidRequestStateException();
         }
-        if(!(thread instanceof ThreadReferenceImpl))
+        if (!(thread instanceof ThreadReferenceImpl))
         {
             throw new IllegalArgumentException();
         }
-        addFilter(new ThreadFilter((ThreadReferenceImpl)thread));
+        addFilter(new ThreadFilter((ThreadReferenceImpl) thread));
     }
 }

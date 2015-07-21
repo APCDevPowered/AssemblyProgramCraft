@@ -2,7 +2,7 @@ package org.apcdevpowered.vcpu32.vm.debugger;
 
 import java.util.Map;
 
-public interface StackFrame extends Mirror, Locatable
+public interface StackFrameReference extends Mirror, Locatable
 {
     public static final int REG_A = 0x1;
     public static final int REG_B = 0x2;
@@ -19,10 +19,10 @@ public interface StackFrame extends Mirror, Locatable
     ThreadReference thread();
     int getRegister(int register);
     void setRegister(int register, int value);
-    Map<Integer, Integer> getRegisters();
+    Map<Integer, Integer> registers();
     int getStackValue(int index);
     void setStackValue(int index, int value);
-    Location getReturnAddress();
-    Location getEnterAddress();
-    int getParLength();
+    Location returnAddress();
+    Location enterAddress();
+    int parLength();
 }

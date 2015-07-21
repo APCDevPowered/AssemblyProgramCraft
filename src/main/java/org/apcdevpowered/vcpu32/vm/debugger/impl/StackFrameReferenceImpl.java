@@ -6,29 +6,23 @@ import java.util.Map;
 import org.apcdevpowered.vcpu32.vm.AssemblyVirtualThread.AVThreadStackFrame;
 import org.apcdevpowered.vcpu32.vm.debugger.InvalidStackFrameException;
 import org.apcdevpowered.vcpu32.vm.debugger.Location;
-import org.apcdevpowered.vcpu32.vm.debugger.StackFrame;
+import org.apcdevpowered.vcpu32.vm.debugger.StackFrameReference;
 
-public class StackFrameImpl implements StackFrame
+public class StackFrameReferenceImpl implements StackFrameReference
 {
     private VirtualMachineReferenceImpl virtualMachineReference;
-    
     private ThreadReferenceImpl threadReference;
     private int frameIndex;
     private AVThreadStackFrame stackFrame;
     private boolean isInvalid;
     
-    public StackFrameImpl(VirtualMachineReferenceImpl virtualMachineReference, ThreadReferenceImpl threadReference, int frameIndex)
+    public StackFrameReferenceImpl(VirtualMachineReferenceImpl virtualMachineReference, ThreadReferenceImpl threadReference, AVThreadStackFrame stackFrame, int frameIndex)
     {
         this.virtualMachineReference = virtualMachineReference;
         this.threadReference = threadReference;
         this.frameIndex = frameIndex;
-        this.stackFrame = threadReference.getAVThread().getStackFrame(frameIndex);
-        if(stackFrame == null)
-        {
-            throw new IllegalArgumentException("StackFrame at " + frameIndex + " not exists.");
-        }
+        this.stackFrame = stackFrame;
     }
-    
     @Override
     public VirtualMachineReferenceImpl virtualMachine()
     {
@@ -59,7 +53,7 @@ public class StackFrameImpl implements StackFrame
         stackFrame.setRegisterValue(register, value);
     }
     @Override
-    public synchronized Map<Integer, Integer> getRegisters()
+    public synchronized Map<Integer, Integer> registers()
     {
         validateStackFrame();
         Map<Integer, Integer> registers = new HashMap<Integer, Integer>();
@@ -80,46 +74,50 @@ public class StackFrameImpl implements StackFrame
     public synchronized int getStackValue(int index)
     {
         validateStackFrame();
-        Integer num = stackFrame.stack.get(index);
+        Integer num = stackFrame.getStack().get(index);
         return num == null ? 0 : num;
     }
     @Override
     public synchronized void setStackValue(int index, int value)
     {
         validateStackFrame();
-        stackFrame.stack.set(index, value);
+        stackFrame.getStack().set(index, value);
     }
     @Override
-    public synchronized Location getReturnAddress()
+    public synchronized Location returnAddress()
     {
         validateStackFrame();
-        return new LocationImpl(virtualMachineReference, stackFrame.returnAddress);
+        return new LocationImpl(virtualMachineReference, stackFrame.getReturnAddress());
     }
     @Override
-    public synchronized Location getEnterAddress()
+    public synchronized Location enterAddress()
     {
         validateStackFrame();
-        return new LocationImpl(virtualMachineReference, stackFrame.enterAddress);
+        return new LocationImpl(virtualMachineReference, stackFrame.getEnterAddress());
     }
     @Override
-    public synchronized int getParLength()
+    public synchronized int parLength()
     {
         validateStackFrame();
-        return stackFrame.parLength;
+        return stackFrame.getParLength();
     }
-    protected synchronized void markInvalid()
+    public synchronized void markInvalid()
     {
         isInvalid = true;
     }
-    protected int getFrameIndex()
+    public int getFrameIndex()
     {
         return frameIndex;
     }
-    protected synchronized void validateStackFrame()
+    public synchronized void validateStackFrame()
     {
-        if(isInvalid)
+        if (isInvalid)
         {
             throw new InvalidStackFrameException("Thread has been resumed");
         }
+    }
+    public AVThreadStackFrame getHander()
+    {
+        return stackFrame;
     }
 }

@@ -9,12 +9,10 @@ import org.apcdevpowered.vcpu32.vm.debugger.impl.ThreadReferenceImpl;
 import org.apcdevpowered.vcpu32.vm.debugger.impl.VirtualMachineReferenceImpl;
 import org.apcdevpowered.vcpu32.vm.debugger.impl.request.EventRequestImpl;
 
-public class EventSetImpl extends ArrayList<EventImpl> implements EventSet<EventImpl>
+public class EventSetImpl extends ArrayList<EventImpl>implements EventSet<EventImpl>
 {
     private static final long serialVersionUID = 1L;
-    
     private VirtualMachineReferenceImpl virtualMachineReference;
-    
     private int suspendPolicy;
     private ThreadReferenceImpl suspendEventThread;
     
@@ -37,11 +35,11 @@ public class EventSetImpl extends ArrayList<EventImpl> implements EventSet<Event
     @Override
     public void resume()
     {
-        if(suspendPolicy == EventRequestImpl.SUSPEND_ALL)
+        if (suspendPolicy == EventRequestImpl.SUSPEND_ALL)
         {
             virtualMachine().resume();
         }
-        else if(suspendPolicy == EventRequestImpl.SUSPEND_EVENT_THREAD)
+        else if (suspendPolicy == EventRequestImpl.SUSPEND_EVENT_THREAD)
         {
             suspendEventThread.resume();
         }
@@ -56,7 +54,6 @@ public class EventSetImpl extends ArrayList<EventImpl> implements EventSet<Event
     {
         return new EventIteratorImpl(this);
     }
-    
     @Override
     public boolean add(EventImpl o)
     {
@@ -89,11 +86,11 @@ public class EventSetImpl extends ArrayList<EventImpl> implements EventSet<Event
     }
     protected void suspendThreads()
     {
-        if(suspendPolicy == EventRequestImpl.SUSPEND_EVENT_THREAD)
+        if (suspendPolicy == EventRequestImpl.SUSPEND_EVENT_THREAD)
         {
             suspendEventThread.suspend();
         }
-        else if(suspendPolicy == EventRequestImpl.SUSPEND_ALL)
+        else if (suspendPolicy == EventRequestImpl.SUSPEND_ALL)
         {
             virtualMachine().suspend();
         }
@@ -101,21 +98,21 @@ public class EventSetImpl extends ArrayList<EventImpl> implements EventSet<Event
     private int calculateSuspendPolicy(Collection<EventImpl> events)
     {
         int suspendPolicy = EventRequestImpl.SUSPEND_NONE;
-        for(EventImpl event : events)
+        for (EventImpl event : events)
         {
-            if(event.request() != null)
+            if (event.request() != null)
             {
-                if(event.request().suspendPolicy() > suspendPolicy)
+                if (event.request().suspendPolicy() > suspendPolicy)
                 {
-                    if(event.request().suspendPolicy() == EventRequestImpl.SUSPEND_EVENT_THREAD)
+                    if (event.request().suspendPolicy() == EventRequestImpl.SUSPEND_EVENT_THREAD)
                     {
-                        if(event instanceof ThreadedEventImpl)
+                        if (event instanceof ThreadedEventImpl)
                         {
                             suspendPolicy = EventRequestImpl.SUSPEND_EVENT_THREAD;
                             suspendEventThread = ((ThreadedEventImpl) event).thread();
                         }
                     }
-                    else if(event.request().suspendPolicy() == EventRequestImpl.SUSPEND_ALL)
+                    else if (event.request().suspendPolicy() == EventRequestImpl.SUSPEND_ALL)
                     {
                         suspendPolicy = EventRequestImpl.SUSPEND_ALL;
                         suspendEventThread = null;
@@ -128,9 +125,9 @@ public class EventSetImpl extends ArrayList<EventImpl> implements EventSet<Event
     private static Collection<EventImpl> filterEvents(Collection<EventImpl> events)
     {
         Collection<EventImpl> filteredEvents = new ArrayList<EventImpl>();
-        for(EventImpl event : events)
+        for (EventImpl event : events)
         {
-            if(event.request() == null || event.request().filterEvent(event))
+            if (event.request() == null || event.request().filterEvent(event))
             {
                 filteredEvents.add(event);
             }

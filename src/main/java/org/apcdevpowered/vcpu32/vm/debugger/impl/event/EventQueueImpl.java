@@ -9,7 +9,6 @@ import org.apcdevpowered.vcpu32.vm.debugger.impl.VirtualMachineReferenceImpl;
 public class EventQueueImpl implements EventQueue
 {
     private VirtualMachineReferenceImpl virtualMachineReference;
-    
     private List<EventSetImpl> eventSets = new LinkedList<EventSetImpl>();
     
     public EventQueueImpl(VirtualMachineReferenceImpl virtualMachineReference)
@@ -33,13 +32,13 @@ public class EventQueueImpl implements EventQueue
         {
             throw new IllegalArgumentException("Timeout cannot be negative");
         }
-        synchronized(eventSets)
+        synchronized (eventSets)
         {
-            if(timeout == 0)
+            if (timeout == 0)
             {
-                while(true)
+                while (true)
                 {
-                    if(!eventSets.isEmpty())
+                    if (!eventSets.isEmpty())
                     {
                         return eventSets.remove(0);
                     }
@@ -48,9 +47,9 @@ public class EventQueueImpl implements EventQueue
             }
             else
             {
-                while(timeout > 0)
+                while (timeout > 0)
                 {
-                    if(!eventSets.isEmpty())
+                    if (!eventSets.isEmpty())
                     {
                         return eventSets.remove(0);
                     }
@@ -64,9 +63,10 @@ public class EventQueueImpl implements EventQueue
     }
     public void addEventSet(EventSetImpl eventSet)
     {
-        if(!eventSet.isEmpty())
+        if (!eventSet.isEmpty())
         {
-            synchronized(eventSets)
+            eventSet.suspendThreads();
+            synchronized (eventSets)
             {
                 eventSets.add(eventSet);
                 eventSets.notifyAll();

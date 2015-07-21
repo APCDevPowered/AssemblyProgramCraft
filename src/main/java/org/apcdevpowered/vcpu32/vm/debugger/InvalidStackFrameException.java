@@ -6,7 +6,6 @@ public class InvalidStackFrameException extends RuntimeException
     
     public InvalidStackFrameException()
     {
-        
     }
     public InvalidStackFrameException(String s)
     {

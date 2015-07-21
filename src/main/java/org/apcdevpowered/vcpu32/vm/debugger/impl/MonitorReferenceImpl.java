@@ -11,7 +11,6 @@ import org.apcdevpowered.vcpu32.vm.debugger.MonitorReference;
 public class MonitorReferenceImpl implements MonitorReference
 {
     private VirtualMachineReferenceImpl virtualMachineReference;
-    
     private Monitor monitor;
     
     public MonitorReferenceImpl(VirtualMachineReferenceImpl virtualMachineReference, Monitor monitor)
@@ -19,7 +18,6 @@ public class MonitorReferenceImpl implements MonitorReference
         this.virtualMachineReference = virtualMachineReference;
         this.monitor = monitor;
     }
-    
     @Override
     public VirtualMachineReferenceImpl virtualMachine()
     {
@@ -28,17 +26,20 @@ public class MonitorReferenceImpl implements MonitorReference
     @Override
     public synchronized List<ThreadReferenceImpl> waitingThreads() throws IncompatibleThreadStateException
     {
-        synchronized(monitor)
+        synchronized (monitor)
         {
             List<ThreadReferenceImpl> waitingThreads = new ArrayList<ThreadReferenceImpl>();
-            for(AssemblyVirtualThread avThread : monitor.getWaitingThreadList())
+            for (AssemblyVirtualThread avThread : monitor.getWaitingThreadList())
             {
                 ThreadReferenceImpl threadReference = avThread.getReference();
-                if(!threadReference.isSuspended())
+                synchronized (threadReference)
                 {
-                    throw new IncompatibleThreadStateException();
+                    if (!threadReference.isSuspended())
+                    {
+                        throw new IncompatibleThreadStateException();
+                    }
+                    waitingThreads.add(threadReference);
                 }
-                waitingThreads.add(threadReference);
             }
             return waitingThreads;
         }
@@ -46,23 +47,43 @@ public class MonitorReferenceImpl implements MonitorReference
     @Override
     public synchronized ThreadReferenceImpl owningThread() throws IncompatibleThreadStateException
     {
-        ThreadReferenceImpl threadReference = monitor.getHoldsLockThread().getReference();
-        if(!threadReference.isSuspended())
+        synchronized (monitor)
         {
-            throw new IncompatibleThreadStateException();
+            AssemblyVirtualThread avThread = monitor.getHoldsLockThread();
+            if (avThread == null)
+            {
+                return null;
+            }
+            ThreadReferenceImpl threadReference = avThread.getReference();
+            synchronized (threadReference)
+            {
+                if (!threadReference.isSuspended())
+                {
+                    throw new IncompatibleThreadStateException();
+                }
+                return threadReference;
+            }
         }
-        return threadReference;
     }
     @Override
     public synchronized int entryCount() throws IncompatibleThreadStateException
     {
-        synchronized(monitor)
+        synchronized (monitor)
         {
-            if(!monitor.getHoldsLockThread().getReference().isSuspended())
+            AssemblyVirtualThread avThread = monitor.getHoldsLockThread();
+            ThreadReferenceImpl threadReference = avThread.getReference();
+            synchronized (threadReference)
             {
-                throw new IncompatibleThreadStateException();
+                if (!threadReference.isSuspended())
+                {
+                    throw new IncompatibleThreadStateException();
+                }
+                return monitor.getLockCound();
             }
-            return monitor.getLockCound();
         }
+    }
+    public Monitor getHander()
+    {
+        return monitor;
     }
 }

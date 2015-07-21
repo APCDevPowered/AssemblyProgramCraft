@@ -3,8 +3,8 @@ package org.apcdevpowered.vcpu32.vm.storage.container;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.ConcurrentModificationException;
-import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.NoSuchElementException;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -131,7 +131,7 @@ public final class NodeContainerArray extends NodeContainer<NodeContainerArray>
     {
         synchronized (elementArray)
         {
-            Set<NodeContainerArrayEntry> entrySet = new HashSet<NodeContainerArrayEntry>();
+            Set<NodeContainerArrayEntry> entrySet = new LinkedHashSet<NodeContainerArrayEntry>();
             for (Entry<Integer, NodeElement> entry : elementArray.entrySet())
             {
                 entrySet.add(new NodeContainerArrayEntry(entry.getKey()));

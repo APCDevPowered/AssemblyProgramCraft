@@ -6,7 +6,6 @@ public class DuplicateRequestException extends RuntimeException
     
     public DuplicateRequestException()
     {
-        
     }
     public DuplicateRequestException(String s)
     {

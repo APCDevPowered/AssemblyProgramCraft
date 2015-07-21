@@ -17,7 +17,6 @@ public class StepRequestImpl extends EventRequestImpl implements StepRequest
         this.size = size;
         this.depth = depth;
     }
-
     @Override
     public ThreadReferenceImpl thread()
     {
@@ -36,6 +35,5 @@ public class StepRequestImpl extends EventRequestImpl implements StepRequest
     @Override
     protected void requestStateChange(boolean isEnable)
     {
-        
     }
 }

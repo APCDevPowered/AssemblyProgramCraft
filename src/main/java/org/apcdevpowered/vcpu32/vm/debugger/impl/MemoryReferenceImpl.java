@@ -7,7 +7,6 @@ import org.apcdevpowered.vcpu32.vm.debugger.VirtualMachineReference;
 public class MemoryReferenceImpl implements MemoryReference
 {
     private VirtualMachineReferenceImpl virtualMachineReference;
-    
     private AdvancedRAMArray ram;
     
     public MemoryReferenceImpl(VirtualMachineReferenceImpl virtualMachineReference, AdvancedRAMArray ram)
@@ -15,7 +14,6 @@ public class MemoryReferenceImpl implements MemoryReference
         this.virtualMachineReference = virtualMachineReference;
         this.ram = ram;
     }
-    
     @Override
     public VirtualMachineReference virtualMachine()
     {
@@ -54,7 +52,7 @@ public class MemoryReferenceImpl implements MemoryReference
     @Override
     public char getChar(int address)
     {
-        return (char)ram.getValue(address);
+        return (char) ram.getValue(address);
     }
     @Override
     public boolean setChar(int address, char value)
@@ -80,5 +78,9 @@ public class MemoryReferenceImpl implements MemoryReference
     public void clear()
     {
         ram.clear();
+    }
+    public AdvancedRAMArray getHander()
+    {
+        return ram;
     }
 }

@@ -11,9 +11,16 @@ import org.apcdevpowered.util.BitUtils;
 import org.apcdevpowered.util.DynamicSparseArray;
 import org.apcdevpowered.util.HandlerAllocateList;
 import org.apcdevpowered.util.IntUtils;
+import org.apcdevpowered.vcpu32.vm.debugger.impl.LocationImpl;
+import org.apcdevpowered.vcpu32.vm.debugger.impl.MethodImpl;
 import org.apcdevpowered.vcpu32.vm.debugger.impl.ThreadReferenceImpl;
+import org.apcdevpowered.vcpu32.vm.debugger.impl.event.EventImpl;
+import org.apcdevpowered.vcpu32.vm.debugger.impl.event.EventSetImpl;
+import org.apcdevpowered.vcpu32.vm.debugger.impl.event.MethodEntryEventImpl;
+import org.apcdevpowered.vcpu32.vm.debugger.impl.event.MethodExitEventImpl;
+import org.apcdevpowered.vcpu32.vm.debugger.impl.request.MethodEntryRequestImpl;
+import org.apcdevpowered.vcpu32.vm.debugger.impl.request.MethodExitRequestImpl;
 import org.apcdevpowered.vcpu32.vm.storage.container.NodeContainerArray;
-import org.apcdevpowered.vcpu32.vm.storage.container.NodeContainerArray.NodeContainerArrayEntry;
 import org.apcdevpowered.vcpu32.vm.storage.container.NodeContainerMap;
 import org.apcdevpowered.vcpu32.vm.storage.exception.ElementNotFoundException;
 import org.apcdevpowered.vcpu32.vm.storage.exception.ElementTypeMismatchException;
@@ -110,7 +117,6 @@ public class AssemblyVirtualThread
         }
         return ThreadState.RUNNABLE;
     }
-    
     public int getPC()
     {
         return PC;
@@ -126,10 +132,6 @@ public class AssemblyVirtualThread
     public String getThreadName()
     {
         return threadName;
-    }
-    public Stack<AVThreadStackFrame> getStack()
-    {
-        return stack;
     }
     public synchronized boolean start()
     {
@@ -335,6 +337,7 @@ public class AssemblyVirtualThread
             }
             synchronized (thread.suspendNotifier)
             {
+                boolean isSuspended = false;
                 synchronized (thread.threadSleepLock)
                 {
                     synchronized (lockMonitorLock)
@@ -343,6 +346,10 @@ public class AssemblyVirtualThread
                         {
                             synchronized (suspendThreadSuspendHandlerList)
                             {
+                                if (!suspendThreadSuspendHandlerList.isEmpty())
+                                {
+                                    isSuspended = true;
+                                }
                                 if (!suspendThreadSuspendHandlerList.add(suspendHandler))
                                 {
                                     return false;
@@ -366,14 +373,18 @@ public class AssemblyVirtualThread
                         }
                     }
                 }
-                if (isRunning)
+                if (isRunning && !isSuspended && !Thread.currentThread().equals(thread))
                 {
-                    try
+                    int suspendNotifierCount = thread.suspendNotifierCount;
+                    while (thread.suspendNotifierCount != suspendNotifierCount)
                     {
-                        thread.suspendNotifier.wait();
-                    }
-                    catch (InterruptedException e)
-                    {
+                        try
+                        {
+                            thread.suspendNotifier.wait();
+                        }
+                        catch (InterruptedException e)
+                        {
+                        }
                     }
                 }
             }
@@ -804,7 +815,7 @@ public class AssemblyVirtualThread
             halt();
             return 0;
         }
-        int parLength = stack.peek().parLength;
+        int parLength = stack.peek().getParLength();
         if (parLength < 0)
         {
             System.out.println("[VCPU-32]参数长度不能为负数");
@@ -833,40 +844,36 @@ public class AssemblyVirtualThread
             halt();
             return;
         }
-        AVThreadStackFrame stackFrame = new AVThreadStackFrame();
-        stackFrame.enterAddress = enterAddress;
-        stackFrame.parLength = parLength;
-        stackFrame.returnAddress = returnAddress;
-        if (parLength > 0)
+        int frameIndex = stack.size();
+        int[] arguments = new int[parLength];
+        for (int i = 0; i < parLength; i++)
         {
-            int[] tmp = new int[parLength];
-            for (int i = 0; i < parLength; i++)
+            arguments[arguments.length - 1 - i] = popInCurrentStackFrame();
+            if (thread.timeToQuit == true)
             {
-                tmp[tmp.length - 1 - i] = popInCurrentStackFrame();
-                if (thread.timeToQuit == true)
-                {
-                    return;
-                }
-            }
-            stack.push(stackFrame);
-            for (int i = 0; i < tmp.length; i++)
-            {
-                pushInCurrentStackFrame(tmp[i]);
-                if (thread.timeToQuit == true)
-                {
-                    return;
-                }
+                return;
             }
         }
-        else
+        AVThreadStackFrame stackFrame = new AVThreadStackFrame(frameIndex, enterAddress, returnAddress, arguments);
+        if (thread.timeToQuit == true)
         {
-            stack.push(stackFrame);
+            return;
         }
+        stack.push(stackFrame);
         setRegisterValue(REG_PC, enterAddress);
         if (thread.timeToQuit == true)
         {
             return;
         }
+        List<EventImpl> events = new ArrayList<EventImpl>();
+        synchronized (getVM().enabledMethodEntryRequestList)
+        {
+            for (MethodEntryRequestImpl request : getVM().enabledMethodEntryRequestList)
+            {
+                events.add(new MethodEntryEventImpl(getVM().getReference(), request, getReference(), stackFrame.getMethod()));
+            }
+        }
+        getVM().getReference().eventQueue().addEventSet(new EventSetImpl(getVM().getReference(), events));
     }
     protected void exitMethod()
     {
@@ -874,7 +881,14 @@ public class AssemblyVirtualThread
     }
     protected void exitMethod(int parLength)
     {
-        int returnAddress = getCurrentStackFrameReturnAddress();
+        AVThreadStackFrame stackFrame = getCurrentStackFrame();
+        if(stackFrame == null)
+        {
+            System.out.println("[VCPU-32]当前栈帧为空");
+            halt();
+            return;
+        }
+        int returnAddress = stackFrame.getReturnAddress();
         if (thread.timeToQuit == true)
         {
             return;
@@ -909,25 +923,38 @@ public class AssemblyVirtualThread
         {
             return;
         }
+        List<EventImpl> events = new ArrayList<EventImpl>();
+        synchronized (getVM().enabledMethodExitRequestList)
+        {
+            for (MethodExitRequestImpl request : getVM().enabledMethodExitRequestList)
+            {
+                events.add(new MethodExitEventImpl(getVM().getReference(), request, getReference(), stackFrame.getMethod()));
+            }
+        }
+        getVM().getReference().eventQueue().addEventSet(new EventSetImpl(getVM().getReference(), events));
     }
-    public AVThreadStackFrame getStackFrame(int stackFrameIndex)
+    public Stack<AVThreadStackFrame> getStack()
     {
-        if (stackFrameIndex < 0)
-        {
-            stackFrameIndex = -(stackFrameIndex + 1);
-        }
-        else
-        {
-            stackFrameIndex = this.stack.size() - stackFrameIndex - 1;
-        }
-        if (stackFrameIndex < 0 || stackFrameIndex >= this.stack.size())
+        return stack;
+    }
+    public int getStackSize()
+    {
+        return stack.size();
+    }
+    public AVThreadStackFrame getStackFrame(int frameIndex)
+    {
+        if (frameIndex < 0 || frameIndex >= this.stack.size())
         {
             return null;
         }
         else
         {
-            return stack.get(stackFrameIndex);
+            return stack.get(frameIndex);
         }
+    }
+    public AVThreadStackFrame getCurrentStackFrame()
+    {
+        return stack.peek();
     }
     public int getThreadHandler()
     {
@@ -975,9 +1002,9 @@ public class AssemblyVirtualThread
         if (stack != null)
         {
             NodeContainerArray stackNodeContainerArray = new NodeContainerArray();
-            for (int i = 0; i < stack.size(); i++)
+            for (int frameIndex = 0; frameIndex < stack.size(); frameIndex++)
             {
-                AVThreadStackFrame stackFrame = stack.get(i);
+                AVThreadStackFrame stackFrame = stack.get(frameIndex);
                 NodeContainerMap stackFrameNodeContainerMap = new NodeContainerMap();
                 stackFrame.writeToNode(stackFrameNodeContainerMap);
                 stackNodeContainerArray.add(stackFrameNodeContainerMap);
@@ -1040,10 +1067,10 @@ public class AssemblyVirtualThread
         if (avtNodeContainerMap.hasElement(NodeContainerMap.makeKey("stack")))
         {
             NodeContainerArray stackNodeContainerArray = avtNodeContainerMap.getArray(NodeContainerMap.makeKey("stack"));
-            for (NodeContainerArrayEntry entry : stackNodeContainerArray.entrySet())
+            for (int frameIndex = 0; frameIndex < stackNodeContainerArray.length(); ++frameIndex)
             {
-                NodeContainerMap stackFrameNodeContainerMap = entry.getValue().castElemenet(NodeContainerMap.class);
-                AVThreadStackFrame stackFrame = new AVThreadStackFrame();
+                NodeContainerMap stackFrameNodeContainerMap = stackNodeContainerArray.getMap(NodeContainerArray.makeKey(frameIndex));
+                AVThreadStackFrame stackFrame = new AVThreadStackFrame(frameIndex);
                 stackFrame.readFromNode(stackFrameNodeContainerMap);
                 stack.add(stackFrame);
             }
@@ -1102,9 +1129,9 @@ public class AssemblyVirtualThread
         if (stack != null)
         {
             NBTTagList stackNbtTagList = new NBTTagList();
-            for (int i = 0; i < stack.size(); i++)
+            for (int frameIndex = 0; frameIndex < stack.size(); frameIndex++)
             {
-                AVThreadStackFrame stackFrame = stack.get(i);
+                AVThreadStackFrame stackFrame = stack.get(frameIndex);
                 NBTTagCompound stackFrameNbtTagCompound = new NBTTagCompound();
                 stackFrame.writeToNBT(stackFrameNbtTagCompound);
                 stackNbtTagList.appendTag(stackFrameNbtTagCompound);
@@ -1168,10 +1195,10 @@ public class AssemblyVirtualThread
         if (avtNbtTagCompound.hasKey("stack"))
         {
             NBTTagList stackNbtTagList = avtNbtTagCompound.getTagList("stack", 10);
-            for (int i = 0; i < stackNbtTagList.tagCount(); ++i)
+            for (int frameIndex = 0; frameIndex < stackNbtTagList.tagCount(); ++frameIndex)
             {
-                NBTTagCompound stackFrameNbtTagCompound = stackNbtTagList.getCompoundTagAt(i);
-                AVThreadStackFrame stackFrame = new AVThreadStackFrame();
+                NBTTagCompound stackFrameNbtTagCompound = stackNbtTagList.getCompoundTagAt(frameIndex);
+                AVThreadStackFrame stackFrame = new AVThreadStackFrame(frameIndex);
                 stackFrame.readFromNBT(stackFrameNbtTagCompound);
                 stack.add(stackFrame);
             }
@@ -1224,6 +1251,7 @@ public class AssemblyVirtualThread
     // ********工具函数定义结束********
     public class AVThreadStackFrame
     {
+        private final int frameIndex;
         private volatile boolean isInvalid;
         // 通用寄存器（registers）
         private int A;
@@ -1239,14 +1267,41 @@ public class AssemblyVirtualThread
         // 栈指针寄存器
         private int SP;
         // 数据栈
-        public DynamicSparseArray<Integer> stack = new DynamicSparseArray<Integer>();
-        // 返回地址
-        public int returnAddress = -1;
+        private DynamicSparseArray<Integer> stack = new DynamicSparseArray<Integer>();
         // 入口地址
-        public int enterAddress = -1;
-        // 参数长度
-        public int parLength;
+        private int enterAddress = -1;
+        // 返回地址
+        private int returnAddress = -1;
+        // 传入参数
+        private int[] arguments;
         
+        public AVThreadStackFrame(int frameIndex)
+        {
+            this.frameIndex = frameIndex;
+        }
+        public AVThreadStackFrame(int frameIndex, int enterAddress, int returnAddress, int[] arguments)
+        {
+            this.frameIndex = frameIndex;
+            this.enterAddress = enterAddress;
+            this.returnAddress = returnAddress;
+            this.arguments = arguments;
+            for (int i = 0; i < arguments.length; i++)
+            {
+                push(arguments[i]);
+                if (thread.timeToQuit == true)
+                {
+                    return;
+                }
+            }
+        }
+        public int getFrameIndex()
+        {
+            return frameIndex;
+        }
+        public boolean isInvalid()
+        {
+            return isInvalid;
+        }
         public int getRegisterValue(int register)
         {
             switch (register)
@@ -1317,6 +1372,10 @@ public class AssemblyVirtualThread
                 default:
                     throw new IllegalArgumentException("Register not found");
             }
+        }
+        public DynamicSparseArray<Integer> getStack()
+        {
+            return stack;
         }
         public void push(int value)
         {
@@ -1391,9 +1450,21 @@ public class AssemblyVirtualThread
             Integer num = stack.get(index);
             return num == null ? 0 : num;
         }
-        public boolean isInvalid()
+        public int getEnterAddress()
         {
-            return isInvalid;
+            return enterAddress;
+        }
+        public int getReturnAddress()
+        {
+            return returnAddress;
+        }
+        public int[] getArguments()
+        {
+            return arguments;
+        }
+        public int getParLength()
+        {
+            return arguments.length;
         }
         public void writeToNode(NodeContainerMap stackFrameNodeContainerMap)
         {
@@ -1409,7 +1480,7 @@ public class AssemblyVirtualThread
             stackFrameNodeContainerMap.addElement(NodeContainerMap.makeKey("SP"), SP);
             stackFrameNodeContainerMap.addElement(NodeContainerMap.makeKey("returnAddress"), returnAddress);
             stackFrameNodeContainerMap.addElement(NodeContainerMap.makeKey("enterAddress"), enterAddress);
-            stackFrameNodeContainerMap.addElement(NodeContainerMap.makeKey("parLength"), parLength);
+            stackFrameNodeContainerMap.addElement(NodeContainerMap.makeKey("arguments"), arguments);
             stackFrameNodeContainerMap.addElement(NodeContainerMap.makeKey("stack"), IntUtils.castToPrimitiveArray(stack.toArray(new Integer[stack.length()])));
         }
         public void readFromNode(NodeContainerMap stackFrameNodeContainerMap) throws ElementNotFoundException, ElementTypeMismatchException
@@ -1426,7 +1497,7 @@ public class AssemblyVirtualThread
             SP = stackFrameNodeContainerMap.getElement(NodeContainerMap.makeKey("SP"), NodeScalarInteger.class).getData();
             returnAddress = stackFrameNodeContainerMap.getElement(NodeContainerMap.makeKey("returnAddress"), NodeScalarInteger.class).getData();
             enterAddress = stackFrameNodeContainerMap.getElement(NodeContainerMap.makeKey("enterAddress"), NodeScalarInteger.class).getData();
-            parLength = stackFrameNodeContainerMap.getElement(NodeContainerMap.makeKey("parLength"), NodeScalarInteger.class).getData();
+            arguments = stackFrameNodeContainerMap.getElement(NodeContainerMap.makeKey("arguments"), NodeScalarIntegerArray.class).getData();
             int[] stackdata = stackFrameNodeContainerMap.getElement(NodeContainerMap.makeKey("stack"), NodeScalarIntegerArray.class).getData();
             if (stackdata != null)
             {
@@ -1449,7 +1520,7 @@ public class AssemblyVirtualThread
             Stackframenbttagcompound.setInteger("SP", SP);
             Stackframenbttagcompound.setInteger("returnAddress", returnAddress);
             Stackframenbttagcompound.setInteger("enterAddress", enterAddress);
-            Stackframenbttagcompound.setInteger("parLength", parLength);
+            Stackframenbttagcompound.setIntArray("arguments", arguments);
             Stackframenbttagcompound.setIntArray("stack", IntUtils.castToPrimitiveArray(stack.toArray(new Integer[stack.length()])));
         }
         @Deprecated
@@ -1467,7 +1538,7 @@ public class AssemblyVirtualThread
             SP = Stackframenbttagcompound.getInteger("SP");
             returnAddress = Stackframenbttagcompound.getInteger("returnAddress");
             enterAddress = Stackframenbttagcompound.getInteger("enterAddress");
-            parLength = Stackframenbttagcompound.getInteger("parLength");
+            arguments = Stackframenbttagcompound.getIntArray("arguments");
             int[] stackdata = Stackframenbttagcompound.getIntArray("stack");
             if (stackdata != null)
             {
@@ -1480,6 +1551,21 @@ public class AssemblyVirtualThread
         {
             return "StackFrame: " + enterAddress;
         }
+        
+        private Object methodInitLock = new Object();
+        private MethodImpl method;
+        
+        public MethodImpl getMethod()
+        {
+            synchronized (methodInitLock)
+            {
+                if (method == null)
+                {
+                    method = new MethodImpl(getVM().getReference(), getReference(), new LocationImpl(getVM().getReference(), enterAddress), arguments, new LocationImpl(getVM().getReference(), returnAddress), this);
+                }
+                return method;
+            }
+        }
     }
     public class VMThread extends Thread
     {
@@ -1487,6 +1573,7 @@ public class AssemblyVirtualThread
         private volatile boolean timeToQuit = false;
         private volatile int sleepTime = 0;
         private boolean breakNextInstruction = false;
+        private int suspendNotifierCount = 0;
         private Object suspendNotifier = new Object();
         private Object resumeNotifier = new Object();
         private Object threadSleepLock = new Object();
@@ -1748,6 +1835,7 @@ public class AssemblyVirtualThread
                         {
                             synchronized (suspendNotifier)
                             {
+                                suspendNotifierCount++;
                                 suspendNotifier.notifyAll();
                             }
                             vm.notifyThreadSuspend(handlerValue);
@@ -3782,15 +3870,16 @@ public class AssemblyVirtualThread
                             {
                                 break interrupt;
                             }
-                            int stackFrameIndex = ((Integer) par2value).intValue();
-                            AVThreadStackFrame stackFrame = getStackFrame(stackFrameIndex);
+                            int index = ((Integer) par2value).intValue();
+                            int frameIndex = (index >= 0) ? (getStackSize() - 1 - index) : (-index - 1);
+                            AVThreadStackFrame stackFrame = getStackFrame(frameIndex);
                             if (stackFrame == null)
                             {
                                 setRegisterValue(REG_O, 0x1);
                             }
                             else
                             {
-                                int parLength = stackFrame.parLength;
+                                int parLength = stackFrame.getParLength();
                                 if (timeToQuit == true)
                                 {
                                     break interrupt;
@@ -4249,7 +4338,7 @@ public class AssemblyVirtualThread
         {
             if (reference == null)
             {
-                reference = new ThreadReferenceImpl(vm.getReference(), this);
+                reference = new ThreadReferenceImpl(getVM().getReference(), this);
                 debugSuspendHandler = createThreadSuspendHandler();
             }
             return reference;

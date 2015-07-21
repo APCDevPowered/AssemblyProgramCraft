@@ -13,6 +13,5 @@ public class AccessWatchpointRequestImpl extends WatchpointRequestImpl implement
     @Override
     protected void requestStateChange(boolean isEnable)
     {
-        
     }
 }

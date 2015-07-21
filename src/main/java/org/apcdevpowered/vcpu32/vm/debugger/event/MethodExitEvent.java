@@ -1,8 +1,8 @@
 package org.apcdevpowered.vcpu32.vm.debugger.event;
 
-import org.apcdevpowered.vcpu32.vm.debugger.StackFrame;
+import org.apcdevpowered.vcpu32.vm.debugger.Method;
 
-public interface MethodExitEvent extends LocatableEvent
+public interface MethodExitEvent extends ThreadedEvent
 {
-    StackFrame method();
+    Method method();
 }

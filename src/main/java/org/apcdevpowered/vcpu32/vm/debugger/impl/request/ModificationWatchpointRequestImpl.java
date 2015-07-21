@@ -13,6 +13,5 @@ public class ModificationWatchpointRequestImpl extends WatchpointRequestImpl imp
     @Override
     protected void requestStateChange(boolean isEnable)
     {
-        
     }
 }

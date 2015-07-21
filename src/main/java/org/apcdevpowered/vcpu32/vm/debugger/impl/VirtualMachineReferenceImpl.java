@@ -12,7 +12,6 @@ import org.apcdevpowered.vcpu32.vm.debugger.request.EventRequestManager;
 public class VirtualMachineReferenceImpl implements VirtualMachineReference
 {
     private VirtualMachine virtualMachine;
-    
     private EventQueueImpl eventQueue;
     private EventRequestManagerImpl eventRequestManager;
     
@@ -50,7 +49,7 @@ public class VirtualMachineReferenceImpl implements VirtualMachineReference
     @Override
     public synchronized void suspend()
     {
-        for(ThreadReferenceImpl threadReference : virtualMachine.getThreadReferenceList())
+        for (ThreadReferenceImpl threadReference : virtualMachine.getThreadReferenceList())
         {
             threadReference.suspend();
         }
@@ -58,7 +57,7 @@ public class VirtualMachineReferenceImpl implements VirtualMachineReference
     @Override
     public synchronized void resume()
     {
-        for(ThreadReferenceImpl threadReference : virtualMachine.getThreadReferenceList())
+        for (ThreadReferenceImpl threadReference : virtualMachine.getThreadReferenceList())
         {
             threadReference.resume();
         }

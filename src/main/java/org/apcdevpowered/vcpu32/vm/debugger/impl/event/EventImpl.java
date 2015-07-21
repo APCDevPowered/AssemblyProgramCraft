@@ -7,7 +7,6 @@ import org.apcdevpowered.vcpu32.vm.debugger.impl.request.EventRequestImpl;
 public abstract class EventImpl implements Event
 {
     private VirtualMachineReferenceImpl virtualMachineReference;
-    
     private EventRequestImpl eventRequest;
     
     public EventImpl(VirtualMachineReferenceImpl virtualMachineReference, EventRequestImpl eventRequest)

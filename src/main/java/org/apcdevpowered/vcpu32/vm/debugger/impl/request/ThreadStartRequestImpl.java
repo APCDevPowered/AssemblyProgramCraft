@@ -9,7 +9,6 @@ public class ThreadStartRequestImpl extends ThreadedRequestImpl implements Threa
     {
         super(virtualMachineReference, eventRequestManager);
     }
-    
     @Override
     protected void requestStateChange(boolean isEnable)
     {
