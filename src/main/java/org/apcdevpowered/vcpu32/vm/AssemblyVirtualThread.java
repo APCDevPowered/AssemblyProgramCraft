@@ -762,19 +762,13 @@ public class AssemblyVirtualThread
             halt();
             return 0;
         }
-        if (stack.peek().stack.size() < 0)
-        {
-            System.out.println("[VCPU-32]栈顶数据不足");
-            halt();
-            return 0;
-        }
         return stack.peek().pop();
     }
     protected void dupInCurrentStackFrame(int num)
     {
         if (stack.isEmpty())
         {
-            System.out.println("当前栈帧为空");
+            System.out.println("[VCPU-32]当前栈帧为空");
             halt();
             return;
         }
@@ -898,7 +892,7 @@ public class AssemblyVirtualThread
             int[] tmp = new int[parLength];
             for (int i = 0; i < parLength; i++)
             {
-                tmp[tmp.length - 1 - i] = popInCurrentStackFrame();
+                tmp[tmp.length - 1 - i] = stackFrame.pop();
                 if (thread.timeToQuit == true)
                 {
                     return;
