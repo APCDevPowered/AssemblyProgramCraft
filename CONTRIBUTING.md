@@ -26,9 +26,14 @@ APC项目欢迎任何人提交代码，如果你想对此项目做出贡献，�
 ## 设置开发环境
 
 * 进入此项目的目录并运行'gradlew setupDecompWorkspace'，这会下载所有必要的资源，并反编译Minecraft的源码。如果出现卡死或失败请重新运行此命令。
-* 运行'gradlew eclipse'，这会生成eclipse的开发环境。
 * 下载[eclipse.zip](https://github.com/APCDevPowered/Blob/blob/master/eclipse.zip?raw=true)，并解压到'AssemblyProgramCraft/'。
+* 运行'gradlew eclipse'，这会生成eclipse的开发环境。
 * 运行Eclipse，并切换工作目录到'AssemblyProgramCraft/eclipse/'下。
+
+### 安装Gradle插件
+
+* 点击菜单栏的'Help'->'Eclipse Marketplaces...'，并输入'Gradle'然后搜索。
+* 下载'Gradle (STS) Intergration for Eclipse'，这个插件将用于编译APC项目本身以及通过[javacc-gradle-plugin](https://github.com/APCDevPowered/javacc-gradle-plugin)生成JavaCC词法的java文件。
 
 ### 安装JavaCC插件
 
