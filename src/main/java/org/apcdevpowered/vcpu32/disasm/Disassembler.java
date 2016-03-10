@@ -427,7 +427,7 @@ public class Disassembler
                 int strDataLength = ((staticData[parData - abstractSyntaxTree.startStaticRAM] % 2 == 1) ? (staticData[parData - abstractSyntaxTree.startStaticRAM] / 2 + 1) : (staticData[parData - abstractSyntaxTree.startStaticRAM] / 2)) + 1;
                 readedStaticDataList.add(new SingleEntry<Integer, Integer>(parData - abstractSyntaxTree.startStaticRAM, strDataLength));
                 staticStringDataList.add(new SingleEntry<String, Integer>(builder.toString(), parData - abstractSyntaxTree.startStaticRAM));
-                parsValue[i] = Integer.valueOf(parData).toString();
+                parsValue[i] = '[' + Integer.valueOf(parData).toString() + ']';
             }
             else if (parType == 5) // 用寄存器值寻址访问内存
             {

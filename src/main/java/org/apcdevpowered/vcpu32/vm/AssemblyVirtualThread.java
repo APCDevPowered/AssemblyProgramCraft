@@ -2626,7 +2626,7 @@ public class AssemblyVirtualThread
                         {
                             checkType(optInfo, new boolean[]
                             {
-                                    false, true, true, true, false, true
+                                    false, false, true, false, false, true
                             }, new boolean[]
                             {
                                     true, false, false, false, false, false
@@ -2662,7 +2662,7 @@ public class AssemblyVirtualThread
                         {
                             checkType(optInfo, new boolean[]
                             {
-                                    false, true, true, true, false, true
+                                    false, false, true, false, false, true
                             }, new boolean[]
                             {
                                     false, true, true, false, false, true
@@ -2687,13 +2687,13 @@ public class AssemblyVirtualThread
                         {
                             checkType(optInfo, new boolean[]
                             {
-                                    false, true, true, true, false, true
+                                    false, false, true, false, false, true
                             }, new boolean[]
                             {
                                     false, true, true, false, false, true
                             }, new boolean[]
                             {
-                                    false, true, true, true, true, true
+                                    false, false, true, false, true, true
                             }, new boolean[]
                             {
                                     true, false, false, false, false, false
@@ -2703,7 +2703,7 @@ public class AssemblyVirtualThread
                                 break interrupt;
                             }
                             String threadName = null;
-                            if (optInfo[3] == 1 || optInfo[3] == 2 || optInfo[3] == 3 || optInfo[3] == 5)
+                            if (optInfo[3] == 2 || optInfo[3] == 5)
                             {
                                 threadName = getStringValue(((Integer) par3value).intValue());
                             }
@@ -2906,7 +2906,7 @@ public class AssemblyVirtualThread
                         {
                             checkType(optInfo, new boolean[]
                             {
-                                    false, true, true, true, false, true
+                                    false, true, true, false, false, true
                             }, new boolean[]
                             {
                                     true, false, false, false, false, false
@@ -3691,7 +3691,7 @@ public class AssemblyVirtualThread
                         {
                             checkType(optInfo, new boolean[]
                             {
-                                    false, true, true, true, false, true
+                                    false, false, true, false, false, true
                             }, new boolean[]
                             {
                                     true, false, false, false, false, false
@@ -3717,7 +3717,7 @@ public class AssemblyVirtualThread
                         {
                             checkType(optInfo, new boolean[]
                             {
-                                    false, true, true, true, false, true
+                                    false, false, true, false, false, true
                             }, new boolean[]
                             {
                                     false, true, true, true, false, true
