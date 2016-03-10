@@ -118,7 +118,7 @@ public class CompileVisitor implements IRetArguVisitor<FragmentProgram, CompileC
         FragmentProgram program = null;
         switch (stm.nodeChoice.which)
         {
-        // Insn
+            // Insn
             case 0:
                 program = stm.nodeChoice.choice.accept(this, context);
                 break;
@@ -147,7 +147,7 @@ public class CompileVisitor implements IRetArguVisitor<FragmentProgram, CompileC
                 Par par = parList.par;
                 switch (par.nodeChoice.which)
                 {
-                // Dec
+                    // Dec
                     case 0:
                     {
                         NodeToken token = (NodeToken) par.nodeChoice.choice;
@@ -193,7 +193,7 @@ public class CompileVisitor implements IRetArguVisitor<FragmentProgram, CompileC
                         NodeChoice choice = (NodeChoice) sequence.nodes.get(1);
                         switch (choice.which)
                         {
-                        // Reg
+                            // Reg
                             case 0:
                             {
                                 NodeToken token = (NodeToken) choice.choice;
@@ -230,6 +230,14 @@ public class CompileVisitor implements IRetArguVisitor<FragmentProgram, CompileC
                             {
                                 NodeToken token = (NodeToken) choice.choice;
                                 datatypes.add(DatatypeManager.typeMemBin);
+                                parImages.add("[" + token.tokenImage + "]");
+                                break;
+                            }
+                            // Label
+                            case 5:
+                            {
+                                NodeToken token = (NodeToken) choice.choice;
+                                datatypes.add(DatatypeManager.typeMemLabel);
                                 parImages.add("[" + token.tokenImage + "]");
                                 break;
                             }

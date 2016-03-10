@@ -166,7 +166,7 @@ void Par() :
 |   <Oct>
 |   <Bin>
 |   <Reg>
-|   <MemBegin> (<Reg>|<Dec>|<Hex>|<Oct>|<Bin>) <MemEnd>
+|   <MemBegin> (<Reg>|<Dec>|<Hex>|<Oct>|<Bin>|<Label>) <MemEnd>
 |   <String>
 |   <Char>
 |   <Label>
