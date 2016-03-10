@@ -73,9 +73,16 @@ public class FragmentProgram
         }
         for (Entry<OffsetWithDataPackage<String>, List<Integer>> entry : program.stringRequestListMap.entrySet())
         {
-            for (int index : entry.getValue())
+            if (entry.getValue().isEmpty())
             {
-                addStringRequest(entry.getKey(), index == -1 ? -1 : index + offset);
+                addStringRequest(entry.getKey(), -1);
+            }
+            else
+            {
+                for (int index : entry.getValue())
+                {
+                    addStringRequest(entry.getKey(), index + offset);
+                }
             }
         }
         for (Entry<OffsetWithDataPackage<DynamicSparseArray<Integer>>, Integer> entry : program.dataRequestMap.entrySet())
