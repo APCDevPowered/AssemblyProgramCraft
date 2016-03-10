@@ -113,7 +113,7 @@ public class ConnectorFinder
                         }
                         if (!sideBlockState.getBlock().isFullBlock() || !sideBlockState.getBlock().isFullCube())
                         {
-                            if(downBlockState.getBlock() == AssemblyProgramCraftBlocks.block_vcpu_32_computer_wire)
+                            if (downBlockState.getBlock() == AssemblyProgramCraftBlocks.block_vcpu_32_computer_wire)
                             {
                                 WirePartInfo wirePartInfo = new WirePartInfo(redirectBlockAccess.realFace(linkedWireFace.getOpposite()), WirePartInfo.castToWire(redirectBlockAccess.getTileEntity(new BlockPos(linkedWireFace.getDirectionVec()).down())));
                                 if (wirePartInfo.exists())

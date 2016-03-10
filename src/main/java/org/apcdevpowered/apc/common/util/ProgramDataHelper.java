@@ -28,7 +28,7 @@ public class ProgramDataHelper
      * 
      * @param uuid
      *            UUID of ProgramPackage.
-     * 
+     *            
      * @param programPackage
      *            The ProgramPackage read from.
      */
@@ -108,7 +108,7 @@ public class ProgramDataHelper
      * 
      * @param uuid
      *            UUID of ProgramPackage.
-     * 
+     *            
      * @param programPackage
      *            The ProgramPackage write to.
      */

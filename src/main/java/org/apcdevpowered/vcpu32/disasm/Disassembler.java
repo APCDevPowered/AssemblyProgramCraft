@@ -265,7 +265,7 @@ public class Disassembler
     {
         int autoLabelID = 0;
         Map<Integer, Set<String>> offsetLabelMap = abstractSyntaxTree.debugInfo.getOffsetLabelMap();
-        Set<String> usedLabelSet = abstractSyntaxTree.debugInfo.getLabelOffsetMap().keySet();
+        Map<String, Integer> labelOffsetMap = abstractSyntaxTree.debugInfo.getLabelOffsetMap();
         for (Construct construct : abstractSyntaxTree.abstractSyntaxTree)
         {
             if (construct instanceof Instruction)
@@ -277,19 +277,23 @@ public class Disassembler
                     {
                         int parValue = instruction.parsData[0];
                         int offset = parValue - abstractSyntaxTree.startRAM;
+                        Set<String> labels;
                         if (!offsetLabelMap.containsKey(offset))
                         {
-                            offsetLabelMap.put(offset, new LinkedHashSet<String>());
+                            offsetLabelMap.put(offset, labels = new LinkedHashSet<String>());
                         }
-                        Set<String> labels = offsetLabelMap.get(offset);
+                        else
+                        {
+                            labels = offsetLabelMap.get(offset);
+                        }
                         if (labels.size() == 0)
                         {
                             String labelName;
-                            while (usedLabelSet.contains(labelName = ("L" + autoLabelID++)))
+                            while (labelOffsetMap.containsKey(labelName = ("L" + autoLabelID++)))
                             {
                             }
                             labels.add(labelName);
-                            usedLabelSet.add(labelName);
+                            labelOffsetMap.put(labelName, offset);
                             instruction.parsValue[0] = labelName;
                         }
                         else
