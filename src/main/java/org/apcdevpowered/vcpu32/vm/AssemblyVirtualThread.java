@@ -2641,7 +2641,16 @@ public class AssemblyVirtualThread
                             {
                                 break interrupt;
                             }
-                            setRegisterValue(REG_PC, ((Integer) par1value).intValue());
+                            int memoryAddress = 0;
+                            if (optInfo[1] == 2)
+                            {
+                                memoryAddress = par1data;
+                            }
+                            else if (optInfo[1] == 5)
+                            {
+                                memoryAddress = ((Integer) par1value).intValue();
+                            }
+                            setRegisterValue(REG_PC, memoryAddress);
                             if (timeToQuit == true)
                             {
                                 break interrupt;
@@ -2677,7 +2686,16 @@ public class AssemblyVirtualThread
                             {
                                 break interrupt;
                             }
-                            setObjectValue(optInfo[2], par2data, getVM().createVMThread(((Integer) par1value).intValue()));
+                            int memoryAddress = 0;
+                            if (optInfo[1] == 2)
+                            {
+                                memoryAddress = par1data;
+                            }
+                            else if (optInfo[1] == 5)
+                            {
+                                memoryAddress = ((Integer) par1value).intValue();
+                            }
+                            setObjectValue(optInfo[2], par2data, getVM().createVMThread(memoryAddress));
                             if (timeToQuit == true)
                             {
                                 break interrupt;
@@ -2715,7 +2733,16 @@ public class AssemblyVirtualThread
                             {
                                 break interrupt;
                             }
-                            setObjectValue(optInfo[2], par2data, getVM().createVMThread(((Integer) par1value).intValue(), threadName));
+                            int memoryAddress = 0;
+                            if (optInfo[1] == 2)
+                            {
+                                memoryAddress = par1data;
+                            }
+                            else if (optInfo[1] == 5)
+                            {
+                                memoryAddress = ((Integer) par1value).intValue();
+                            }
+                            setObjectValue(optInfo[2], par2data, getVM().createVMThread(memoryAddress, threadName));
                             if (timeToQuit == true)
                             {
                                 break interrupt;
@@ -3706,8 +3733,16 @@ public class AssemblyVirtualThread
                             {
                                 break interrupt;
                             }
-                            int enterAddress = ((Integer) par1value).intValue();
-                            enterMethod(enterAddress);
+                            int memoryAddress = 0;
+                            if (optInfo[1] == 2)
+                            {
+                                memoryAddress = par1data;
+                            }
+                            else if (optInfo[1] == 5)
+                            {
+                                memoryAddress = ((Integer) par1value).intValue();
+                            }
+                            enterMethod(memoryAddress);
                             if (timeToQuit == true)
                             {
                                 break interrupt;
@@ -3732,7 +3767,15 @@ public class AssemblyVirtualThread
                             {
                                 break interrupt;
                             }
-                            int enterAddress = ((Integer) par1value).intValue();
+                            int memoryAddress = 0;
+                            if (optInfo[1] == 2)
+                            {
+                                memoryAddress = par1data;
+                            }
+                            else if (optInfo[1] == 5)
+                            {
+                                memoryAddress = ((Integer) par1value).intValue();
+                            }
                             int parLength = ((Integer) par2value).intValue();
                             if (parLength < 0)
                             {
@@ -3740,7 +3783,7 @@ public class AssemblyVirtualThread
                             }
                             else
                             {
-                                enterMethod(enterAddress, parLength);
+                                enterMethod(memoryAddress, parLength);
                                 if (timeToQuit == true)
                                 {
                                     break interrupt;
