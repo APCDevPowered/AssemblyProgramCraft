@@ -275,30 +275,33 @@ public class Disassembler
                 {
                     if (instruction.parsType[0] == 2)
                     {
-                        int parValue = instruction.parsData[0];
-                        int offset = parValue - abstractSyntaxTree.startRAM;
-                        Set<String> labels;
-                        if (!offsetLabelMap.containsKey(offset))
+                        if (abstractSyntaxTree.isBetweenInsn(instruction.parsData[0]))
                         {
-                            offsetLabelMap.put(offset, labels = new LinkedHashSet<String>());
-                        }
-                        else
-                        {
-                            labels = offsetLabelMap.get(offset);
-                        }
-                        if (labels.size() == 0)
-                        {
-                            String labelName;
-                            while (labelOffsetMap.containsKey(labelName = ("L" + autoLabelID++)))
+                            int parValue = instruction.parsData[0];
+                            int offset = parValue - abstractSyntaxTree.startRAM;
+                            Set<String> labels;
+                            if (!offsetLabelMap.containsKey(offset))
                             {
+                                offsetLabelMap.put(offset, labels = new LinkedHashSet<String>());
                             }
-                            labels.add(labelName);
-                            labelOffsetMap.put(labelName, offset);
-                            instruction.parsValue[0] = '[' + labelName + ']';
-                        }
-                        else
-                        {
-                            instruction.parsValue[0] = '[' + labels.iterator().next() + ']';
+                            else
+                            {
+                                labels = offsetLabelMap.get(offset);
+                            }
+                            if (labels.size() == 0)
+                            {
+                                String labelName;
+                                while (labelOffsetMap.containsKey(labelName = ("L" + autoLabelID++)))
+                                {
+                                }
+                                labels.add(labelName);
+                                labelOffsetMap.put(labelName, offset);
+                                instruction.parsValue[0] = '[' + labelName + ']';
+                            }
+                            else
+                            {
+                                instruction.parsValue[0] = '[' + labels.iterator().next() + ']';
+                            }
                         }
                     }
                 }
