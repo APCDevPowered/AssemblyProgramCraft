@@ -23,6 +23,43 @@ import org.apcdevpowered.vcpu32.disasm.Disassembler.AbstractSyntaxTree.Label;
 
 public class Disassembler
 {
+    public static class DisassembleContext
+    {
+        private final AbstractSyntaxTree abstractSyntaxTree;
+        private final int[] programByteCode;
+        private final int[] staticData;
+        private final boolean labelAnalyze;
+        private final boolean staticDataAnalyze;
+        
+        public DisassembleContext(AbstractSyntaxTree abstractSyntaxTree, int[] programByteCode, int[] staticData, boolean labelAnalyze, boolean staticDataAnalyze)
+        {
+            this.abstractSyntaxTree = abstractSyntaxTree;
+            this.programByteCode = programByteCode;
+            this.staticData = staticData;
+            this.labelAnalyze = labelAnalyze;
+            this.staticDataAnalyze = staticDataAnalyze;
+        }
+        public AbstractSyntaxTree getAbstractSyntaxTree()
+        {
+            return abstractSyntaxTree;
+        }
+        public int[] getProgramByteCode()
+        {
+            return programByteCode;
+        }
+        public int[] getStaticData()
+        {
+            return staticData;
+        }
+        public boolean isLabelAnalyze()
+        {
+            return labelAnalyze;
+        }
+        public boolean isStaticDataAnalyze()
+        {
+            return staticDataAnalyze;
+        }
+    }
     public static class AbstractSyntaxTree
     {
         public abstract class Construct
@@ -183,8 +220,6 @@ public class Disassembler
     public static String decompile(ProgramPackage programPackage, boolean labelAnalyze, boolean staticDataAnalyze)
     {
         AbstractSyntaxTree abstractSyntaxTree = new AbstractSyntaxTree();
-        List<SingleEntry<Integer, Integer>> readedStaticDataList = new ArrayList<SingleEntry<Integer, Integer>>();
-        List<SingleEntry<String, Integer>> staticStringDataList = new ArrayList<SingleEntry<String, Integer>>();
         abstractSyntaxTree.startRAM = programPackage.startRAM;
         abstractSyntaxTree.startStaticRAM = programPackage.startStaticRAM;
         abstractSyntaxTree.debugInfo = programPackage.debugInfo.clone();
@@ -192,38 +227,45 @@ public class Disassembler
         System.arraycopy(programPackage.data, 0, programByteCode, 0, programPackage.programEnd);
         int[] staticData = new int[programPackage.staticRAMEnd - programPackage.programEnd];
         System.arraycopy(programPackage.data, programPackage.programEnd, staticData, 0, programPackage.staticRAMEnd - programPackage.programEnd);
-        for (int pointer = 0; pointer < programByteCode.length;)
+        DisassembleContext context = new DisassembleContext(abstractSyntaxTree, programByteCode, staticData, labelAnalyze, staticDataAnalyze);
+        return decompile(context);
+    }
+    public static String decompile(DisassembleContext context)
+    {
+        List<SingleEntry<Integer, Integer>> readedStaticDataList = new ArrayList<SingleEntry<Integer, Integer>>();
+        List<SingleEntry<String, Integer>> staticStringDataList = new ArrayList<SingleEntry<String, Integer>>();
+        for (int pointer = 0; pointer < context.getProgramByteCode().length;)
         {
             int offset = pointer;
-            int opcode = programByteCode[pointer];
+            int opcode = context.getProgramByteCode()[pointer];
             int parCount = getParCount(opcode);
             int byteCode = getByteCode(opcode);
             String byteCodeName = getInsnName(byteCode);
             int[] parsType = new int[parCount];
             getParsType(opcode, parsType);
             int[] parsData = new int[parCount];
-            getParsData(programByteCode, offset + 1, parsData);
+            getParsData(context.getProgramByteCode(), offset + 1, parsData);
             String[] parsValue = new String[parCount];
-            getParsValue(staticData, parsType, parsData, parsValue, abstractSyntaxTree, readedStaticDataList, staticStringDataList);
-            Instruction instruction = abstractSyntaxTree.new Instruction();
+            getParsValue(context.getStaticData(), parsType, parsData, parsValue, context.getAbstractSyntaxTree(), readedStaticDataList, staticStringDataList);
+            Instruction instruction = context.getAbstractSyntaxTree().new Instruction();
             instruction.name = byteCodeName;
             instruction.parCount = parCount;
             instruction.parsValue = parsValue;
             instruction.parsData = parsData;
             instruction.parsType = parsType;
-            instruction.lineNumber = abstractSyntaxTree.debugInfo.getLineNumberByOffset(offset);
-            abstractSyntaxTree.abstractSyntaxTree.add(instruction);
-            pointer += (parCount + 1);
+            instruction.lineNumber = context.getAbstractSyntaxTree().debugInfo.getLineNumberByOffset(offset);
+            context.getAbstractSyntaxTree().abstractSyntaxTree.add(instruction);
+            pointer += (1 + parCount);
         }
-        if (labelAnalyze)
+        if (context.isLabelAnalyze())
         {
-            runLabelAnalyze(abstractSyntaxTree);
+            runLabelAnalyze(context.getAbstractSyntaxTree());
         }
-        if (staticDataAnalyze)
+        if (context.isStaticDataAnalyze())
         {
-            runStaticDataAnalyze(abstractSyntaxTree, readedStaticDataList, staticData, staticStringDataList);
+            runStaticDataAnalyze(context.getAbstractSyntaxTree(), readedStaticDataList, context.getStaticData(), staticStringDataList);
         }
-        return abstractSyntaxTree.getAssemblyCode();
+        return context.getAbstractSyntaxTree().getAssemblyCode();
     }
     public static void runStaticDataAnalyze(AbstractSyntaxTree abstractSyntaxTree, List<SingleEntry<Integer, Integer>> readedStaticDataList, int[] staticData, List<SingleEntry<String, Integer>> staticStringDataList)
     {
