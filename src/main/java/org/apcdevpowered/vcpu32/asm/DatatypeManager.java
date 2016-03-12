@@ -399,6 +399,32 @@ public class DatatypeManager
             return "MemBin";
         }
     };
+    public static Datatype<String> typeMemLabel = new Datatype<String>(2)
+    {
+        @Override
+        public String getValue(String image)
+        {
+            return image.substring(1, image.length() - 1);
+        }
+        @Override
+        public void writeData(String image, FragmentProgram program, int optSlotIndex, int parIndex)
+        {
+            int data = getData(image);
+            setOptParType(program, optSlotIndex, parIndex);
+            program.getSlots().set(optSlotIndex + parIndex, data);
+            program.addLabelRequest(getValue(image), optSlotIndex + parIndex);
+        }
+        @Override
+        public int getData(String image)
+        {
+            return 0;
+        }
+        @Override
+        public String getTypeName()
+        {
+            return "MemLabel";
+        }
+    };
     public static Datatype<String> typeString = new Datatype<String>(4)
     {
         @Override

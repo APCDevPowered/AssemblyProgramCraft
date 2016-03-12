@@ -273,32 +273,35 @@ public class Disassembler
                 Instruction instruction = (Instruction) construct;
                 if (instruction.name.equals("JSR") || instruction.name.equals("CALL") || instruction.name.equals("CRT"))
                 {
-                    if (instruction.parsType[0] == 3)
+                    if (instruction.parsType[0] == 2)
                     {
-                        int parValue = instruction.parsData[0];
-                        int offset = parValue - abstractSyntaxTree.startRAM;
-                        Set<String> labels;
-                        if (!offsetLabelMap.containsKey(offset))
+                        if (abstractSyntaxTree.isBetweenInsn(instruction.parsData[0]))
                         {
-                            offsetLabelMap.put(offset, labels = new LinkedHashSet<String>());
-                        }
-                        else
-                        {
-                            labels = offsetLabelMap.get(offset);
-                        }
-                        if (labels.size() == 0)
-                        {
-                            String labelName;
-                            while (labelOffsetMap.containsKey(labelName = ("L" + autoLabelID++)))
+                            int parValue = instruction.parsData[0];
+                            int offset = parValue - abstractSyntaxTree.startRAM;
+                            Set<String> labels;
+                            if (!offsetLabelMap.containsKey(offset))
                             {
+                                offsetLabelMap.put(offset, labels = new LinkedHashSet<String>());
                             }
-                            labels.add(labelName);
-                            labelOffsetMap.put(labelName, offset);
-                            instruction.parsValue[0] = labelName;
-                        }
-                        else
-                        {
-                            instruction.parsValue[0] = labels.iterator().next();
+                            else
+                            {
+                                labels = offsetLabelMap.get(offset);
+                            }
+                            if (labels.size() == 0)
+                            {
+                                String labelName;
+                                while (labelOffsetMap.containsKey(labelName = ("L" + autoLabelID++)))
+                                {
+                                }
+                                labels.add(labelName);
+                                labelOffsetMap.put(labelName, offset);
+                                instruction.parsValue[0] = '[' + labelName + ']';
+                            }
+                            else
+                            {
+                                instruction.parsValue[0] = '[' + labels.iterator().next() + ']';
+                            }
                         }
                     }
                 }
@@ -427,7 +430,7 @@ public class Disassembler
                 int strDataLength = ((staticData[parData - abstractSyntaxTree.startStaticRAM] % 2 == 1) ? (staticData[parData - abstractSyntaxTree.startStaticRAM] / 2 + 1) : (staticData[parData - abstractSyntaxTree.startStaticRAM] / 2)) + 1;
                 readedStaticDataList.add(new SingleEntry<Integer, Integer>(parData - abstractSyntaxTree.startStaticRAM, strDataLength));
                 staticStringDataList.add(new SingleEntry<String, Integer>(builder.toString(), parData - abstractSyntaxTree.startStaticRAM));
-                parsValue[i] = Integer.valueOf(parData).toString();
+                parsValue[i] = '[' + Integer.valueOf(parData).toString() + ']';
             }
             else if (parType == 5) // 用寄存器值寻址访问内存
             {

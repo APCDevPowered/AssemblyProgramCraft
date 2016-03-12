@@ -2626,7 +2626,7 @@ public class AssemblyVirtualThread
                         {
                             checkType(optInfo, new boolean[]
                             {
-                                    false, true, true, true, false, true
+                                    false, false, true, false, false, true
                             }, new boolean[]
                             {
                                     true, false, false, false, false, false
@@ -2641,7 +2641,16 @@ public class AssemblyVirtualThread
                             {
                                 break interrupt;
                             }
-                            setRegisterValue(REG_PC, ((Integer) par1value).intValue());
+                            int memoryAddress = 0;
+                            if (optInfo[1] == 2)
+                            {
+                                memoryAddress = par1data;
+                            }
+                            else if (optInfo[1] == 5)
+                            {
+                                memoryAddress = ((Integer) par1value).intValue();
+                            }
+                            setRegisterValue(REG_PC, memoryAddress);
                             if (timeToQuit == true)
                             {
                                 break interrupt;
@@ -2662,7 +2671,7 @@ public class AssemblyVirtualThread
                         {
                             checkType(optInfo, new boolean[]
                             {
-                                    false, true, true, true, false, true
+                                    false, false, true, false, false, true
                             }, new boolean[]
                             {
                                     false, true, true, false, false, true
@@ -2677,7 +2686,16 @@ public class AssemblyVirtualThread
                             {
                                 break interrupt;
                             }
-                            setObjectValue(optInfo[2], par2data, getVM().createVMThread(((Integer) par1value).intValue()));
+                            int memoryAddress = 0;
+                            if (optInfo[1] == 2)
+                            {
+                                memoryAddress = par1data;
+                            }
+                            else if (optInfo[1] == 5)
+                            {
+                                memoryAddress = ((Integer) par1value).intValue();
+                            }
+                            setObjectValue(optInfo[2], par2data, getVM().createVMThread(memoryAddress));
                             if (timeToQuit == true)
                             {
                                 break interrupt;
@@ -2687,13 +2705,13 @@ public class AssemblyVirtualThread
                         {
                             checkType(optInfo, new boolean[]
                             {
-                                    false, true, true, true, false, true
+                                    false, false, true, false, false, true
                             }, new boolean[]
                             {
                                     false, true, true, false, false, true
                             }, new boolean[]
                             {
-                                    false, true, true, true, true, true
+                                    false, false, true, false, true, true
                             }, new boolean[]
                             {
                                     true, false, false, false, false, false
@@ -2703,7 +2721,7 @@ public class AssemblyVirtualThread
                                 break interrupt;
                             }
                             String threadName = null;
-                            if (optInfo[3] == 1 || optInfo[3] == 2 || optInfo[3] == 3 || optInfo[3] == 5)
+                            if (optInfo[3] == 2 || optInfo[3] == 5)
                             {
                                 threadName = getStringValue(((Integer) par3value).intValue());
                             }
@@ -2715,7 +2733,16 @@ public class AssemblyVirtualThread
                             {
                                 break interrupt;
                             }
-                            setObjectValue(optInfo[2], par2data, getVM().createVMThread(((Integer) par1value).intValue(), threadName));
+                            int memoryAddress = 0;
+                            if (optInfo[1] == 2)
+                            {
+                                memoryAddress = par1data;
+                            }
+                            else if (optInfo[1] == 5)
+                            {
+                                memoryAddress = ((Integer) par1value).intValue();
+                            }
+                            setObjectValue(optInfo[2], par2data, getVM().createVMThread(memoryAddress, threadName));
                             if (timeToQuit == true)
                             {
                                 break interrupt;
@@ -2906,7 +2933,7 @@ public class AssemblyVirtualThread
                         {
                             checkType(optInfo, new boolean[]
                             {
-                                    false, true, true, true, false, true
+                                    false, true, true, false, false, true
                             }, new boolean[]
                             {
                                     true, false, false, false, false, false
@@ -3691,7 +3718,7 @@ public class AssemblyVirtualThread
                         {
                             checkType(optInfo, new boolean[]
                             {
-                                    false, true, true, true, false, true
+                                    false, false, true, false, false, true
                             }, new boolean[]
                             {
                                     true, false, false, false, false, false
@@ -3706,8 +3733,16 @@ public class AssemblyVirtualThread
                             {
                                 break interrupt;
                             }
-                            int enterAddress = ((Integer) par1value).intValue();
-                            enterMethod(enterAddress);
+                            int memoryAddress = 0;
+                            if (optInfo[1] == 2)
+                            {
+                                memoryAddress = par1data;
+                            }
+                            else if (optInfo[1] == 5)
+                            {
+                                memoryAddress = ((Integer) par1value).intValue();
+                            }
+                            enterMethod(memoryAddress);
                             if (timeToQuit == true)
                             {
                                 break interrupt;
@@ -3717,7 +3752,7 @@ public class AssemblyVirtualThread
                         {
                             checkType(optInfo, new boolean[]
                             {
-                                    false, true, true, true, false, true
+                                    false, false, true, false, false, true
                             }, new boolean[]
                             {
                                     false, true, true, true, false, true
@@ -3732,7 +3767,15 @@ public class AssemblyVirtualThread
                             {
                                 break interrupt;
                             }
-                            int enterAddress = ((Integer) par1value).intValue();
+                            int memoryAddress = 0;
+                            if (optInfo[1] == 2)
+                            {
+                                memoryAddress = par1data;
+                            }
+                            else if (optInfo[1] == 5)
+                            {
+                                memoryAddress = ((Integer) par1value).intValue();
+                            }
                             int parLength = ((Integer) par2value).intValue();
                             if (parLength < 0)
                             {
@@ -3740,7 +3783,7 @@ public class AssemblyVirtualThread
                             }
                             else
                             {
-                                enterMethod(enterAddress, parLength);
+                                enterMethod(memoryAddress, parLength);
                                 if (timeToQuit == true)
                                 {
                                     break interrupt;
