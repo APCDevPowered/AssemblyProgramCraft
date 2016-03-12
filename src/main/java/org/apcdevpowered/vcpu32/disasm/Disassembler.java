@@ -273,7 +273,7 @@ public class Disassembler
                 Instruction instruction = (Instruction) construct;
                 if (instruction.name.equals("JSR") || instruction.name.equals("CALL") || instruction.name.equals("CRT"))
                 {
-                    if (instruction.parsType[0] == 3)
+                    if (instruction.parsType[0] == 2)
                     {
                         int parValue = instruction.parsData[0];
                         int offset = parValue - abstractSyntaxTree.startRAM;
@@ -294,11 +294,11 @@ public class Disassembler
                             }
                             labels.add(labelName);
                             labelOffsetMap.put(labelName, offset);
-                            instruction.parsValue[0] = labelName;
+                            instruction.parsValue[0] = '[' + labelName + ']';
                         }
                         else
                         {
-                            instruction.parsValue[0] = labels.iterator().next();
+                            instruction.parsValue[0] = '[' + labels.iterator().next() + ']';
                         }
                     }
                 }
