@@ -30,6 +30,8 @@ public class Disassembler
         private final int[] staticData;
         private final boolean labelAnalyze;
         private final boolean staticDataAnalyze;
+        private final List<SingleEntry<Integer, Integer>> readedStaticDataList = new ArrayList<SingleEntry<Integer, Integer>>();
+        private final List<SingleEntry<String, Integer>> staticStringDataList = new ArrayList<SingleEntry<String, Integer>>();
         
         public DisassembleContext(AbstractSyntaxTree abstractSyntaxTree, int[] programByteCode, int[] staticData, boolean labelAnalyze, boolean staticDataAnalyze)
         {
@@ -58,6 +60,14 @@ public class Disassembler
         public boolean isStaticDataAnalyze()
         {
             return staticDataAnalyze;
+        }
+        public List<SingleEntry<Integer, Integer>> getReadedStaticDataList()
+        {
+            return readedStaticDataList;
+        }
+        public List<SingleEntry<String, Integer>> getStaticStringDataList()
+        {
+            return staticStringDataList;
         }
     }
     public static class AbstractSyntaxTree
@@ -232,8 +242,6 @@ public class Disassembler
     }
     public static String decompile(DisassembleContext context)
     {
-        List<SingleEntry<Integer, Integer>> readedStaticDataList = new ArrayList<SingleEntry<Integer, Integer>>();
-        List<SingleEntry<String, Integer>> staticStringDataList = new ArrayList<SingleEntry<String, Integer>>();
         for (int pointer = 0; pointer < context.getProgramByteCode().length;)
         {
             int offset = pointer;
@@ -246,7 +254,7 @@ public class Disassembler
             int[] parsData = new int[parCount];
             getParsData(context.getProgramByteCode(), offset + 1, parsData);
             String[] parsValue = new String[parCount];
-            getParsValue(context.getStaticData(), parsType, parsData, parsValue, context.getAbstractSyntaxTree(), readedStaticDataList, staticStringDataList);
+            getParsValue(context.getStaticData(), parsType, parsData, parsValue, context.getAbstractSyntaxTree(), context.getReadedStaticDataList(), context.getStaticStringDataList());
             Instruction instruction = context.getAbstractSyntaxTree().new Instruction();
             instruction.name = byteCodeName;
             instruction.parCount = parCount;
@@ -263,7 +271,7 @@ public class Disassembler
         }
         if (context.isStaticDataAnalyze())
         {
-            runStaticDataAnalyze(context.getAbstractSyntaxTree(), readedStaticDataList, context.getStaticData(), staticStringDataList);
+            runStaticDataAnalyze(context.getAbstractSyntaxTree(), context.getReadedStaticDataList(), context.getStaticData(), context.getStaticStringDataList());
         }
         return context.getAbstractSyntaxTree().getAssemblyCode();
     }
