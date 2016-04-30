@@ -13,8 +13,7 @@ public class StreamUtils
     public static final int BYTE_SINGLE_INCREASE_MAX_CAPACITY = 512;
     public static final int INT_SINGLE_INCREASE_MAX_CAPACITY = 512;
     public static final int ARRAY_SINGLE_INCREASE_MAX_CAPACITY = 32;
-    private static final byte[] readBuffer = new byte[8];
-    private static final byte[] writeBuffer = new byte[8];
+    private static final AtomicCache<byte[]> bufferAtomicCache = new AtomicCache<byte[]>(() -> new byte[8]);
     
     public static void writeBoolean(OutputStream outputStream, boolean v) throws IOException
     {
@@ -31,24 +30,36 @@ public class StreamUtils
     }
     public static void writeShort(OutputStream outputStream, short v) throws IOException
     {
-        synchronized (writeBuffer)
+        byte[] writeBuffer = bufferAtomicCache.forceGet();
+        try
         {
             writeBuffer[0] = (byte) (v >>> 8);
             writeBuffer[1] = (byte) (v >>> 0);
             outputStream.write(writeBuffer, 0, 2);
         }
+        finally
+        {
+            bufferAtomicCache.free(writeBuffer);
+        }
     }
     public static short readShort(InputStream inputStream) throws IOException
     {
-        synchronized (readBuffer)
+        byte[] readBuffer = bufferAtomicCache.forceGet();
+        try
         {
-            readBufferFully(inputStream, 2);
-            return (short) (((readBuffer[0] & 0xFF) << 8) + ((readBuffer[1] & 0xFF) << 0));
+            readBufferFully(inputStream, readBuffer, 2);
+            return (short) (((readBuffer[0] & 0xFF) << 8) +
+                    ((readBuffer[1] & 0xFF) << 0));
+        }
+        finally
+        {
+            bufferAtomicCache.free(readBuffer);
         }
     }
     public static void writeInt(OutputStream outputStream, int v) throws IOException
     {
-        synchronized (writeBuffer)
+        byte[] writeBuffer = bufferAtomicCache.forceGet();
+        try
         {
             writeBuffer[0] = (byte) (v >>> 24);
             writeBuffer[1] = (byte) (v >>> 16);
@@ -56,18 +67,31 @@ public class StreamUtils
             writeBuffer[3] = (byte) (v >>> 0);
             outputStream.write(writeBuffer, 0, 4);
         }
+        finally
+        {
+            bufferAtomicCache.free(writeBuffer);
+        }
     }
     public static int readInt(InputStream inputStream) throws IOException
     {
-        synchronized (readBuffer)
+        byte[] readBuffer = bufferAtomicCache.forceGet();
+        try
         {
-            readBufferFully(inputStream, 4);
-            return (int) (((readBuffer[0] & 0xFF) << 24) + ((readBuffer[1] & 0xFF) << 16) + ((readBuffer[2] & 0xFF) << 8) + ((readBuffer[3] & 0xFF) << 0));
+            readBufferFully(inputStream, readBuffer, 4);
+            return (int) (((readBuffer[0] & 0xFF) << 24) +
+                    ((readBuffer[1] & 0xFF) << 16) +
+                    ((readBuffer[2] & 0xFF) << 8) +
+                    ((readBuffer[3] & 0xFF) << 0));
+        }
+        finally
+        {
+            bufferAtomicCache.free(readBuffer);
         }
     }
     public static void writeLong(OutputStream outputStream, long v) throws IOException
     {
-        synchronized (writeBuffer)
+        byte[] writeBuffer = bufferAtomicCache.forceGet();
+        try
         {
             writeBuffer[0] = (byte) (v >>> 56);
             writeBuffer[1] = (byte) (v >>> 48);
@@ -79,13 +103,29 @@ public class StreamUtils
             writeBuffer[7] = (byte) (v >>> 0);
             outputStream.write(writeBuffer, 0, 8);
         }
+        finally
+        {
+            bufferAtomicCache.free(writeBuffer);
+        }
     }
     public static long readLong(InputStream inputStream) throws IOException
     {
-        synchronized (readBuffer)
+        byte[] readBuffer = bufferAtomicCache.forceGet();
+        try
         {
-            readBufferFully(inputStream, 8);
-            return (long) (((readBuffer[0] & 0xFFL) << 56) + ((readBuffer[1] & 0xFFL) << 48) + ((readBuffer[2] & 0xFFL) << 40) + ((readBuffer[3] & 0xFFL) << 32) + ((readBuffer[4] & 0xFFL) << 24) + ((readBuffer[5] & 0xFFL) << 16) + ((readBuffer[6] & 0xFFL) << 8) + ((readBuffer[7] & 0xFFL) << 0));
+            readBufferFully(inputStream, readBuffer, 8);
+            return (long) (((readBuffer[0] & 0xFFL) << 56) +
+                    ((readBuffer[1] & 0xFFL) << 48) +
+                    ((readBuffer[2] & 0xFFL) << 40) +
+                    ((readBuffer[3] & 0xFFL) << 32) +
+                    ((readBuffer[4] & 0xFFL) << 24) +
+                    ((readBuffer[5] & 0xFFL) << 16) +
+                    ((readBuffer[6] & 0xFFL) << 8) +
+                    ((readBuffer[7] & 0xFFL) << 0));
+        }
+        finally
+        {
+            bufferAtomicCache.free(readBuffer);
         }
     }
     public static void writeFloat(OutputStream outputStream, float v) throws IOException
@@ -156,7 +196,7 @@ public class StreamUtils
         long leastSignificantBits = readLong(inputStream);
         return new UUID(mostSignificantBits, leastSignificantBits);
     }
-    private static void readBufferFully(InputStream inputStream, int length) throws IOException
+    private static void readBufferFully(InputStream inputStream, byte[] readBuffer, int length) throws IOException
     {
         int readed = 0;
         while (readed < length)
@@ -181,7 +221,7 @@ public class StreamUtils
         {
             if (bytes.length == totalCount)
             {
-                bytes = Arrays.copyOf(bytes, bytes.length + BYTE_SINGLE_INCREASE_MAX_CAPACITY);
+                bytes = Arrays.copyOf(bytes, Math.min(bytes.length + BYTE_SINGLE_INCREASE_MAX_CAPACITY, length));
             }
             int count = inputStream.read(bytes, totalCount, bytes.length - totalCount);
             if (count < 0)
@@ -204,7 +244,7 @@ public class StreamUtils
         {
             if (ints.length == totalCount)
             {
-                ints = Arrays.copyOf(ints, ints.length + INT_SINGLE_INCREASE_MAX_CAPACITY);
+                ints = Arrays.copyOf(ints, Math.min(ints.length + INT_SINGLE_INCREASE_MAX_CAPACITY, length));
             }
             ints[totalCount] = readInt(inputStream);
             totalCount += 1;
@@ -223,7 +263,7 @@ public class StreamUtils
         {
             if (strings.length == totalCount)
             {
-                strings = Arrays.copyOf(strings, strings.length + ARRAY_SINGLE_INCREASE_MAX_CAPACITY);
+                strings = Arrays.copyOf(strings, Math.min(strings.length + ARRAY_SINGLE_INCREASE_MAX_CAPACITY, length));
             }
             strings[totalCount] = readString(inputStream);
             totalCount += 1;
@@ -242,7 +282,7 @@ public class StreamUtils
         {
             if (uuids.length == totalCount)
             {
-                uuids = Arrays.copyOf(uuids, uuids.length + ARRAY_SINGLE_INCREASE_MAX_CAPACITY);
+                uuids = Arrays.copyOf(uuids, Math.min(uuids.length + ARRAY_SINGLE_INCREASE_MAX_CAPACITY, length));
             }
             uuids[totalCount] = readUUID(inputStream);
             totalCount += 1;
