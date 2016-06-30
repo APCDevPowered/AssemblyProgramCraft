@@ -406,15 +406,12 @@ public class VirtualMachine
                             thread.notifyVMSuspend();
                         }
                     }
-                    if (!unsuspendedThreadHandlerList.isEmpty())
+                    try
                     {
-                        try
-                        {
-                            suspendLock.wait();
-                        }
-                        catch (InterruptedException e)
-                        {
-                        }
+                        suspendLock.wait();
+                    }
+                    catch (InterruptedException e)
+                    {
                     }
                 }
             }
@@ -816,6 +813,10 @@ public class VirtualMachine
                 AssemblyVirtualThread avt = new AssemblyVirtualThread(this);
                 avt.readFromNode(avtNodeContainerMap);
                 avtList.put(avt.getThreadHandler(), avt);
+                synchronized (suspendLock)
+                {
+                    unsuspendedThreadHandlerList.add((Integer) avt.getThreadHandler());
+                }
                 synchronized (threadReferenceList)
                 {
                     threadReferenceList.add(avt.getReference());
@@ -954,6 +955,10 @@ public class VirtualMachine
                 AssemblyVirtualThread avt = new AssemblyVirtualThread(this);
                 avt.readFromNBT(avtNbtTagCompound);
                 avtList.put(avt.getThreadHandler(), avt);
+                synchronized (suspendLock)
+                {
+                    unsuspendedThreadHandlerList.add((Integer) avt.getThreadHandler());
+                }
                 synchronized (threadReferenceList)
                 {
                     threadReferenceList.add(avt.getReference());

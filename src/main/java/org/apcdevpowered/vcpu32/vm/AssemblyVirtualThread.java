@@ -375,8 +375,9 @@ public class AssemblyVirtualThread
                 }
                 if (isRunning && !isSuspended && !Thread.currentThread().equals(thread))
                 {
-                    int suspendNotifierCount = thread.suspendNotifierCount;
-                    while (thread.suspendNotifierCount != suspendNotifierCount)
+                    int suspendNotifierStamp = thread.suspendNotifierStamp;
+                    // Prevent spurious wakeup. And add condition variable.
+                    while (thread.suspendNotifierStamp == suspendNotifierStamp)
                     {
                         try
                         {
@@ -876,7 +877,7 @@ public class AssemblyVirtualThread
     protected void exitMethod(int parLength)
     {
         AVThreadStackFrame stackFrame = getCurrentStackFrame();
-        if(stackFrame == null)
+        if (stackFrame == null)
         {
             System.out.println("[VCPU-32]当前栈帧为空");
             halt();
@@ -1589,7 +1590,7 @@ public class AssemblyVirtualThread
         private volatile boolean timeToQuit = false;
         private volatile int sleepTime = 0;
         private boolean breakNextInstruction = false;
-        private int suspendNotifierCount = 0;
+        private volatile int suspendNotifierStamp = 0;
         private Object suspendNotifier = new Object();
         private Object resumeNotifier = new Object();
         private Object threadSleepLock = new Object();
@@ -1603,12 +1604,12 @@ public class AssemblyVirtualThread
         {
             try
             {
-                interrupt:
+                insncycle:
                 while (true)
                 {
                     if (timeToQuit)
                     {
-                        break interrupt;
+                        break insncycle;
                     }
                     if (shutdownRequest)
                     {
@@ -1625,7 +1626,7 @@ public class AssemblyVirtualThread
                         }
                         getVM().removeFromThreadList(getThreadHandler());
                         getVM().notifyMonitorsThreadDeath(AssemblyVirtualThread.this);
-                        break interrupt;
+                        break insncycle;
                     }
                     skipSleep:
                     if (sleepTime > 0)
@@ -1634,11 +1635,11 @@ public class AssemblyVirtualThread
                         {
                             if (timeToQuit)
                             {
-                                break interrupt;
+                                break insncycle;
                             }
                             if (shutdownRequest)
                             {
-                                continue interrupt;
+                                continue insncycle;
                             }
                             if (!suspendThreadSuspendHandlerList.isEmpty() || vm.isSuspend())
                             {
@@ -1658,11 +1659,11 @@ public class AssemblyVirtualThread
                                 }
                                 if (timeToQuit)
                                 {
-                                    break interrupt;
+                                    break insncycle;
                                 }
                                 if (shutdownRequest)
                                 {
-                                    continue interrupt;
+                                    continue insncycle;
                                 }
                                 if (!suspendThreadSuspendHandlerList.isEmpty() || vm.isSuspend())
                                 {
@@ -1678,11 +1679,11 @@ public class AssemblyVirtualThread
                         {
                             if (timeToQuit)
                             {
-                                break interrupt;
+                                break insncycle;
                             }
                             if (shutdownRequest)
                             {
-                                continue interrupt;
+                                continue insncycle;
                             }
                             if (!suspendThreadSuspendHandlerList.isEmpty() || vm.isSuspend())
                             {
@@ -1695,7 +1696,7 @@ public class AssemblyVirtualThread
                                 {
                                     requestLockMonitor = null;
                                 }
-                                continue interrupt;
+                                continue insncycle;
                             }
                             else
                             {
@@ -1704,11 +1705,11 @@ public class AssemblyVirtualThread
                                     requestLockMonitor.waitLockNotify();
                                     if (timeToQuit)
                                     {
-                                        break interrupt;
+                                        break insncycle;
                                     }
                                     if (shutdownRequest)
                                     {
-                                        continue interrupt;
+                                        continue insncycle;
                                     }
                                     if (!suspendThreadSuspendHandlerList.isEmpty() || vm.isSuspend())
                                     {
@@ -1733,11 +1734,11 @@ public class AssemblyVirtualThread
                         {
                             if (timeToQuit)
                             {
-                                break interrupt;
+                                break insncycle;
                             }
                             if (shutdownRequest)
                             {
-                                continue interrupt;
+                                continue insncycle;
                             }
                             if (!suspendThreadSuspendHandlerList.isEmpty() || vm.isSuspend())
                             {
@@ -1752,7 +1753,7 @@ public class AssemblyVirtualThread
                                     waitingMonitorTimeout = -1;
                                 }
                                 isWaitingMonitor = false;
-                                continue interrupt;
+                                continue insncycle;
                             }
                             else
                             {
@@ -1771,7 +1772,7 @@ public class AssemblyVirtualThread
                                             waitingMonitorTimeout = -1;
                                         }
                                         isWaitingMonitor = false;
-                                        continue interrupt;
+                                        continue insncycle;
                                     }
                                 }
                                 while (requestWaitMonitor.isWaitingOnMonitor(AssemblyVirtualThread.this))
@@ -1781,11 +1782,11 @@ public class AssemblyVirtualThread
                                         requestWaitMonitor.waitLockNotify();
                                         if (timeToQuit)
                                         {
-                                            break interrupt;
+                                            break insncycle;
                                         }
                                         if (shutdownRequest)
                                         {
-                                            continue interrupt;
+                                            continue insncycle;
                                         }
                                         if (!suspendThreadSuspendHandlerList.isEmpty() || vm.isSuspend())
                                         {
@@ -1803,11 +1804,11 @@ public class AssemblyVirtualThread
                                         }
                                         if (timeToQuit)
                                         {
-                                            break interrupt;
+                                            break insncycle;
                                         }
                                         if (shutdownRequest)
                                         {
-                                            continue interrupt;
+                                            continue insncycle;
                                         }
                                         if (!suspendThreadSuspendHandlerList.isEmpty() || vm.isSuspend())
                                         {
@@ -1837,31 +1838,42 @@ public class AssemblyVirtualThread
                             suspendThreadSuspendHandlerList.add(defaultThreadSuspendHandler);
                         }
                     }
-                    while (!suspendThreadSuspendHandlerList.isEmpty())
+                    if (!suspendThreadSuspendHandlerList.isEmpty())
                     {
                         if (timeToQuit)
                         {
-                            break interrupt;
+                            break insncycle;
                         }
                         if (shutdownRequest)
                         {
-                            continue interrupt;
+                            continue insncycle;
                         }
                         synchronized (resumeNotifier)
                         {
                             synchronized (suspendNotifier)
                             {
-                                suspendNotifierCount++;
+                                suspendNotifierStamp++;
                                 suspendNotifier.notifyAll();
                             }
                             vm.notifyThreadSuspend(handlerValue);
-                            resumeNotifier.wait();
-                            continue interrupt;
+                            do
+                            {
+                                resumeNotifier.wait();
+                                if (timeToQuit)
+                                {
+                                    break insncycle;
+                                }
+                                if (shutdownRequest)
+                                {
+                                    continue insncycle;
+                                }
+                            }
+                            while (!suspendThreadSuspendHandlerList.isEmpty());
                         }
                     }
                     if (getVM().isRunning() == false)
                     {
-                        break interrupt;
+                        break insncycle;
                     }
                     printThreadInfo();
                     int optInfo[] = new int[6];
@@ -1905,7 +1917,7 @@ public class AssemblyVirtualThread
                     if (breakNextInstruction == true)
                     {
                         breakNextInstruction = false;
-                        continue interrupt;
+                        continue insncycle;
                     }
                     // 获取参数的值
                     // [start]
@@ -1914,7 +1926,7 @@ public class AssemblyVirtualThread
                         par1value = getRegisterValue(par1data);
                         if (timeToQuit == true)
                         {
-                            break interrupt;
+                            break insncycle;
                         }
                     }
                     else if (optInfo[1] == 2)
@@ -1922,7 +1934,7 @@ public class AssemblyVirtualThread
                         par1value = getRAMValue(par1data);
                         if (timeToQuit == true)
                         {
-                            break interrupt;
+                            break insncycle;
                         }
                     }
                     else if (optInfo[1] == 3)
@@ -1934,7 +1946,7 @@ public class AssemblyVirtualThread
                         par1value = getStringValue(par1data);
                         if (timeToQuit == true)
                         {
-                            break interrupt;
+                            break insncycle;
                         }
                     }
                     else if (optInfo[1] == 5)
@@ -1942,7 +1954,7 @@ public class AssemblyVirtualThread
                         par1value = getRAMREGValue(par1data);
                         if (timeToQuit == true)
                         {
-                            break interrupt;
+                            break insncycle;
                         }
                     }
                     if (optInfo[2] == 1)
@@ -1950,7 +1962,7 @@ public class AssemblyVirtualThread
                         par2value = getRegisterValue(par2data);
                         if (timeToQuit == true)
                         {
-                            break interrupt;
+                            break insncycle;
                         }
                     }
                     else if (optInfo[2] == 2)
@@ -1958,7 +1970,7 @@ public class AssemblyVirtualThread
                         par2value = getRAMValue(par2data);
                         if (timeToQuit == true)
                         {
-                            break interrupt;
+                            break insncycle;
                         }
                     }
                     else if (optInfo[2] == 3)
@@ -1970,7 +1982,7 @@ public class AssemblyVirtualThread
                         par2value = getStringValue(par2data);
                         if (timeToQuit == true)
                         {
-                            break interrupt;
+                            break insncycle;
                         }
                     }
                     else if (optInfo[2] == 5)
@@ -1978,7 +1990,7 @@ public class AssemblyVirtualThread
                         par2value = getRAMREGValue(par2data);
                         if (timeToQuit == true)
                         {
-                            break interrupt;
+                            break insncycle;
                         }
                     }
                     if (optInfo[3] == 1)
@@ -1986,7 +1998,7 @@ public class AssemblyVirtualThread
                         par3value = getRegisterValue(par3data);
                         if (timeToQuit == true)
                         {
-                            break interrupt;
+                            break insncycle;
                         }
                     }
                     else if (optInfo[3] == 2)
@@ -1994,7 +2006,7 @@ public class AssemblyVirtualThread
                         par3value = getRAMValue(par3data);
                         if (timeToQuit == true)
                         {
-                            break interrupt;
+                            break insncycle;
                         }
                     }
                     else if (optInfo[3] == 3)
@@ -2006,7 +2018,7 @@ public class AssemblyVirtualThread
                         par3value = getStringValue(par3data);
                         if (timeToQuit == true)
                         {
-                            break interrupt;
+                            break insncycle;
                         }
                     }
                     else if (optInfo[3] == 5)
@@ -2014,7 +2026,7 @@ public class AssemblyVirtualThread
                         par3value = getRAMREGValue(par3data);
                         if (timeToQuit == true)
                         {
-                            break interrupt;
+                            break insncycle;
                         }
                     }
                     if (optInfo[4] == 1)
@@ -2022,7 +2034,7 @@ public class AssemblyVirtualThread
                         par4value = getRegisterValue(par4data);
                         if (timeToQuit == true)
                         {
-                            break interrupt;
+                            break insncycle;
                         }
                     }
                     else if (optInfo[4] == 2)
@@ -2030,7 +2042,7 @@ public class AssemblyVirtualThread
                         par4value = getRAMValue(par4data);
                         if (timeToQuit == true)
                         {
-                            break interrupt;
+                            break insncycle;
                         }
                     }
                     else if (optInfo[4] == 3)
@@ -2042,7 +2054,7 @@ public class AssemblyVirtualThread
                         par4value = getStringValue(par4data);
                         if (timeToQuit == true)
                         {
-                            break interrupt;
+                            break insncycle;
                         }
                     }
                     else if (optInfo[4] == 5)
@@ -2050,7 +2062,7 @@ public class AssemblyVirtualThread
                         par4value = getRAMREGValue(par4data);
                         if (timeToQuit == true)
                         {
-                            break interrupt;
+                            break insncycle;
                         }
                     }
                     // [end]
@@ -2075,12 +2087,12 @@ public class AssemblyVirtualThread
                             });
                             if (timeToQuit == true)
                             {
-                                break interrupt;
+                                break insncycle;
                             }
                             setObjectValue(optInfo[1], par1data, ((Integer) par2value).intValue());
                             if (timeToQuit == true)
                             {
-                                break interrupt;
+                                break insncycle;
                             }
                         }
                         else
@@ -2111,12 +2123,12 @@ public class AssemblyVirtualThread
                             });
                             if (timeToQuit == true)
                             {
-                                break interrupt;
+                                break insncycle;
                             }
                             setObjectValue(optInfo[1], par1data, ((Integer) par1value).intValue() + ((Integer) par2value).intValue());
                             if (timeToQuit == true)
                             {
-                                break interrupt;
+                                break insncycle;
                             }
                         }
                         else
@@ -2147,12 +2159,12 @@ public class AssemblyVirtualThread
                             });
                             if (timeToQuit == true)
                             {
-                                break interrupt;
+                                break insncycle;
                             }
                             setObjectValue(optInfo[1], par1data, ((Integer) par1value).intValue() - ((Integer) par2value).intValue());
                             if (timeToQuit == true)
                             {
-                                break interrupt;
+                                break insncycle;
                             }
                         }
                         else
@@ -2183,12 +2195,12 @@ public class AssemblyVirtualThread
                             });
                             if (timeToQuit == true)
                             {
-                                break interrupt;
+                                break insncycle;
                             }
                             setObjectValue(optInfo[1], par1data, ((Integer) par1value).intValue() * ((Integer) par2value).intValue());
                             if (timeToQuit == true)
                             {
-                                break interrupt;
+                                break insncycle;
                             }
                         }
                         else
@@ -2219,7 +2231,7 @@ public class AssemblyVirtualThread
                             });
                             if (timeToQuit == true)
                             {
-                                break interrupt;
+                                break insncycle;
                             }
                             if (((Integer) par2value).intValue() == 0)
                             {
@@ -2230,7 +2242,7 @@ public class AssemblyVirtualThread
                                 setObjectValue(optInfo[1], par1data, ((Integer) par1value).intValue() / ((Integer) par2value).intValue());
                                 if (timeToQuit == true)
                                 {
-                                    break interrupt;
+                                    break insncycle;
                                 }
                             }
                         }
@@ -2262,7 +2274,7 @@ public class AssemblyVirtualThread
                             });
                             if (timeToQuit == true)
                             {
-                                break interrupt;
+                                break insncycle;
                             }
                             if (((Integer) par2value).intValue() == 0)
                             {
@@ -2273,7 +2285,7 @@ public class AssemblyVirtualThread
                                 setObjectValue(optInfo[1], par1data, ((Integer) par1value).intValue() % ((Integer) par2value).intValue());
                                 if (timeToQuit == true)
                                 {
-                                    break interrupt;
+                                    break insncycle;
                                 }
                             }
                         }
@@ -2305,12 +2317,12 @@ public class AssemblyVirtualThread
                             });
                             if (timeToQuit == true)
                             {
-                                break interrupt;
+                                break insncycle;
                             }
                             setObjectValue(optInfo[1], par1data, ((Integer) par1value).intValue() & ((Integer) par2value).intValue());
                             if (timeToQuit == true)
                             {
-                                break interrupt;
+                                break insncycle;
                             }
                         }
                         else
@@ -2341,12 +2353,12 @@ public class AssemblyVirtualThread
                             });
                             if (timeToQuit == true)
                             {
-                                break interrupt;
+                                break insncycle;
                             }
                             setObjectValue(optInfo[1], par1data, ((Integer) par1value).intValue() | ((Integer) par2value).intValue());
                             if (timeToQuit == true)
                             {
-                                break interrupt;
+                                break insncycle;
                             }
                         }
                         else
@@ -2377,12 +2389,12 @@ public class AssemblyVirtualThread
                             });
                             if (timeToQuit == true)
                             {
-                                break interrupt;
+                                break insncycle;
                             }
                             setObjectValue(optInfo[1], par1data, ((Integer) par1value).intValue() ^ ((Integer) par2value).intValue());
                             if (timeToQuit == true)
                             {
-                                break interrupt;
+                                break insncycle;
                             }
                         }
                         else
@@ -2413,12 +2425,12 @@ public class AssemblyVirtualThread
                             });
                             if (timeToQuit == true)
                             {
-                                break interrupt;
+                                break insncycle;
                             }
                             setObjectValue(optInfo[1], par1data, ((Integer) par1value).intValue() >>> ((Integer) par2value).intValue());
                             if (timeToQuit == true)
                             {
-                                break interrupt;
+                                break insncycle;
                             }
                         }
                         else
@@ -2449,12 +2461,12 @@ public class AssemblyVirtualThread
                             });
                             if (timeToQuit == true)
                             {
-                                break interrupt;
+                                break insncycle;
                             }
                             setObjectValue(optInfo[1], par1data, ((Integer) par1value).intValue() >> ((Integer) par2value).intValue());
                             if (timeToQuit == true)
                             {
-                                break interrupt;
+                                break insncycle;
                             }
                         }
                         else
@@ -2485,12 +2497,12 @@ public class AssemblyVirtualThread
                             });
                             if (timeToQuit == true)
                             {
-                                break interrupt;
+                                break insncycle;
                             }
                             setObjectValue(optInfo[1], par1data, ((Integer) par1value).intValue() << ((Integer) par2value).intValue());
                             if (timeToQuit == true)
                             {
-                                break interrupt;
+                                break insncycle;
                             }
                         }
                         else
@@ -2521,7 +2533,7 @@ public class AssemblyVirtualThread
                             });
                             if (timeToQuit == true)
                             {
-                                break interrupt;
+                                break insncycle;
                             }
                             if (((Integer) par1value).intValue() != ((Integer) par2value).intValue())
                             {
@@ -2556,7 +2568,7 @@ public class AssemblyVirtualThread
                             });
                             if (timeToQuit == true)
                             {
-                                break interrupt;
+                                break insncycle;
                             }
                             if (((Integer) par1value).intValue() == ((Integer) par2value).intValue())
                             {
@@ -2591,7 +2603,7 @@ public class AssemblyVirtualThread
                             });
                             if (timeToQuit == true)
                             {
-                                break interrupt;
+                                break insncycle;
                             }
                             if (((Integer) par1value).intValue() <= ((Integer) par2value).intValue())
                             {
@@ -2626,7 +2638,7 @@ public class AssemblyVirtualThread
                             });
                             if (timeToQuit == true)
                             {
-                                break interrupt;
+                                break insncycle;
                             }
                             if (((Integer) par1value).intValue() >= ((Integer) par2value).intValue())
                             {
@@ -2661,7 +2673,7 @@ public class AssemblyVirtualThread
                             });
                             if (timeToQuit == true)
                             {
-                                break interrupt;
+                                break insncycle;
                             }
                             int memoryAddress = 0;
                             if (optInfo[1] == 2)
@@ -2675,7 +2687,7 @@ public class AssemblyVirtualThread
                             setRegisterValue(REG_PC, memoryAddress);
                             if (timeToQuit == true)
                             {
-                                break interrupt;
+                                break insncycle;
                             }
                         }
                         else
@@ -2706,7 +2718,7 @@ public class AssemblyVirtualThread
                             });
                             if (timeToQuit == true)
                             {
-                                break interrupt;
+                                break insncycle;
                             }
                             int memoryAddress = 0;
                             if (optInfo[1] == 2)
@@ -2720,7 +2732,7 @@ public class AssemblyVirtualThread
                             setObjectValue(optInfo[2], par2data, getVM().createVMThread(memoryAddress));
                             if (timeToQuit == true)
                             {
-                                break interrupt;
+                                break insncycle;
                             }
                         }
                         else if (parCount == 3)
@@ -2740,7 +2752,7 @@ public class AssemblyVirtualThread
                             });
                             if (timeToQuit == true)
                             {
-                                break interrupt;
+                                break insncycle;
                             }
                             String threadName = null;
                             if (optInfo[3] == 2 || optInfo[3] == 5)
@@ -2753,7 +2765,7 @@ public class AssemblyVirtualThread
                             }
                             if (timeToQuit == true)
                             {
-                                break interrupt;
+                                break insncycle;
                             }
                             int memoryAddress = 0;
                             if (optInfo[1] == 2)
@@ -2767,7 +2779,7 @@ public class AssemblyVirtualThread
                             setObjectValue(optInfo[2], par2data, getVM().createVMThread(memoryAddress, threadName));
                             if (timeToQuit == true)
                             {
-                                break interrupt;
+                                break insncycle;
                             }
                         }
                         else
@@ -2798,7 +2810,7 @@ public class AssemblyVirtualThread
                             });
                             if (timeToQuit == true)
                             {
-                                break interrupt;
+                                break insncycle;
                             }
                             if (getVM().startVMThread(((Integer) par1value).intValue()) == false)
                             {
@@ -2822,7 +2834,7 @@ public class AssemblyVirtualThread
                             });
                             if (timeToQuit == true)
                             {
-                                break interrupt;
+                                break insncycle;
                             }
                             if (getVM().getVMThread(((Integer) par2value).intValue()) == null)
                             {
@@ -2861,12 +2873,12 @@ public class AssemblyVirtualThread
                             });
                             if (timeToQuit == true)
                             {
-                                break interrupt;
+                                break insncycle;
                             }
                             setObjectValue(optInfo[1], par1data, getThreadHandler());
                             if (timeToQuit == true)
                             {
-                                break interrupt;
+                                break insncycle;
                             }
                         }
                         else
@@ -2901,7 +2913,7 @@ public class AssemblyVirtualThread
                             });
                             if (timeToQuit == true)
                             {
-                                break interrupt;
+                                break insncycle;
                             }
                             if (!getVM().shutdownThread(((Integer) par1value).intValue()))
                             {
@@ -2936,7 +2948,7 @@ public class AssemblyVirtualThread
                             });
                             if (timeToQuit == true)
                             {
-                                break interrupt;
+                                break insncycle;
                             }
                             sleepTime = ((Integer) par1value).intValue();
                         }
@@ -2968,12 +2980,12 @@ public class AssemblyVirtualThread
                             });
                             if (timeToQuit == true)
                             {
-                                break interrupt;
+                                break insncycle;
                             }
                             setObjectValue(optInfo[1], par1data, vm.createMonitor());
                             if (timeToQuit == true)
                             {
-                                break interrupt;
+                                break insncycle;
                             }
                         }
                         else
@@ -3004,7 +3016,7 @@ public class AssemblyVirtualThread
                             });
                             if (timeToQuit == true)
                             {
-                                break interrupt;
+                                break insncycle;
                             }
                             int deleteResult = vm.deleteMonitor(((Integer) par1value).intValue());
                             switch (deleteResult)
@@ -3053,7 +3065,7 @@ public class AssemblyVirtualThread
                             });
                             if (timeToQuit == true)
                             {
-                                break interrupt;
+                                break insncycle;
                             }
                             Monitor monitor = vm.getMonitor(((Integer) par1value).intValue());
                             if (monitor == null)
@@ -3096,7 +3108,7 @@ public class AssemblyVirtualThread
                             });
                             if (timeToQuit == true)
                             {
-                                break interrupt;
+                                break insncycle;
                             }
                             Monitor monitor = vm.getMonitor(((Integer) par1value).intValue());
                             if (monitor == null)
@@ -3153,7 +3165,7 @@ public class AssemblyVirtualThread
                             });
                             if (timeToQuit == true)
                             {
-                                break interrupt;
+                                break insncycle;
                             }
                             Monitor monitor = vm.getMonitor(((Integer) par1value).intValue());
                             if (monitor == null)
@@ -3186,7 +3198,7 @@ public class AssemblyVirtualThread
                             });
                             if (timeToQuit == true)
                             {
-                                break interrupt;
+                                break insncycle;
                             }
                             Monitor monitor = vm.getMonitor(((Integer) par1value).intValue());
                             if (monitor == null)
@@ -3230,7 +3242,7 @@ public class AssemblyVirtualThread
                             });
                             if (timeToQuit == true)
                             {
-                                break interrupt;
+                                break insncycle;
                             }
                             Monitor monitor = vm.getMonitor(((Integer) par1value).intValue());
                             if (monitor == null)
@@ -3272,7 +3284,7 @@ public class AssemblyVirtualThread
                             });
                             if (timeToQuit == true)
                             {
-                                break interrupt;
+                                break insncycle;
                             }
                             Monitor monitor = vm.getMonitor(((Integer) par1value).intValue());
                             if (monitor == null)
@@ -3325,13 +3337,13 @@ public class AssemblyVirtualThread
                             });
                             if (timeToQuit == true)
                             {
-                                break interrupt;
+                                break insncycle;
                             }
                             int temp = getVM().inputValueFormDevices(((Integer) par1value).intValue(), ((Integer) par2value).intValue());
                             setObjectValue(optInfo[3], par3data, temp);
                             if (timeToQuit == true)
                             {
-                                break interrupt;
+                                break insncycle;
                             }
                         }
                         else
@@ -3362,7 +3374,7 @@ public class AssemblyVirtualThread
                             });
                             if (timeToQuit == true)
                             {
-                                break interrupt;
+                                break insncycle;
                             }
                             getVM().outputValueToDevices(((Integer) par1value).intValue(), ((Integer) par2value).intValue(), ((Integer) par3value).intValue());
                         }
@@ -3394,7 +3406,7 @@ public class AssemblyVirtualThread
                             });
                             if (timeToQuit == true)
                             {
-                                break interrupt;
+                                break insncycle;
                             }
                             int[] TempArray = getVM().inputsValueFormDevices(((Integer) par1value).intValue(), ((Integer) par2value).intValue(), ((Integer) par3value).intValue());
                             for (int i = 0; i < ((Integer) par3value).intValue(); i++)
@@ -3402,7 +3414,7 @@ public class AssemblyVirtualThread
                                 setObjectValue(optInfo[4], par4data + i, TempArray[i]);
                                 if (timeToQuit == true)
                                 {
-                                    break interrupt;
+                                    break insncycle;
                                 }
                             }
                         }
@@ -3434,7 +3446,7 @@ public class AssemblyVirtualThread
                             });
                             if (timeToQuit == true)
                             {
-                                break interrupt;
+                                break insncycle;
                             }
                             if (optInfo[4] == 2)
                             {
@@ -3442,7 +3454,7 @@ public class AssemblyVirtualThread
                                 if (TempArray == null)
                                 {
                                     halt();
-                                    break interrupt;
+                                    break insncycle;
                                 }
                                 getVM().outputsValueToDevices(((Integer) par1value).intValue(), ((Integer) par2value).intValue(), TempArray);
                             }
@@ -3453,7 +3465,7 @@ public class AssemblyVirtualThread
                                 if (TempArray == null)
                                 {
                                     halt();
-                                    break interrupt;
+                                    break insncycle;
                                 }
                                 getVM().outputsValueToDevices(((Integer) par1value).intValue(), ((Integer) par2value).intValue(), TempArray);
                             }
@@ -3486,7 +3498,7 @@ public class AssemblyVirtualThread
                             });
                             if (timeToQuit == true)
                             {
-                                break interrupt;
+                                break insncycle;
                             }
                             if (optInfo[4] == 2)
                             {
@@ -3532,7 +3544,7 @@ public class AssemblyVirtualThread
                             });
                             if (timeToQuit == true)
                             {
-                                break interrupt;
+                                break insncycle;
                             }
                             if (optInfo[1] == 2)
                             {
@@ -3578,7 +3590,7 @@ public class AssemblyVirtualThread
                             });
                             if (timeToQuit == true)
                             {
-                                break interrupt;
+                                break insncycle;
                             }
                             setObjectValue(optInfo[2], par2data, getVM().getDeviceType(((Integer) par1value).intValue()));
                         }
@@ -3610,12 +3622,12 @@ public class AssemblyVirtualThread
                             });
                             if (timeToQuit == true)
                             {
-                                break interrupt;
+                                break insncycle;
                             }
                             pushInCurrentStackFrame(((Integer) par1value).intValue());
                             if (timeToQuit == true)
                             {
-                                break interrupt;
+                                break insncycle;
                             }
                         }
                         else
@@ -3634,7 +3646,7 @@ public class AssemblyVirtualThread
                             popInCurrentStackFrame();
                             if (timeToQuit == true)
                             {
-                                break interrupt;
+                                break insncycle;
                             }
                         }
                         else if (parCount == 1)
@@ -3654,12 +3666,12 @@ public class AssemblyVirtualThread
                             });
                             if (timeToQuit == true)
                             {
-                                break interrupt;
+                                break insncycle;
                             }
                             setObjectValue(optInfo[1], par1data, popInCurrentStackFrame());
                             if (timeToQuit == true)
                             {
-                                break interrupt;
+                                break insncycle;
                             }
                         }
                         else
@@ -3678,7 +3690,7 @@ public class AssemblyVirtualThread
                             dupInCurrentStackFrame(1);
                             if (timeToQuit == true)
                             {
-                                break interrupt;
+                                break insncycle;
                             }
                         }
                         else if (parCount == 1)
@@ -3698,12 +3710,12 @@ public class AssemblyVirtualThread
                             });
                             if (timeToQuit == true)
                             {
-                                break interrupt;
+                                break insncycle;
                             }
                             dupInCurrentStackFrame(((Integer) par1value).intValue());
                             if (timeToQuit == true)
                             {
-                                break interrupt;
+                                break insncycle;
                             }
                         }
                         else
@@ -3722,7 +3734,7 @@ public class AssemblyVirtualThread
                             swapInCurrentStackFrame();
                             if (timeToQuit == true)
                             {
-                                break interrupt;
+                                break insncycle;
                             }
                         }
                         else
@@ -3753,7 +3765,7 @@ public class AssemblyVirtualThread
                             });
                             if (timeToQuit == true)
                             {
-                                break interrupt;
+                                break insncycle;
                             }
                             int memoryAddress = 0;
                             if (optInfo[1] == 2)
@@ -3767,7 +3779,7 @@ public class AssemblyVirtualThread
                             enterMethod(memoryAddress);
                             if (timeToQuit == true)
                             {
-                                break interrupt;
+                                break insncycle;
                             }
                         }
                         else if (parCount == 2)
@@ -3787,7 +3799,7 @@ public class AssemblyVirtualThread
                             });
                             if (timeToQuit == true)
                             {
-                                break interrupt;
+                                break insncycle;
                             }
                             int memoryAddress = 0;
                             if (optInfo[1] == 2)
@@ -3808,7 +3820,7 @@ public class AssemblyVirtualThread
                                 enterMethod(memoryAddress, parLength);
                                 if (timeToQuit == true)
                                 {
-                                    break interrupt;
+                                    break insncycle;
                                 }
                             }
                         }
@@ -3827,12 +3839,12 @@ public class AssemblyVirtualThread
                         {
                             if (timeToQuit == true)
                             {
-                                break interrupt;
+                                break insncycle;
                             }
                             exitMethod();
                             if (timeToQuit == true)
                             {
-                                break interrupt;
+                                break insncycle;
                             }
                         }
                         else if (parCount == 1)
@@ -3852,7 +3864,7 @@ public class AssemblyVirtualThread
                             });
                             if (timeToQuit == true)
                             {
-                                break interrupt;
+                                break insncycle;
                             }
                             int parLength = ((Integer) par1value).intValue();
                             if (parLength < 0)
@@ -3864,7 +3876,7 @@ public class AssemblyVirtualThread
                                 exitMethod(parLength);
                                 if (timeToQuit == true)
                                 {
-                                    break interrupt;
+                                    break insncycle;
                                 }
                             }
                         }
@@ -3896,17 +3908,17 @@ public class AssemblyVirtualThread
                             });
                             if (timeToQuit == true)
                             {
-                                break interrupt;
+                                break insncycle;
                             }
                             int parLength = getCurrentStackFrameParLength();
                             if (timeToQuit == true)
                             {
-                                break interrupt;
+                                break insncycle;
                             }
                             setObjectValue(optInfo[1], par1data, parLength);
                             if (timeToQuit == true)
                             {
-                                break interrupt;
+                                break insncycle;
                             }
                         }
                         else if (parCount == 2)
@@ -3926,7 +3938,7 @@ public class AssemblyVirtualThread
                             });
                             if (timeToQuit == true)
                             {
-                                break interrupt;
+                                break insncycle;
                             }
                             int index = ((Integer) par2value).intValue();
                             int frameIndex = (index >= 0) ? (getStackSize() - 1 - index) : (-index - 1);
@@ -3940,12 +3952,12 @@ public class AssemblyVirtualThread
                                 int parLength = stackFrame.getParLength();
                                 if (timeToQuit == true)
                                 {
-                                    break interrupt;
+                                    break insncycle;
                                 }
                                 setObjectValue(optInfo[1], par1data, parLength);
                                 if (timeToQuit == true)
                                 {
-                                    break interrupt;
+                                    break insncycle;
                                 }
                             }
                         }
@@ -3977,12 +3989,12 @@ public class AssemblyVirtualThread
                             });
                             if (timeToQuit == true)
                             {
-                                break interrupt;
+                                break insncycle;
                             }
                             setObjectValue(optInfo[2], par2data, Float.floatToRawIntBits(((Integer) par1value).floatValue()));
                             if (timeToQuit == true)
                             {
-                                break interrupt;
+                                break insncycle;
                             }
                         }
                         else
@@ -4013,12 +4025,12 @@ public class AssemblyVirtualThread
                             });
                             if (timeToQuit == true)
                             {
-                                break interrupt;
+                                break insncycle;
                             }
                             setObjectValue(optInfo[2], par2data, (int) Float.intBitsToFloat(((Integer) par1value)));
                             if (timeToQuit == true)
                             {
-                                break interrupt;
+                                break insncycle;
                             }
                         }
                         else
@@ -4049,12 +4061,12 @@ public class AssemblyVirtualThread
                             });
                             if (timeToQuit == true)
                             {
-                                break interrupt;
+                                break insncycle;
                             }
                             setObjectValue(optInfo[1], par1data, Float.floatToRawIntBits(Float.intBitsToFloat(((Integer) par1value)) + Float.intBitsToFloat(((Integer) par2value))));
                             if (timeToQuit == true)
                             {
-                                break interrupt;
+                                break insncycle;
                             }
                         }
                         else
@@ -4085,12 +4097,12 @@ public class AssemblyVirtualThread
                             });
                             if (timeToQuit == true)
                             {
-                                break interrupt;
+                                break insncycle;
                             }
                             setObjectValue(optInfo[1], par1data, Float.floatToRawIntBits(Float.intBitsToFloat(((Integer) par1value)) - Float.intBitsToFloat(((Integer) par2value))));
                             if (timeToQuit == true)
                             {
-                                break interrupt;
+                                break insncycle;
                             }
                         }
                         else
@@ -4121,12 +4133,12 @@ public class AssemblyVirtualThread
                             });
                             if (timeToQuit == true)
                             {
-                                break interrupt;
+                                break insncycle;
                             }
                             setObjectValue(optInfo[1], par1data, Float.floatToRawIntBits(Float.intBitsToFloat(((Integer) par1value)) * Float.intBitsToFloat(((Integer) par2value))));
                             if (timeToQuit == true)
                             {
-                                break interrupt;
+                                break insncycle;
                             }
                         }
                         else
@@ -4157,7 +4169,7 @@ public class AssemblyVirtualThread
                             });
                             if (timeToQuit == true)
                             {
-                                break interrupt;
+                                break insncycle;
                             }
                             if (((Integer) par2value).intValue() == 0)
                             {
@@ -4168,7 +4180,7 @@ public class AssemblyVirtualThread
                                 setObjectValue(optInfo[1], par1data, Float.floatToRawIntBits(Float.intBitsToFloat(((Integer) par1value)) / Float.intBitsToFloat(((Integer) par2value))));
                                 if (timeToQuit == true)
                                 {
-                                    break interrupt;
+                                    break insncycle;
                                 }
                             }
                         }
@@ -4200,7 +4212,7 @@ public class AssemblyVirtualThread
                             });
                             if (timeToQuit == true)
                             {
-                                break interrupt;
+                                break insncycle;
                             }
                             if (((Integer) par2value).intValue() == 0)
                             {
@@ -4211,7 +4223,7 @@ public class AssemblyVirtualThread
                                 setObjectValue(optInfo[1], par1data, Float.floatToRawIntBits(Float.intBitsToFloat(((Integer) par1value)) % Float.intBitsToFloat(((Integer) par2value))));
                                 if (timeToQuit == true)
                                 {
-                                    break interrupt;
+                                    break insncycle;
                                 }
                             }
                         }
@@ -4243,7 +4255,7 @@ public class AssemblyVirtualThread
                             });
                             if (timeToQuit == true)
                             {
-                                break interrupt;
+                                break insncycle;
                             }
                             if (Float.intBitsToFloat(((Integer) par1value)) != Float.intBitsToFloat(((Integer) par2value)))
                             {
@@ -4278,7 +4290,7 @@ public class AssemblyVirtualThread
                             });
                             if (timeToQuit == true)
                             {
-                                break interrupt;
+                                break insncycle;
                             }
                             if (Float.intBitsToFloat(((Integer) par1value)) == Float.intBitsToFloat(((Integer) par2value)))
                             {
@@ -4313,7 +4325,7 @@ public class AssemblyVirtualThread
                             });
                             if (timeToQuit == true)
                             {
-                                break interrupt;
+                                break insncycle;
                             }
                             if (Float.intBitsToFloat(((Integer) par1value)) <= Float.intBitsToFloat(((Integer) par2value)))
                             {
@@ -4348,7 +4360,7 @@ public class AssemblyVirtualThread
                             });
                             if (timeToQuit == true)
                             {
-                                break interrupt;
+                                break insncycle;
                             }
                             if (Float.intBitsToFloat(((Integer) par1value)) >= Float.intBitsToFloat(((Integer) par2value)))
                             {
