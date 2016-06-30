@@ -24,8 +24,6 @@ import org.apcdevpowered.vcpu32.disasm.Disassembler.DisassembleContext.Intermedi
 
 public class Disassembler
 {
-    private static final int MAX_PAR_COUNT = 4;
-    
     public static class DisassembleContext
     {
         private final AbstractSyntaxTree abstractSyntaxTree;
@@ -100,6 +98,9 @@ public class Disassembler
                 private int parCount;
                 private int byteCode;
                 private String byteCodeName;
+                private int[] parsType;
+                private int[] parsData;
+                private String[] parsValue;
                 
                 protected InstructionAnalyzeContext()
                 {
@@ -112,6 +113,9 @@ public class Disassembler
                     parCount = -1;
                     byteCode = -1;
                     byteCodeName = null;
+                    parsType = null;
+                    parsData = null;
+                    parsValue = null;
                 }
                 protected int getOffset()
                 {
@@ -153,6 +157,30 @@ public class Disassembler
                 {
                     this.byteCodeName = byteCodeName;
                 }
+                protected int[] getParsType()
+                {
+                    return parsType;
+                }
+                protected void setParsType(int[] parsType)
+                {
+                    this.parsType = parsType;
+                }
+                protected int[] getParsData()
+                {
+                    return parsData;
+                }
+                protected void setParsData(int[] parsData)
+                {
+                    this.parsData = parsData;
+                }
+                protected String[] getParsValue()
+                {
+                    return parsValue;
+                }
+                protected void setParsValue(String[] parsValue)
+                {
+                    this.parsValue = parsValue;
+                }
             }
         }
     }
@@ -186,10 +214,11 @@ public class Disassembler
             
             public String getAssemblyString()
             {
-                String assemblyString = name + (parsValue.length == 0 ? "" : " ");
+                String assemblyString = name + (parCount == 0 ? "" : " ");
                 boolean isFirst = true;
-                for (String par : parsValue)
+                for (int i = 0; i < parCount; i++)
                 {
+                    String par = parsValue[i];
                     if (isFirst)
                     {
                         isFirst = false;
@@ -340,18 +369,27 @@ public class Disassembler
             int opcode = instructionAnalyzeContext.getOpcode();
             int parCount = instructionAnalyzeContext.getParCount();
             String byteCodeName = instructionAnalyzeContext.getByteCodeName();
-            int[] parsType = new int[parCount];
-            getParsType(opcode, parsType);
-            int[] parsData = new int[parCount];
-            getParsData(programByteCode, pointer + 1, parsData);
-            String[] parsValue = new String[parCount];
-            getParsValue(context.getStaticData(), parsType, parsData, parsValue, context.getAbstractSyntaxTree(), context.getIntermediateData().getReadedStaticDataList(), context.getIntermediateData().getStaticStringDataList());
+            {
+                int[] parsType = new int[parCount];
+                getParsType(opcode, parCount, parsType);
+                instructionAnalyzeContext.setParsType(parsType);
+            }
+            {
+                int[] parsData = new int[parCount];
+                getParsData(programByteCode, pointer + 1, parCount, parsData);
+                instructionAnalyzeContext.setParsData(parsData);
+            }
+            {
+                String[] parsValue = new String[parCount];
+                getParsValue(context.getStaticData(), parCount, instructionAnalyzeContext.getParsType(), instructionAnalyzeContext.getParsData(), parsValue, context.getAbstractSyntaxTree(), context.getIntermediateData().getReadedStaticDataList(), context.getIntermediateData().getStaticStringDataList());
+                instructionAnalyzeContext.setParsValue(parsValue);
+            }
             Instruction instruction = context.getAbstractSyntaxTree().new Instruction();
             instruction.name = byteCodeName;
             instruction.parCount = parCount;
-            instruction.parsValue = parsValue;
-            instruction.parsData = parsData;
-            instruction.parsType = parsType;
+            instruction.parsValue = instructionAnalyzeContext.getParsValue();
+            instruction.parsData = instructionAnalyzeContext.getParsData();
+            instruction.parsType = instructionAnalyzeContext.getParsType();
             instruction.lineNumber = context.getAbstractSyntaxTree().debugInfo.getLineNumberByOffset(pointer);
             context.getAbstractSyntaxTree().abstractSyntaxTree.add(instruction);
             pointer += (1 + parCount);
@@ -484,9 +522,9 @@ public class Disassembler
         }
         return operator.getImage();
     }
-    private static void getParsValue(int[] staticData, int[] parsType, int[] parsData, String[] parsValue, AbstractSyntaxTree abstractSyntaxTree, List<SingleEntry<Integer, Integer>> readedStaticDataList, List<SingleEntry<String, Integer>> staticStringDataList)
+    private static void getParsValue(int[] staticData, int parCount, int[] parsType, int[] parsData, String[] parsValue, AbstractSyntaxTree abstractSyntaxTree, List<SingleEntry<Integer, Integer>> readedStaticDataList, List<SingleEntry<String, Integer>> staticStringDataList)
     {
-        for (int i = 0; i < parsType.length; i++)
+        for (int i = 0; i < parCount; i++)
         {
             int parType = parsType[i];
             int parData = parsData[i];
@@ -655,16 +693,15 @@ public class Disassembler
         }
         return parCount;
     }
-    private static void getParsData(int[] programByteCode, int idx, int[] parsData)
+    private static void getParsData(int[] programByteCode, int idx, int parCount, int[] parsData)
     {
-        for (int i = 0; i < parsData.length; i++)
+        for (int i = 0; i < parCount; i++)
         {
             parsData[i] = programByteCode[idx + i];
         }
     }
-    private static void getParsType(int opcode, int[] parsType)
+    private static void getParsType(int opcode, int parCount, int[] parsType)
     {
-        int parCount = parsType.length;
         int par1 = (opcode >> 29) & 7;
         int par2 = (opcode >> 26) & 7;
         int par3 = (opcode >> 23) & 7;
