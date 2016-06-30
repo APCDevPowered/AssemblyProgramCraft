@@ -3,6 +3,7 @@ package org.apcdevpowered.apc.client.gui.components;
 import java.io.IOException;
 import java.io.InputStream;
 
+import org.apache.commons.io.IOUtils;
 import org.apcdevpowered.apc.client.gui.event.IEventNode;
 import org.apcdevpowered.apc.common.util.history.HistoryApplyException;
 import org.apcdevpowered.apc.common.util.history.HistoryManager;
@@ -1146,14 +1147,20 @@ public class GuiMultipleLineTextField extends Gui implements IEventNode
     
     static
     {
+        InputStream inputstream = null;
+
         try
         {
-            InputStream inputstream = Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("font/glyph_sizes.bin")).getInputStream();
-            inputstream.read(glyphWidth);
+            inputstream = Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("font/glyph_sizes.bin")).getInputStream();
+            IOUtils.readFully(inputstream, glyphWidth);
         }
-        catch (IOException var18)
+        catch (IOException ioexception)
         {
-            throw new RuntimeException(var18);
+            throw new RuntimeException(ioexception);
+        }
+        finally
+        {
+            IOUtils.closeQuietly(inputstream);
         }
     }
 }

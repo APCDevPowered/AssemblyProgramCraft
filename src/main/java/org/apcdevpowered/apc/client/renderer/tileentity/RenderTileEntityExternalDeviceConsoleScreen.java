@@ -3,6 +3,7 @@ package org.apcdevpowered.apc.client.renderer.tileentity;
 import java.io.IOException;
 import java.io.InputStream;
 
+import org.apache.commons.io.IOUtils;
 import org.apcdevpowered.apc.common.AssemblyProgramCraft;
 import org.apcdevpowered.apc.common.block.BlockExternalDeviceConsoleScreen;
 import org.apcdevpowered.apc.common.tileEntity.TileEntityExternalDeviceConsoleScreen;
@@ -560,14 +561,20 @@ public class RenderTileEntityExternalDeviceConsoleScreen extends TileEntitySpeci
     }
     static
     {
+        InputStream inputstream = null;
+
         try
         {
-            InputStream inputstream = Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("font/glyph_sizes.bin")).getInputStream();
-            inputstream.read(glyphWidth);
+            inputstream = Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("font/glyph_sizes.bin")).getInputStream();
+            IOUtils.readFully(inputstream, glyphWidth);
         }
-        catch (IOException exception)
+        catch (IOException ioexception)
         {
-            throw new RuntimeException(exception);
+            throw new RuntimeException(ioexception);
+        }
+        finally
+        {
+            IOUtils.closeQuietly(inputstream);
         }
     }
 }
