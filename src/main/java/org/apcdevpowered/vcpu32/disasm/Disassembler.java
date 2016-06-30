@@ -20,6 +20,7 @@ import org.apcdevpowered.vcpu32.disasm.Disassembler.AbstractSyntaxTree.Construct
 import org.apcdevpowered.vcpu32.disasm.Disassembler.AbstractSyntaxTree.DummyInstruction;
 import org.apcdevpowered.vcpu32.disasm.Disassembler.AbstractSyntaxTree.Instruction;
 import org.apcdevpowered.vcpu32.disasm.Disassembler.AbstractSyntaxTree.Label;
+import org.apcdevpowered.vcpu32.disasm.Disassembler.DisassembleContext.IntermediateData;
 import org.apcdevpowered.vcpu32.disasm.Disassembler.DisassembleContext.IntermediateData.InstructionAnalyzeContext;
 
 public class Disassembler
@@ -66,6 +67,7 @@ public class Disassembler
         {
             return intermediateData;
         }
+        
         protected static class IntermediateData
         {
             private final InstructionAnalyzeContext instructionAnalyzeContext;
@@ -78,7 +80,6 @@ public class Disassembler
                 readedStaticDataList = new ArrayList<SingleEntry<Integer, Integer>>();
                 staticStringDataList = new ArrayList<SingleEntry<String, Integer>>();
             }
-            
             protected List<SingleEntry<Integer, Integer>> getReadedStaticDataList()
             {
                 return readedStaticDataList;
@@ -91,6 +92,7 @@ public class Disassembler
             {
                 return instructionAnalyzeContext;
             }
+            
             protected static class InstructionAnalyzeContext
             {
                 private int offset;
@@ -360,36 +362,25 @@ public class Disassembler
         int pointer = 0;
         int[] programByteCode = context.getProgramByteCode();
         InstructionAnalyzeContext instructionAnalyzeContext = context.getIntermediateData().getInstructionAnalyzeContext();
-        
         while (pointer < programByteCode.length)
         {
             instructionAnalyzeContext.resetContext();
             instructionAnalyzeContext.setOffset(pointer);
             analyzeInstruction(context);
-            int opcode = instructionAnalyzeContext.getOpcode();
-            int parCount = instructionAnalyzeContext.getParCount();
+            getParsType(context);
+            getParsData(context);
+            getParsValue(context);
             String byteCodeName = instructionAnalyzeContext.getByteCodeName();
-            {
-                int[] parsType = new int[parCount];
-                getParsType(opcode, parCount, parsType);
-                instructionAnalyzeContext.setParsType(parsType);
-            }
-            {
-                int[] parsData = new int[parCount];
-                getParsData(programByteCode, pointer + 1, parCount, parsData);
-                instructionAnalyzeContext.setParsData(parsData);
-            }
-            {
-                String[] parsValue = new String[parCount];
-                getParsValue(context.getStaticData(), parCount, instructionAnalyzeContext.getParsType(), instructionAnalyzeContext.getParsData(), parsValue, context.getAbstractSyntaxTree(), context.getIntermediateData().getReadedStaticDataList(), context.getIntermediateData().getStaticStringDataList());
-                instructionAnalyzeContext.setParsValue(parsValue);
-            }
+            int parCount = instructionAnalyzeContext.getParCount();
+            int[] parsType = instructionAnalyzeContext.getParsType();
+            int[] parsData = instructionAnalyzeContext.getParsData();
+            String[] parsValue = instructionAnalyzeContext.getParsValue();
             Instruction instruction = context.getAbstractSyntaxTree().new Instruction();
             instruction.name = byteCodeName;
             instruction.parCount = parCount;
-            instruction.parsValue = instructionAnalyzeContext.getParsValue();
-            instruction.parsData = instructionAnalyzeContext.getParsData();
-            instruction.parsType = instructionAnalyzeContext.getParsType();
+            instruction.parsValue = parsValue;
+            instruction.parsData = parsData;
+            instruction.parsType = parsType;
             instruction.lineNumber = context.getAbstractSyntaxTree().debugInfo.getLineNumberByOffset(pointer);
             context.getAbstractSyntaxTree().abstractSyntaxTree.add(instruction);
             pointer += (1 + parCount);
@@ -408,13 +399,11 @@ public class Disassembler
     {
         int[] programByteCode = context.getProgramByteCode();
         InstructionAnalyzeContext instructionAnalyzeContext = context.getIntermediateData().getInstructionAnalyzeContext();
-        
         int offset = instructionAnalyzeContext.getOffset();
         int opcode = programByteCode[offset];
         int parCount = getParCount(opcode);
         int byteCode = getByteCode(opcode);
         String byteCodeName = getInsnName(byteCode);
-        
         instructionAnalyzeContext.setOpcode(opcode);
         instructionAnalyzeContext.setParCount(parCount);
         instructionAnalyzeContext.setByteCode(byteCode);
@@ -522,8 +511,18 @@ public class Disassembler
         }
         return operator.getImage();
     }
-    private static void getParsValue(int[] staticData, int parCount, int[] parsType, int[] parsData, String[] parsValue, AbstractSyntaxTree abstractSyntaxTree, List<SingleEntry<Integer, Integer>> readedStaticDataList, List<SingleEntry<String, Integer>> staticStringDataList)
+    private static void getParsValue(DisassembleContext context)
     {
+        AbstractSyntaxTree abstractSyntaxTree = context.getAbstractSyntaxTree();
+        int[] staticData = context.getStaticData();
+        IntermediateData intermediateData = context.getIntermediateData();
+        List<SingleEntry<Integer, Integer>> readedStaticDataList = intermediateData.getReadedStaticDataList();
+        List<SingleEntry<String, Integer>> staticStringDataList = intermediateData.getStaticStringDataList();
+        InstructionAnalyzeContext instructionAnalyzeContext = intermediateData.getInstructionAnalyzeContext();
+        int parCount = instructionAnalyzeContext.getParCount();
+        int[] parsType = instructionAnalyzeContext.getParsType();
+        int[] parsData = instructionAnalyzeContext.getParsData();
+        String[] parsValue = new String[parCount];
         for (int i = 0; i < parCount; i++)
         {
             int parType = parsType[i];
@@ -632,6 +631,7 @@ public class Disassembler
                 parsValue[i] = '[' + Register.fromData(parData).getImage() + ']';
             }
         }
+        instructionAnalyzeContext.setParsValue(parsValue);
     }
     private static boolean isCommonChar(int codePoint)
     {
@@ -693,15 +693,26 @@ public class Disassembler
         }
         return parCount;
     }
-    private static void getParsData(int[] programByteCode, int idx, int parCount, int[] parsData)
+    private static void getParsData(DisassembleContext context)
     {
+        InstructionAnalyzeContext instructionAnalyzeContext = context.getIntermediateData().getInstructionAnalyzeContext();
+        int offset = instructionAnalyzeContext.getOffset();
+        int parCount = instructionAnalyzeContext.getParCount();
+        int[] parsData = new int[parCount];
+        int idx = offset + 1;
+        int[] programByteCode = context.getProgramByteCode();
         for (int i = 0; i < parCount; i++)
         {
             parsData[i] = programByteCode[idx + i];
         }
+        instructionAnalyzeContext.setParsData(parsData);
     }
-    private static void getParsType(int opcode, int parCount, int[] parsType)
+    private static void getParsType(DisassembleContext context)
     {
+        InstructionAnalyzeContext instructionAnalyzeContext = context.getIntermediateData().getInstructionAnalyzeContext();
+        int opcode = instructionAnalyzeContext.getOpcode();
+        int parCount = instructionAnalyzeContext.getParCount();
+        int[] parsType = new int[parCount];
         int par1 = (opcode >> 29) & 7;
         int par2 = (opcode >> 26) & 7;
         int par3 = (opcode >> 23) & 7;
@@ -728,5 +739,6 @@ public class Disassembler
             parsType[2] = par3;
             parsType[3] = par4;
         }
+        instructionAnalyzeContext.setParsType(parsType);
     }
 }
