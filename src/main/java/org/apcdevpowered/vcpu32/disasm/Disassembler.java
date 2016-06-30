@@ -30,8 +30,7 @@ public class Disassembler
         private final int[] staticData;
         private final boolean labelAnalyze;
         private final boolean staticDataAnalyze;
-        private final List<SingleEntry<Integer, Integer>> readedStaticDataList = new ArrayList<SingleEntry<Integer, Integer>>();
-        private final List<SingleEntry<String, Integer>> staticStringDataList = new ArrayList<SingleEntry<String, Integer>>();
+        private final IntermediateData intermediateData;
         
         public DisassembleContext(AbstractSyntaxTree abstractSyntaxTree, int[] programByteCode, int[] staticData, boolean labelAnalyze, boolean staticDataAnalyze)
         {
@@ -40,6 +39,7 @@ public class Disassembler
             this.staticData = staticData;
             this.labelAnalyze = labelAnalyze;
             this.staticDataAnalyze = staticDataAnalyze;
+            this.intermediateData = new IntermediateData();
         }
         public AbstractSyntaxTree getAbstractSyntaxTree()
         {
@@ -61,13 +61,23 @@ public class Disassembler
         {
             return staticDataAnalyze;
         }
-        public List<SingleEntry<Integer, Integer>> getReadedStaticDataList()
+        public IntermediateData getIntermediateData()
         {
-            return readedStaticDataList;
+            return intermediateData;
         }
-        public List<SingleEntry<String, Integer>> getStaticStringDataList()
+        protected static class IntermediateData
         {
-            return staticStringDataList;
+            private final List<SingleEntry<Integer, Integer>> readedStaticDataList = new ArrayList<SingleEntry<Integer, Integer>>();
+            private final List<SingleEntry<String, Integer>> staticStringDataList = new ArrayList<SingleEntry<String, Integer>>();
+            
+            protected List<SingleEntry<Integer, Integer>> getReadedStaticDataList()
+            {
+                return readedStaticDataList;
+            }
+            protected List<SingleEntry<String, Integer>> getStaticStringDataList()
+            {
+                return staticStringDataList;
+            }
         }
     }
     public static class AbstractSyntaxTree
@@ -242,19 +252,22 @@ public class Disassembler
     }
     public static String decompile(DisassembleContext context)
     {
-        for (int pointer = 0; pointer < context.getProgramByteCode().length;)
+        int pointer = 0;
+        int[] programByteCode = context.getProgramByteCode();
+        
+        while (pointer < programByteCode.length)
         {
             int offset = pointer;
-            int opcode = context.getProgramByteCode()[pointer];
+            int opcode = programByteCode[pointer];
             int parCount = getParCount(opcode);
             int byteCode = getByteCode(opcode);
             String byteCodeName = getInsnName(byteCode);
             int[] parsType = new int[parCount];
             getParsType(opcode, parsType);
             int[] parsData = new int[parCount];
-            getParsData(context.getProgramByteCode(), offset + 1, parsData);
+            getParsData(programByteCode, offset + 1, parsData);
             String[] parsValue = new String[parCount];
-            getParsValue(context.getStaticData(), parsType, parsData, parsValue, context.getAbstractSyntaxTree(), context.getReadedStaticDataList(), context.getStaticStringDataList());
+            getParsValue(context.getStaticData(), parsType, parsData, parsValue, context.getAbstractSyntaxTree(), context.getIntermediateData().getReadedStaticDataList(), context.getIntermediateData().getStaticStringDataList());
             Instruction instruction = context.getAbstractSyntaxTree().new Instruction();
             instruction.name = byteCodeName;
             instruction.parCount = parCount;
@@ -271,11 +284,11 @@ public class Disassembler
         }
         if (context.isStaticDataAnalyze())
         {
-            runStaticDataAnalyze(context.getAbstractSyntaxTree(), context.getReadedStaticDataList(), context.getStaticData(), context.getStaticStringDataList());
+            runStaticDataAnalyze(context.getAbstractSyntaxTree(), context.getIntermediateData().getReadedStaticDataList(), context.getStaticData(), context.getIntermediateData().getStaticStringDataList());
         }
         return context.getAbstractSyntaxTree().getAssemblyCode();
     }
-    public static void runStaticDataAnalyze(AbstractSyntaxTree abstractSyntaxTree, List<SingleEntry<Integer, Integer>> readedStaticDataList, int[] staticData, List<SingleEntry<String, Integer>> staticStringDataList)
+    private static void runStaticDataAnalyze(AbstractSyntaxTree abstractSyntaxTree, List<SingleEntry<Integer, Integer>> readedStaticDataList, int[] staticData, List<SingleEntry<String, Integer>> staticStringDataList)
     {
         nextData:
         for (int i = 0; i < staticData.length; i++)
@@ -311,7 +324,7 @@ public class Disassembler
             abstractSyntaxTree.abstractSyntaxTree.add(instruction);
         }
     }
-    public static void runLabelAnalyze(AbstractSyntaxTree abstractSyntaxTree)
+    private static void runLabelAnalyze(AbstractSyntaxTree abstractSyntaxTree)
     {
         int autoLabelID = 0;
         Map<Integer, Set<String>> offsetLabelMap = abstractSyntaxTree.debugInfo.getOffsetLabelMap();
@@ -368,7 +381,7 @@ public class Disassembler
             }
         }
     }
-    public static String getInsnName(int insnData)
+    private static String getInsnName(int insnData)
     {
         Operator operator = OperatorsManager.fromInsnData(insnData);
         if (operator == null)
@@ -377,7 +390,7 @@ public class Disassembler
         }
         return operator.getImage();
     }
-    public static void getParsValue(int[] staticData, int[] parsType, int[] parsData, String[] parsValue, AbstractSyntaxTree abstractSyntaxTree, List<SingleEntry<Integer, Integer>> readedStaticDataList, List<SingleEntry<String, Integer>> staticStringDataList)
+    private static void getParsValue(int[] staticData, int[] parsType, int[] parsData, String[] parsValue, AbstractSyntaxTree abstractSyntaxTree, List<SingleEntry<Integer, Integer>> readedStaticDataList, List<SingleEntry<String, Integer>> staticStringDataList)
     {
         for (int i = 0; i < parsType.length; i++)
         {
@@ -519,11 +532,11 @@ public class Disassembler
                 return false;
         }
     }
-    public static int getByteCode(int opcode)
+    private static int getByteCode(int opcode)
     {
         return opcode & 0xFFF;
     }
-    public static int getParCount(int opcode)
+    private static int getParCount(int opcode)
     {
         int par1 = (opcode >> 29) & 7;
         int par2 = (opcode >> 26) & 7;
@@ -548,14 +561,14 @@ public class Disassembler
         }
         return parCount;
     }
-    public static void getParsData(int[] programByteCode, int idx, int[] parsData)
+    private static void getParsData(int[] programByteCode, int idx, int[] parsData)
     {
         for (int i = 0; i < parsData.length; i++)
         {
             parsData[i] = programByteCode[idx + i];
         }
     }
-    public static void getParsType(int opcode, int[] parsType)
+    private static void getParsType(int opcode, int[] parsType)
     {
         int parCount = parsType.length;
         int par1 = (opcode >> 29) & 7;
