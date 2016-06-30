@@ -20,9 +20,12 @@ import org.apcdevpowered.vcpu32.disasm.Disassembler.AbstractSyntaxTree.Construct
 import org.apcdevpowered.vcpu32.disasm.Disassembler.AbstractSyntaxTree.DummyInstruction;
 import org.apcdevpowered.vcpu32.disasm.Disassembler.AbstractSyntaxTree.Instruction;
 import org.apcdevpowered.vcpu32.disasm.Disassembler.AbstractSyntaxTree.Label;
+import org.apcdevpowered.vcpu32.disasm.Disassembler.DisassembleContext.IntermediateData.InstructionAnalyzeContext;
 
 public class Disassembler
 {
+    private static final int MAX_PAR_COUNT = 4;
+    
     public static class DisassembleContext
     {
         private final AbstractSyntaxTree abstractSyntaxTree;
@@ -67,8 +70,16 @@ public class Disassembler
         }
         protected static class IntermediateData
         {
-            private final List<SingleEntry<Integer, Integer>> readedStaticDataList = new ArrayList<SingleEntry<Integer, Integer>>();
-            private final List<SingleEntry<String, Integer>> staticStringDataList = new ArrayList<SingleEntry<String, Integer>>();
+            private final InstructionAnalyzeContext instructionAnalyzeContext;
+            private final List<SingleEntry<Integer, Integer>> readedStaticDataList;
+            private final List<SingleEntry<String, Integer>> staticStringDataList;
+            
+            protected IntermediateData()
+            {
+                instructionAnalyzeContext = new InstructionAnalyzeContext();
+                readedStaticDataList = new ArrayList<SingleEntry<Integer, Integer>>();
+                staticStringDataList = new ArrayList<SingleEntry<String, Integer>>();
+            }
             
             protected List<SingleEntry<Integer, Integer>> getReadedStaticDataList()
             {
@@ -77,6 +88,71 @@ public class Disassembler
             protected List<SingleEntry<String, Integer>> getStaticStringDataList()
             {
                 return staticStringDataList;
+            }
+            protected InstructionAnalyzeContext getInstructionAnalyzeContext()
+            {
+                return instructionAnalyzeContext;
+            }
+            protected static class InstructionAnalyzeContext
+            {
+                private int offset;
+                private int opcode;
+                private int parCount;
+                private int byteCode;
+                private String byteCodeName;
+                
+                protected InstructionAnalyzeContext()
+                {
+                    resetContext();
+                }
+                protected void resetContext()
+                {
+                    offset = -1;
+                    opcode = -1;
+                    parCount = -1;
+                    byteCode = -1;
+                    byteCodeName = null;
+                }
+                protected int getOffset()
+                {
+                    return offset;
+                }
+                protected void setOffset(int offset)
+                {
+                    this.offset = offset;
+                }
+                protected int getOpcode()
+                {
+                    return opcode;
+                }
+                protected void setOpcode(int opcode)
+                {
+                    this.opcode = opcode;
+                }
+                protected int getParCount()
+                {
+                    return parCount;
+                }
+                protected void setParCount(int parCount)
+                {
+                    this.parCount = parCount;
+                }
+                protected int getByteCode()
+                {
+                    return byteCode;
+                }
+                protected void setByteCode(int byteCode)
+                {
+                    this.byteCode = byteCode;
+                }
+                protected String getByteCodeName()
+                {
+                    return byteCodeName;
+                }
+                protected void setByteCodeName(String byteCodeName)
+                {
+                    this.byteCodeName = byteCodeName;
+                }
             }
         }
     }
@@ -254,18 +330,20 @@ public class Disassembler
     {
         int pointer = 0;
         int[] programByteCode = context.getProgramByteCode();
+        InstructionAnalyzeContext instructionAnalyzeContext = context.getIntermediateData().getInstructionAnalyzeContext();
         
         while (pointer < programByteCode.length)
         {
-            int offset = pointer;
-            int opcode = programByteCode[pointer];
-            int parCount = getParCount(opcode);
-            int byteCode = getByteCode(opcode);
-            String byteCodeName = getInsnName(byteCode);
+            instructionAnalyzeContext.resetContext();
+            instructionAnalyzeContext.setOffset(pointer);
+            analyzeInstruction(context);
+            int opcode = instructionAnalyzeContext.getOpcode();
+            int parCount = instructionAnalyzeContext.getParCount();
+            String byteCodeName = instructionAnalyzeContext.getByteCodeName();
             int[] parsType = new int[parCount];
             getParsType(opcode, parsType);
             int[] parsData = new int[parCount];
-            getParsData(programByteCode, offset + 1, parsData);
+            getParsData(programByteCode, pointer + 1, parsData);
             String[] parsValue = new String[parCount];
             getParsValue(context.getStaticData(), parsType, parsData, parsValue, context.getAbstractSyntaxTree(), context.getIntermediateData().getReadedStaticDataList(), context.getIntermediateData().getStaticStringDataList());
             Instruction instruction = context.getAbstractSyntaxTree().new Instruction();
@@ -274,7 +352,7 @@ public class Disassembler
             instruction.parsValue = parsValue;
             instruction.parsData = parsData;
             instruction.parsType = parsType;
-            instruction.lineNumber = context.getAbstractSyntaxTree().debugInfo.getLineNumberByOffset(offset);
+            instruction.lineNumber = context.getAbstractSyntaxTree().debugInfo.getLineNumberByOffset(pointer);
             context.getAbstractSyntaxTree().abstractSyntaxTree.add(instruction);
             pointer += (1 + parCount);
         }
@@ -287,6 +365,22 @@ public class Disassembler
             runStaticDataAnalyze(context.getAbstractSyntaxTree(), context.getIntermediateData().getReadedStaticDataList(), context.getStaticData(), context.getIntermediateData().getStaticStringDataList());
         }
         return context.getAbstractSyntaxTree().getAssemblyCode();
+    }
+    private static void analyzeInstruction(DisassembleContext context)
+    {
+        int[] programByteCode = context.getProgramByteCode();
+        InstructionAnalyzeContext instructionAnalyzeContext = context.getIntermediateData().getInstructionAnalyzeContext();
+        
+        int offset = instructionAnalyzeContext.getOffset();
+        int opcode = programByteCode[offset];
+        int parCount = getParCount(opcode);
+        int byteCode = getByteCode(opcode);
+        String byteCodeName = getInsnName(byteCode);
+        
+        instructionAnalyzeContext.setOpcode(opcode);
+        instructionAnalyzeContext.setParCount(parCount);
+        instructionAnalyzeContext.setByteCode(byteCode);
+        instructionAnalyzeContext.setByteCodeName(byteCodeName);
     }
     private static void runStaticDataAnalyze(AbstractSyntaxTree abstractSyntaxTree, List<SingleEntry<Integer, Integer>> readedStaticDataList, int[] staticData, List<SingleEntry<String, Integer>> staticStringDataList)
     {
