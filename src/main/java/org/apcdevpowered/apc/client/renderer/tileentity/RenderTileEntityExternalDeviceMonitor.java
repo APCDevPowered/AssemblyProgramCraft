@@ -166,7 +166,7 @@ public class RenderTileEntityExternalDeviceMonitor extends TileEntitySpecialRend
         
         if(texture == null)
         {
-            texture = new DynamicTexture(75, 100);
+            texture = new DynamicTexture(100, 75);
             
             texture.setBlurMipmap(true, true);
         }

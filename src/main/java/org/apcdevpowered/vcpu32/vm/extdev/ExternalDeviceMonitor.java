@@ -31,10 +31,10 @@ public class ExternalDeviceMonitor extends AbstractExternalDevice
             return;
         }
         int red = (value & 0xFF000000) >>> 24;
-        int green = (value & 0xFF0000) >>> 16;
-        int blue = (value & 0xFF00) >>> 8;
+        int green = (value & 0x00FF0000) >>> 16;
+        int blue = (value & 0x0000FF00) >>> 8;
         
-        value = 0xFF000000 | (blue << 16) | (green << 8) | red;
+        value = 0xFF000000 | (red << 16) | (green << 8) | (blue << 0);
         
         if(idx == 0)
         {
