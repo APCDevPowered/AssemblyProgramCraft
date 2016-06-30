@@ -1,5 +1,7 @@
 package org.apcdevpowered.apc.common.tileEntity;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import org.apcdevpowered.apc.common.AssemblyProgramCraft;
 import org.apcdevpowered.apc.common.block.BlockExternalDeviceNumberMonitor;
 import org.apcdevpowered.apc.common.network.AssemblyProgramCraftPacket;
@@ -12,7 +14,7 @@ import net.minecraft.util.EnumFacing;
 
 public class TileEntityExternalDeviceNumberMonitor extends TileEntityExternalDevice
 {
-    public volatile boolean needSync;
+    public AtomicBoolean needSync = new AtomicBoolean();
     public volatile int number;
     public ExternalDeviceNumberMonitor externalDeviceNumberMonitor = new ExternalDeviceNumberMonitor(this);
     
@@ -22,10 +24,9 @@ public class TileEntityExternalDeviceNumberMonitor extends TileEntityExternalDev
     public void update()
     {
         super.update();
-        if (needSync)
+        if (needSync.compareAndSet(true, false))
         {
             syncMonitorData();
-            needSync = false;
         }
     }
     public AbstractExternalDevice getExternalDevice()

@@ -25,7 +25,7 @@ public class ExternalDeviceNumberMonitor extends AbstractExternalDevice
             return;
         }
         numberMonitor.number = value;
-        numberMonitor.needSync = true;
+        numberMonitor.needSync.set(true);
     }
     public int getMemoryValue(int idx)
     {
