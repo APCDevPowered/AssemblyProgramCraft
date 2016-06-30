@@ -889,22 +889,37 @@ public class AssemblyVirtualThread
         }
         if (parLength > 0)
         {
-            int[] tmp = new int[parLength];
-            for (int i = 0; i < parLength; i++)
+            if (returnAddress < 0)
             {
-                tmp[tmp.length - 1 - i] = stackFrame.pop();
-                if (thread.timeToQuit == true)
+                for (int i = 0; i < parLength; i++)
                 {
-                    return;
+                    stackFrame.pop();
+                    if (thread.timeToQuit == true)
+                    {
+                        return;
+                    }
                 }
+                stack.pop().isInvalid = true;
             }
-            stack.pop().isInvalid = true;
-            for (int i = 0; i < tmp.length; i++)
+            else
             {
-                pushInCurrentStackFrame(tmp[i]);
-                if (thread.timeToQuit == true)
+                int[] tmp = new int[parLength];
+                for (int i = 0; i < parLength; i++)
                 {
-                    return;
+                    tmp[tmp.length - 1 - i] = stackFrame.pop();
+                    if (thread.timeToQuit == true)
+                    {
+                        return;
+                    }
+                }
+                stack.pop().isInvalid = true;
+                for (int i = 0; i < tmp.length; i++)
+                {
+                    pushInCurrentStackFrame(tmp[i]);
+                    if (thread.timeToQuit == true)
+                    {
+                        return;
+                    }
                 }
             }
         }
@@ -912,10 +927,17 @@ public class AssemblyVirtualThread
         {
             stack.pop().isInvalid = true;
         }
-        setRegisterValue(REG_PC, returnAddress);
-        if (thread.timeToQuit == true)
+        if (returnAddress < 0)
         {
-            return;
+            shutdown();
+        }
+        else
+        {
+            setRegisterValue(REG_PC, returnAddress);
+            if (thread.timeToQuit == true)
+            {
+                return;
+            }
         }
         List<EventImpl> events = new ArrayList<EventImpl>();
         synchronized (getVM().enabledMethodExitRequestList)
@@ -3803,7 +3825,6 @@ public class AssemblyVirtualThread
                     {
                         if (parCount == 0)
                         {
-                            int returnAddress = getCurrentStackFrameReturnAddress();
                             if (timeToQuit == true)
                             {
                                 break interrupt;
