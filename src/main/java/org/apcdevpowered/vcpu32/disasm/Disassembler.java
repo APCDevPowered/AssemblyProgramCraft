@@ -387,11 +387,11 @@ public class Disassembler
         }
         if (context.isLabelAnalyze())
         {
-            runLabelAnalyze(context.getAbstractSyntaxTree());
+            runLabelAnalyze(context);
         }
         if (context.isStaticDataAnalyze())
         {
-            runStaticDataAnalyze(context.getAbstractSyntaxTree(), context.getIntermediateData().getReadedStaticDataList(), context.getStaticData(), context.getIntermediateData().getStaticStringDataList());
+            runStaticDataAnalyze(context);
         }
         return context.getAbstractSyntaxTree().getAssemblyCode();
     }
@@ -409,8 +409,13 @@ public class Disassembler
         instructionAnalyzeContext.setByteCode(byteCode);
         instructionAnalyzeContext.setByteCodeName(byteCodeName);
     }
-    private static void runStaticDataAnalyze(AbstractSyntaxTree abstractSyntaxTree, List<SingleEntry<Integer, Integer>> readedStaticDataList, int[] staticData, List<SingleEntry<String, Integer>> staticStringDataList)
+    private static void runStaticDataAnalyze(DisassembleContext context)
     {
+        AbstractSyntaxTree abstractSyntaxTree = context.getAbstractSyntaxTree();
+        int[] staticData = context.getStaticData();
+        IntermediateData intermediateData = context.getIntermediateData();
+        List<SingleEntry<Integer, Integer>> readedStaticDataList = intermediateData.getReadedStaticDataList();
+        List<SingleEntry<String, Integer>> staticStringDataList = intermediateData.getStaticStringDataList();
         nextData:
         for (int i = 0; i < staticData.length; i++)
         {
@@ -445,8 +450,9 @@ public class Disassembler
             abstractSyntaxTree.abstractSyntaxTree.add(instruction);
         }
     }
-    private static void runLabelAnalyze(AbstractSyntaxTree abstractSyntaxTree)
+    private static void runLabelAnalyze(DisassembleContext context)
     {
+        AbstractSyntaxTree abstractSyntaxTree = context.getAbstractSyntaxTree();
         int autoLabelID = 0;
         Map<Integer, Set<String>> offsetLabelMap = abstractSyntaxTree.debugInfo.getOffsetLabelMap();
         Map<String, Integer> labelOffsetMap = abstractSyntaxTree.debugInfo.getLabelOffsetMap();
