@@ -4,24 +4,24 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-public class DynamicSparseArray<T> implements Iterable<T>, Cloneable
+public class DynamicArray<T> implements Iterable<T>, Cloneable
 {
     public final int initialSize;
     public final int minExpandSide;
     private int length;
     private Object[] arr;
     
-    public DynamicSparseArray()
+    public DynamicArray()
     {
         this(100, 300);
     }
-    public DynamicSparseArray(int initialSize, int minExpandSide)
+    public DynamicArray(int initialSize, int minExpandSide)
     {
         this.initialSize = initialSize;
         this.minExpandSide = minExpandSide;
         arr = new Object[initialSize];
     }
-    public DynamicSparseArray(DynamicSparseArray<T> dynamicSparseArray)
+    public DynamicArray(DynamicArray<T> dynamicSparseArray)
     {
         initialSize = dynamicSparseArray.initialSize;
         minExpandSide = dynamicSparseArray.minExpandSide;
@@ -131,7 +131,7 @@ public class DynamicSparseArray<T> implements Iterable<T>, Cloneable
             length++;
         }
     }
-    public void addAll(DynamicSparseArray<T> array)
+    public void addAll(DynamicArray<T> array)
     {
         int addLength = array.length;
         if (length + addLength > arr.length)
@@ -174,7 +174,7 @@ public class DynamicSparseArray<T> implements Iterable<T>, Cloneable
             }
         }
     }
-    public void copyData(DynamicSparseArray<T> array, int srcPos, int destPos, int length)
+    public void copyData(DynamicArray<T> array, int srcPos, int destPos, int length)
     {
         if (array == null)
         {
@@ -246,14 +246,14 @@ public class DynamicSparseArray<T> implements Iterable<T>, Cloneable
             @Override
             public boolean hasNext()
             {
-                return pointer < DynamicSparseArray.this.length();
+                return pointer < DynamicArray.this.length();
             }
             @Override
             public T next()
             {
-                if (pointer < DynamicSparseArray.this.length())
+                if (pointer < DynamicArray.this.length())
                 {
-                    return DynamicSparseArray.this.get(pointer++);
+                    return DynamicArray.this.get(pointer++);
                 }
                 else
                 {
@@ -263,13 +263,13 @@ public class DynamicSparseArray<T> implements Iterable<T>, Cloneable
             @Override
             public void remove()
             {
-                DynamicSparseArray.this.remove(pointer);
+                DynamicArray.this.remove(pointer);
             }
         };
     }
     @Override
-    public DynamicSparseArray<T> clone()
+    public DynamicArray<T> clone()
     {
-        return new DynamicSparseArray<T>(this);
+        return new DynamicArray<T>(this);
     }
 }

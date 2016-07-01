@@ -6,14 +6,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.apcdevpowered.util.DynamicSparseArray;
+import org.apcdevpowered.util.DynamicArray;
 import org.apcdevpowered.util.IntUtils;
 import org.apcdevpowered.util.StringUtils;
 import org.apcdevpowered.vcpu32.asm.Assembler.CompileContext;
 
 public class FragmentProgram
 {
-    private DynamicSparseArray<Integer> slots = new DynamicSparseArray<Integer>();
+    private DynamicArray<Integer> slots = new DynamicArray<Integer>();
     // 键为标签文本内容，值为标签所指示的字节码帧位置。
     private Map<String, Integer> labelDefMap = new HashMap<String, Integer>();
     // 键为标签文本内容，值为ArrayList数组，包含所有申请标签的字节码的帧位置。
@@ -21,7 +21,7 @@ public class FragmentProgram
     // 键为文本内容，值为ArrayList数组，包含所有申请此字符串字节码的帧位置。
     private Map<OffsetWithDataPackage<String>, List<Integer>> stringRequestListMap = new HashMap<OffsetWithDataPackage<String>, List<Integer>>();
     // 键为数据内容，值为申请此其他数据字节码的帧位置
-    private Map<OffsetWithDataPackage<DynamicSparseArray<Integer>>, Integer> dataRequestMap = new HashMap<OffsetWithDataPackage<DynamicSparseArray<Integer>>, Integer>();
+    private Map<OffsetWithDataPackage<DynamicArray<Integer>>, Integer> dataRequestMap = new HashMap<OffsetWithDataPackage<DynamicArray<Integer>>, Integer>();
     // 请求静态储存区偏移量的位置
     private List<Integer> staticOffsetRequestList = new ArrayList<Integer>();
     // 调试信息
@@ -30,11 +30,11 @@ public class FragmentProgram
     public FragmentProgram()
     {
     }
-    public FragmentProgram(DynamicSparseArray<Integer> slots)
+    public FragmentProgram(DynamicArray<Integer> slots)
     {
         this.slots.addAll(slots);
     }
-    public DynamicSparseArray<Integer> getSlots()
+    public DynamicArray<Integer> getSlots()
     {
         return slots;
     }
@@ -85,7 +85,7 @@ public class FragmentProgram
                 }
             }
         }
-        for (Entry<OffsetWithDataPackage<DynamicSparseArray<Integer>>, Integer> entry : program.dataRequestMap.entrySet())
+        for (Entry<OffsetWithDataPackage<DynamicArray<Integer>>, Integer> entry : program.dataRequestMap.entrySet())
         {
             addDataRequest(entry.getKey(), entry.getValue() == -1 ? -1 : entry.getValue() + offset);
         }
@@ -205,13 +205,13 @@ public class FragmentProgram
             stringRequestList.add(index);
         }
     }
-    public void addDataRequest(OffsetWithDataPackage<DynamicSparseArray<Integer>> data, int index)
+    public void addDataRequest(OffsetWithDataPackage<DynamicArray<Integer>> data, int index)
     {
         if (index < -1)
         {
             throw new IllegalArgumentException();
         }
-        dataRequestMap.put(data.clone(), index);
+        dataRequestMap.put(data, index);
     }
     public void addStaticOffsetRequest(int index)
     {
@@ -241,7 +241,7 @@ public class FragmentProgram
         programPackage.startStaticRAM = context.getRuntimeStaticRAMSlot();
         programPackage.isBIOS = context.isBios();
         programPackage.programEnd = slots.length();
-        DynamicSparseArray<Integer> programData = new DynamicSparseArray<Integer>(slots);
+        DynamicArray<Integer> programData = slots.clone();
         try
         {
             linkLabel(programData, context);
@@ -266,7 +266,7 @@ public class FragmentProgram
      * @param context
      *            编译上下文
      */
-    private void linkLabel(DynamicSparseArray<Integer> programData, CompileContext context) throws LabelMissingException
+    private void linkLabel(DynamicArray<Integer> programData, CompileContext context) throws LabelMissingException
     {
         for (Entry<String, List<Integer>> entry : labelRequestListMap.entrySet())
         {
@@ -291,7 +291,7 @@ public class FragmentProgram
      * @param context
      *            编译上下文
      */
-    private void linkString(DynamicSparseArray<Integer> programData, CompileContext context)
+    private void linkString(DynamicArray<Integer> programData, CompileContext context)
     {
         for (Entry<OffsetWithDataPackage<String>, List<Integer>> entry : stringRequestListMap.entrySet())
         {
@@ -324,12 +324,12 @@ public class FragmentProgram
      * @param context
      *            编译上下文
      */
-    private void linkData(DynamicSparseArray<Integer> programData, CompileContext context)
+    private void linkData(DynamicArray<Integer> programData, CompileContext context)
     {
-        for (Entry<OffsetWithDataPackage<DynamicSparseArray<Integer>>, Integer> entry : dataRequestMap.entrySet())
+        for (Entry<OffsetWithDataPackage<DynamicArray<Integer>>, Integer> entry : dataRequestMap.entrySet())
         {
             int offset = entry.getKey().offset;
-            DynamicSparseArray<Integer> data = entry.getKey().data;
+            DynamicArray<Integer> data = entry.getKey().data;
             int dataSlot = 0;
             if (offset == -1)
             {
@@ -355,7 +355,7 @@ public class FragmentProgram
      * @param context
      *            编译上下文
      */
-    private void linkStaticOffset(DynamicSparseArray<Integer> programData, CompileContext context)
+    private void linkStaticOffset(DynamicArray<Integer> programData, CompileContext context)
     {
         for (Integer requestOffset : staticOffsetRequestList)
         {

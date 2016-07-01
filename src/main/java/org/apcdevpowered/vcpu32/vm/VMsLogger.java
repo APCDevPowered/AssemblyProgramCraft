@@ -1,7 +1,7 @@
 package org.apcdevpowered.vcpu32.vm;
 
 import org.apcdevpowered.apc.common.config.ConfigSystem;
-import org.apcdevpowered.util.DynamicSparseArray;
+import org.apcdevpowered.util.DynamicArray;
 import org.apcdevpowered.vcpu32.vm.AssemblyVirtualThread.AVThreadStackFrame;
 
 import static org.apcdevpowered.vcpu32.vm.Registers.*;
@@ -78,7 +78,7 @@ public class VMsLogger
             "CurrentStackFrameReturnAddress:" + stackFrame.getReturnAddress() + "\n" + 
             "CurrentStackFrameParLength:" + stackFrame.getParLength() + "\n" + 
             "CurrentStackFrameStack:"+ "\n";
-        DynamicSparseArray<Integer> stack = stackFrame.getStack();
+        DynamicArray<Integer> stack = stackFrame.getStack();
         for(int i = 0;i < SP;i++)
         {
             Integer value = stack.get(i);

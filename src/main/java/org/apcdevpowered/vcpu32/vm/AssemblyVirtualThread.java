@@ -8,7 +8,7 @@ import java.util.Stack;
 import java.util.concurrent.ConcurrentSkipListSet;
 
 import org.apcdevpowered.util.BitUtils;
-import org.apcdevpowered.util.DynamicSparseArray;
+import org.apcdevpowered.util.DynamicArray;
 import org.apcdevpowered.util.HandlerAllocateList;
 import org.apcdevpowered.util.IntUtils;
 import org.apcdevpowered.vcpu32.vm.debugger.impl.LocationImpl;
@@ -1284,7 +1284,7 @@ public class AssemblyVirtualThread
         // 栈指针寄存器
         private int SP;
         // 数据栈
-        private DynamicSparseArray<Integer> stack = new DynamicSparseArray<Integer>();
+        private DynamicArray<Integer> stack = new DynamicArray<Integer>();
         // 入口地址
         private int enterAddress = -1;
         // 返回地址
@@ -1390,7 +1390,7 @@ public class AssemblyVirtualThread
                     throw new IllegalArgumentException("Register not found");
             }
         }
-        public DynamicSparseArray<Integer> getStack()
+        public DynamicArray<Integer> getStack()
         {
             return stack;
         }

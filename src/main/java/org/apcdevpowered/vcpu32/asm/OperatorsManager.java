@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apcdevpowered.util.DynamicSparseArray;
+import org.apcdevpowered.util.DynamicArray;
 import org.apcdevpowered.util.StringUtils;
 import org.apcdevpowered.vcpu32.asm.Assembler.CompileContext;
 import org.apcdevpowered.vcpu32.asm.DatatypeManager.Datatype;
@@ -236,7 +236,8 @@ public class OperatorsManager
     public static final Operator optRLCK = new MachineInsnOperator("RLCK", Arrays.asList(ParDatatypes.fromDatatypes(typeMemDec, typeMemHex, typeMemOct, typeMemBin, typeMemReg, typeMemLabel, typeChar, typeHex, typeOct, typeBin, typeDec, typeReg, typeLabel)), 0x028);
     public static final Operator optWLCK = new MachineInsnOperator("WLCK", Arrays.asList(ParDatatypes.fromDatatypes(typeMemDec, typeMemHex, typeMemOct, typeMemBin, typeMemReg, typeMemLabel, typeChar, typeHex, typeOct, typeBin, typeDec, typeReg, typeLabel), ParDatatypes.fromDatatypes(typeVoid, typeMemDec, typeMemHex, typeMemOct, typeMemBin, typeMemReg, typeMemLabel, typeChar, typeHex, typeOct, typeBin, typeDec, typeReg, typeLabel)), 0x029);
     public static final Operator optNLCK = new MachineInsnOperator("NLCK", Arrays.asList(ParDatatypes.fromDatatypes(typeMemDec, typeMemHex, typeMemOct, typeMemBin, typeMemReg, typeMemLabel, typeChar, typeHex, typeOct, typeBin, typeDec, typeReg, typeLabel), ParDatatypes.fromDatatypes(typeVoid, typeMemDec, typeMemHex, typeMemOct, typeMemBin, typeMemReg, typeMemLabel, typeChar, typeHex, typeOct, typeBin, typeDec, typeReg, typeLabel)), 0x030);
-    public static final Operator optIN = new MachineInsnOperator("IN", Arrays.asList(ParDatatypes.fromDatatypes(typeMemDec, typeMemHex, typeMemOct, typeMemBin, typeMemReg, typeMemLabel, typeChar, typeHex, typeOct, typeBin, typeDec, typeReg, typeLabel), ParDatatypes.fromDatatypes(typeMemDec, typeMemHex, typeMemOct, typeMemBin, typeMemReg, typeMemLabel, typeChar, typeHex, typeOct, typeBin, typeDec, typeReg, typeLabel), ParDatatypes.fromDatatypes(typeMemDec, typeMemHex, typeMemOct, typeMemBin, typeMemReg, typeMemLabel, typeReg)), 0x040);
+    public static final Operator optIN = new MachineInsnOperator("IN",
+            Arrays.asList(ParDatatypes.fromDatatypes(typeMemDec, typeMemHex, typeMemOct, typeMemBin, typeMemReg, typeMemLabel, typeChar, typeHex, typeOct, typeBin, typeDec, typeReg, typeLabel), ParDatatypes.fromDatatypes(typeMemDec, typeMemHex, typeMemOct, typeMemBin, typeMemReg, typeMemLabel, typeChar, typeHex, typeOct, typeBin, typeDec, typeReg, typeLabel), ParDatatypes.fromDatatypes(typeMemDec, typeMemHex, typeMemOct, typeMemBin, typeMemReg, typeMemLabel, typeReg)), 0x040);
     public static final Operator optOUT = new MachineInsnOperator("OUT", Arrays.asList(ParDatatypes.fromDatatypes(typeMemDec, typeMemHex, typeMemOct, typeMemBin, typeMemReg, typeMemLabel, typeChar, typeHex, typeOct, typeBin, typeDec, typeReg, typeLabel), ParDatatypes.fromDatatypes(typeMemDec, typeMemHex, typeMemOct, typeMemBin, typeMemReg, typeMemLabel, typeChar, typeHex, typeOct, typeBin, typeDec, typeReg, typeLabel),
             ParDatatypes.fromDatatypes(typeMemDec, typeMemHex, typeMemOct, typeMemBin, typeMemReg, typeMemLabel, typeChar, typeHex, typeOct, typeBin, typeDec, typeReg, typeLabel)), 0x041);
     public static final Operator optINS = new MachineInsnOperator("INS", Arrays.asList(ParDatatypes.fromDatatypes(typeMemDec, typeMemHex, typeMemOct, typeMemBin, typeMemReg, typeMemLabel, typeChar, typeHex, typeOct, typeBin, typeDec, typeReg, typeLabel), ParDatatypes.fromDatatypes(typeMemDec, typeMemHex, typeMemOct, typeMemBin, typeMemReg, typeMemLabel, typeChar, typeHex, typeOct, typeBin, typeDec, typeReg, typeLabel),
@@ -294,7 +295,7 @@ public class OperatorsManager
                 throw new ParImageFormatException(2, typeDec, e);
             }
             int overrideSlot = optSlotIndex + 2;
-            DynamicSparseArray<Integer> rawData = new DynamicSparseArray<Integer>();
+            DynamicArray<Integer> rawData = new DynamicArray<Integer>();
             for (int datatypeIdx = 1; datatypeIdx < datatypes.size(); datatypeIdx++)
             {
                 Datatype<?> datatype = datatypes.get(datatypeIdx);
@@ -320,7 +321,7 @@ public class OperatorsManager
                     rawData.add(Float.floatToIntBits((Float) value));
                 }
             }
-            program.addDataRequest(new OffsetWithDataPackage<DynamicSparseArray<Integer>>(rawData, -1), overrideSlot);
+            program.addDataRequest(new OffsetWithDataPackage<DynamicArray<Integer>>(rawData, -1), overrideSlot);
         }
         @Override
         public void checkParDatatypes(List<Datatype<?>> datatypes) throws IncmpParException
@@ -372,7 +373,7 @@ public class OperatorsManager
             {
                 throw new ParImageFormatException(1, par1Datatype, e);
             }
-            DynamicSparseArray<Integer> rawData = new DynamicSparseArray<Integer>();
+            DynamicArray<Integer> rawData = new DynamicArray<Integer>();
             for (int datatypeIdx = 1; datatypeIdx < datatypes.size(); datatypeIdx++)
             {
                 Datatype<?> datatype = datatypes.get(datatypeIdx);
@@ -398,7 +399,7 @@ public class OperatorsManager
                     rawData.add(Float.floatToIntBits((Float) value));
                 }
             }
-            program.addDataRequest(new OffsetWithDataPackage<DynamicSparseArray<Integer>>(rawData, offset), -1);
+            program.addDataRequest(new OffsetWithDataPackage<DynamicArray<Integer>>(rawData, offset), -1);
         }
         @Override
         public void checkParDatatypes(List<Datatype<?>> datatypes) throws IncmpParException
