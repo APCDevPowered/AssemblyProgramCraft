@@ -5,32 +5,31 @@ import java.util.EmptyStackException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-public class DynamicArray<T> implements Iterable<T>, Cloneable {
+public class DynamicIntArray implements Iterable<Integer>, Cloneable {
 	public final int initialSize;
 	public final int minExpandSize;
 	private int length;
-	private Object[] arr;
+	private int[] arr;
     
-    public DynamicArray()
+    public DynamicIntArray()
     {
         this(100, 300);
     }
-    public DynamicArray(int initialSize, int minExpandSize)
+    public DynamicIntArray(int initialSize, int minExpandSize)
     {
         this.initialSize = initialSize;
         this.minExpandSize = minExpandSize;
-        arr = new Object[initialSize];
+        arr = new int[initialSize];
     }
-    public DynamicArray(DynamicArray<T> dynamicSparseArray)
+    public DynamicIntArray(DynamicIntArray dynamicSparseArray)
     {
         initialSize = dynamicSparseArray.initialSize;
         minExpandSize = dynamicSparseArray.minExpandSize;
-        arr = new Object[dynamicSparseArray.arr.length];
+        arr = new int[dynamicSparseArray.arr.length];
         System.arraycopy(dynamicSparseArray.arr, 0, arr, 0, arr.length);
         length = dynamicSparseArray.length;
     }
-    @SuppressWarnings("unchecked")
-    public T get(int index)
+    public int get(int index)
     {
         if (index < 0)
         {
@@ -38,11 +37,11 @@ public class DynamicArray<T> implements Iterable<T>, Cloneable {
         }
         if (index >= arr.length || index >= length)
         {
-            return null;
+            return 0;
         }
-        return (T) arr[index];
+        return arr[index];
     }
-    public void set(int index, T value)
+    public void set(int index, int value)
     {
         if (index < 0)
         {
@@ -70,49 +69,47 @@ public class DynamicArray<T> implements Iterable<T>, Cloneable {
         {
             length--;
         }
-        arr[index] = null;
+        arr[index] = 0;
     }
     public void clear()
     {
-        Arrays.fill(arr, null);
+        Arrays.fill(arr, 0);
         length = 0;
     }
-    public void add(T value)
+    public void add(int value)
     {
         push(value);
     }
-    public void push(T value)
+    public void push(int value)
     {
         int newLength = length + 1;
         ensureLength(newLength);
         arr[length] = value;
         length++;
     }
-    @SuppressWarnings("unchecked")
-    public T pop()
+    public int pop()
     {
         if (length < 1 || arr.length < 1)
         {
             throw new EmptyStackException();
         }
         length--;
-        T tmp = (T) arr[length];
-        arr[length] = null;
+        int tmp = arr[length];
+        arr[length] = 0;
         return tmp;
     }
-    @SuppressWarnings("unchecked")
-    public T shift()
+    public int shift()
     {
         if (length < 1 || arr.length < 1)
         {
             throw new EmptyStackException();
         }
-        T tmp = (T) arr[0];
+        int tmp = arr[0];
         arr = Arrays.copyOfRange(arr, 1, arr.length);
         length--;
         return tmp;
     }
-    public void addAll(T[] array)
+    public void addAll(int[] array)
     {
         int newLength = length + array.length;
         ensureLength(newLength);
@@ -122,7 +119,7 @@ public class DynamicArray<T> implements Iterable<T>, Cloneable {
             length++;
         }
     }
-    public void addAll(DynamicArray<T> array)
+    public void addAll(DynamicIntArray array)
     {
         int newLength = length + array.length;
         ensureLength(newLength);
@@ -132,7 +129,7 @@ public class DynamicArray<T> implements Iterable<T>, Cloneable {
             length++;
         }
     }
-    public void copyData(T[] array, int srcPos, int destPos, int length)
+    public void copyData(int[] array, int srcPos, int destPos, int length)
     {
         if (array == null)
         {
@@ -153,7 +150,7 @@ public class DynamicArray<T> implements Iterable<T>, Cloneable {
             }
         }
     }
-    public void copyData(DynamicArray<T> array, int srcPos, int destPos, int length)
+    public void copyData(DynamicIntArray array, int srcPos, int destPos, int length)
     {
         if (array == null)
         {
@@ -174,16 +171,15 @@ public class DynamicArray<T> implements Iterable<T>, Cloneable {
             }
         }
     }
-    public Object[] toArray()
+    public int[] toArray()
     {
         return Arrays.copyOf(arr, length);
     }
-    @SuppressWarnings("unchecked")
-    public T[] toArray(T[] aobj)
+    public int[] toArray(int[] aobj)
     {
         if (aobj.length < length)
         {
-            return (T[]) Arrays.copyOf(arr, length, aobj.getClass());
+            return Arrays.copyOf(arr, length);
         }
         if (arr.length >= length)
         {
@@ -192,11 +188,11 @@ public class DynamicArray<T> implements Iterable<T>, Cloneable {
         else
         {
         	System.arraycopy(arr, 0, aobj, 0, arr.length);
-        	Arrays.fill(aobj, arr.length, length, null);
+        	Arrays.fill(aobj, arr.length, length, 0);
         }
         if (aobj.length > length)
         {
-        	aobj[length] = null;
+        	aobj[length] = 0;
         }
         return aobj;
     }
@@ -208,7 +204,7 @@ public class DynamicArray<T> implements Iterable<T>, Cloneable {
     	}
         if (length < this.length && length < arr.length)
         {
-            Arrays.fill(arr, length, arr.length < this.length ? arr.length : this.length, null);
+            Arrays.fill(arr, length, arr.length < this.length ? arr.length : this.length, 0);
         }
         this.length = length;
     }
@@ -225,23 +221,23 @@ public class DynamicArray<T> implements Iterable<T>, Cloneable {
         return length();
     }
     @Override
-    public Iterator<T> iterator()
+    public Iterator<Integer> iterator()
     {
-        return new Iterator<T>()
+        return new Iterator<Integer>()
         {
             private int pointer = 0;
             
             @Override
             public boolean hasNext()
             {
-                return pointer < DynamicArray.this.length();
+                return pointer < DynamicIntArray.this.length();
             }
             @Override
-            public T next()
+            public Integer next()
             {
-                if (pointer < DynamicArray.this.length())
+                if (pointer < DynamicIntArray.this.length())
                 {
-                    return DynamicArray.this.get(pointer++);
+                    return DynamicIntArray.this.get(pointer++);
                 }
                 else
                 {
@@ -251,14 +247,14 @@ public class DynamicArray<T> implements Iterable<T>, Cloneable {
             @Override
             public void remove()
             {
-                DynamicArray.this.remove(pointer);
+                DynamicIntArray.this.remove(pointer);
             }
         };
     }
     @Override
-    public DynamicArray<T> clone()
+    public DynamicIntArray clone()
     {
-        return new DynamicArray<T>(this);
+        return new DynamicIntArray(this);
     }
     protected void ensureLength(int minLength)
     {
