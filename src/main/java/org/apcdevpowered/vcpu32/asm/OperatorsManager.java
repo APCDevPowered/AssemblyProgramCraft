@@ -12,6 +12,7 @@ import org.apcdevpowered.util.StringUtils;
 import org.apcdevpowered.vcpu32.asm.Assembler.CompileContext;
 import org.apcdevpowered.vcpu32.asm.DatatypeManager.Datatype;
 import org.apcdevpowered.vcpu32.asm.DatatypeManager.ImageFormatException;
+import org.apcdevpowered.vcpu32.asm.FragmentProgram.LabelConflictException;
 
 import static org.apcdevpowered.vcpu32.asm.DatatypeManager.*;
 
@@ -486,6 +487,40 @@ public class OperatorsManager
             }
             int overrideSlot = optSlotIndex + 2;
             program.addStaticOffsetRequest(overrideSlot);
+        }
+    };
+    public static final Operator optDEF = new DummyOperator("DEF", Arrays.asList(ParDatatypes.fromDatatypes(typeLabel), ParDatatypes.fromDatatypes(typeChar, typeHex, typeOct, typeBin, typeDec, typeReal)))
+    {
+        @Override
+        public void addToProgram(FragmentProgram program, int lineNumber, List<Datatype<?>> datatypes, List<String> parImages, CompileContext context) throws ParImageFormatException
+        {
+            Datatype<?> datatype = datatypes.get(1);
+            Object value = null;
+            try
+            {
+                value = datatype.getValue(parImages.get(1));
+            }
+            catch (ImageFormatException e)
+            {
+                throw new ParImageFormatException(2, datatype, e);
+            }
+            int data = 0;
+            if (value instanceof Integer)
+            {
+                data = (Integer) value;
+            }
+            else if (value instanceof Float)
+            {
+                data = Float.floatToIntBits((Float) value);
+            }
+            try
+            {
+                program.addDataLabel(parImages.get(0), data);
+            }
+            catch (LabelConflictException e)
+            {
+                throw new CompileException(CompileException.LABEL_CONFLICT, lineNumber, e);
+            }
         }
     };
     

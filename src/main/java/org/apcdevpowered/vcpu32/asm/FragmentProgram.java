@@ -16,6 +16,8 @@ public class FragmentProgram
     private DynamicArray<Integer> slots = new DynamicArray<Integer>();
     // 键为标签文本内容，值为标签所指示的字节码帧位置。
     private Map<String, Integer> labelDefMap = new HashMap<String, Integer>();
+    // 键为标签文本内容，值为标签的值。
+    private Map<String, Integer> dataLabelDefMap = new HashMap<String, Integer>();
     // 键为标签文本内容，值为ArrayList数组，包含所有申请标签的字节码的帧位置。
     private Map<String, List<Integer>> labelRequestListMap = new HashMap<String, List<Integer>>();
     // 键为文本内容，值为ArrayList数组，包含所有申请此字符串字节码的帧位置。
@@ -58,6 +60,17 @@ public class FragmentProgram
             try
             {
                 addLabel(entry.getKey(), entry.getValue() + offset);
+            }
+            catch (LabelConflictException e)
+            {
+                throw new MergeException(MergeException.LABEL_CONFLICT, program.debugInfo.getLineNumberByLabel(entry.getKey()), e);
+            }
+        }
+        for (Entry<String, Integer> entry : program.dataLabelDefMap.entrySet())
+        {
+            try
+            {
+                addDataLabel(entry.getKey(), entry.getValue());
             }
             catch (LabelConflictException e)
             {
@@ -160,7 +173,7 @@ public class FragmentProgram
         {
             throw new IllegalArgumentException();
         }
-        if (labelDefMap.containsKey(label))
+        if (labelDefMap.containsKey(label) || dataLabelDefMap.containsKey(label))
         {
             int lineNumber = debugInfo.getLineNumberByLabel(label);
             if (lineNumber == -1)
@@ -173,6 +186,22 @@ public class FragmentProgram
             }
         }
         labelDefMap.put(label, index);
+    }
+    public void addDataLabel(String label, int data) throws LabelConflictException
+    {
+        if (labelDefMap.containsKey(label) || dataLabelDefMap.containsKey(label))
+        {
+            int lineNumber = debugInfo.getLineNumberByLabel(label);
+            if (lineNumber == -1)
+            {
+                throw new LabelConflictException(label);
+            }
+            else
+            {
+                throw new LabelConflictException(label, lineNumber);
+            }
+        }
+        dataLabelDefMap.put(label, data);
     }
     public void addLabelRequest(String label, int index)
     {
@@ -270,16 +299,30 @@ public class FragmentProgram
     {
         for (Entry<String, List<Integer>> entry : labelRequestListMap.entrySet())
         {
-            String label = entry.getKey();
-            if (!labelDefMap.containsKey(label) && !entry.getValue().isEmpty())
+            if (!entry.getValue().isEmpty())
             {
-                int lineNumber = debugInfo.getLineNumberByOffset(entry.getValue().get(0));
-                throw new LabelMissingException(label, lineNumber);
-            }
-            int labelSlot = labelDefMap.get(label);
-            for (int labelRequestSlot : entry.getValue())
-            {
-                programData.set(labelRequestSlot, labelSlot + context.getStartRAM());
+                String label = entry.getKey();
+                if (labelDefMap.containsKey(label))
+                {
+                  int labelSlot = labelDefMap.get(label);
+                  for (int labelRequestSlot : entry.getValue())
+                  {
+                      programData.set(labelRequestSlot, labelSlot + context.getStartRAM());
+                  }
+                }
+                else if(dataLabelDefMap.containsKey(label))
+                {
+                    int data = dataLabelDefMap.get(label);
+                    for (int labelRequestSlot : entry.getValue())
+                    {
+                        programData.set(labelRequestSlot, data);
+                    }
+                }
+                else
+                {
+                    int lineNumber = debugInfo.getLineNumberByOffset(entry.getValue().get(0));
+                    throw new LabelMissingException(label, lineNumber);
+                }
             }
         }
     }
