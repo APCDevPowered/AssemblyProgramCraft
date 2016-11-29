@@ -11,13 +11,13 @@ public class AssemblyProgramCraftChannelHandler extends FMLIndexedMessageToMessa
         addDiscriminator(0, AssemblyProgramCraftPacket.class);
     }
     @Override
-    public void encodeInto(ChannelHandlerContext ctx, AssemblyProgramCraftPacket packet, ByteBuf data) throws Exception
+    public void encodeInto(ChannelHandlerContext ctx, AssemblyProgramCraftPacket msg, ByteBuf target) throws Exception
     {
-        packet.writeData(data);
+        msg.toBytes(target);
     }
     @Override
-    public void decodeInto(ChannelHandlerContext ctx, ByteBuf data, AssemblyProgramCraftPacket packet)
+    public void decodeInto(ChannelHandlerContext ctx, ByteBuf source, AssemblyProgramCraftPacket msg)
     {
-        packet.readData(data);
+        msg.fromBytes(source);
     }
 }

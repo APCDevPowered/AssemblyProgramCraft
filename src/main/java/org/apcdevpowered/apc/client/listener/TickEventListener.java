@@ -1,9 +1,7 @@
 package org.apcdevpowered.apc.client.listener;
 
-import java.util.ArrayList;
-
 import org.apcdevpowered.apc.common.AssemblyProgramCraft;
-
+import org.apcdevpowered.apc.common.util.GamePauseHelper;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.relauncher.Side;
@@ -12,17 +10,8 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 @SideOnly(Side.CLIENT)
 public class TickEventListener
 {
-    public static ArrayList<IGamePauseListener> gamePauseListeners = new ArrayList<IGamePauseListener>();
     public boolean isGamePaused = true;
     
-    public static void addListener(IGamePauseListener gamePauseListener)
-    {
-        gamePauseListeners.add(gamePauseListener);
-    }
-    public static void removeListener(IGamePauseListener gamePauseListener)
-    {
-        gamePauseListeners.remove(gamePauseListener);
-    }
     @SubscribeEvent
     public void onTick(TickEvent.ClientTickEvent event)
     {
@@ -33,10 +22,7 @@ public class TickEventListener
                 if (!isGamePaused)
                 {
                     isGamePaused = true;
-                    for (IGamePauseListener gamePauseListener : gamePauseListeners.toArray(new IGamePauseListener[gamePauseListeners.size()]))
-                    {
-                        gamePauseListener.gamePaused();
-                    }
+                    GamePauseHelper.onGamePaused();
                 }
             }
             else
@@ -44,19 +30,9 @@ public class TickEventListener
                 if (isGamePaused)
                 {
                     isGamePaused = false;
-                    for (IGamePauseListener gamePauseListener : gamePauseListeners.toArray(new IGamePauseListener[gamePauseListeners.size()]))
-                    {
-                        gamePauseListener.gameResume();
-                    }
+                    GamePauseHelper.onGameResume();
                 }
             }
         }
-    }
-    
-    @SideOnly(Side.CLIENT)
-    public interface IGamePauseListener
-    {
-        void gamePaused();
-        void gameResume();
     }
 }

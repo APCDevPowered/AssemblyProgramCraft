@@ -30,6 +30,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.network.FMLEmbeddedChannel;
 import net.minecraftforge.fml.common.network.FMLOutboundHandler;
+import net.minecraftforge.fml.common.network.FMLOutboundHandler.OutboundTarget;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 
@@ -163,7 +164,7 @@ public abstract class AssemblyProgramCraftProxyCommon
         FMLEmbeddedChannel channel = AssemblyProgramCraft.instance.channels.get(Side.SERVER);
         synchronized (channel)
         {
-            channel.attr(FMLOutboundHandler.FML_MESSAGETARGET).set(FMLOutboundHandler.OutboundTarget.ALL);
+            channel.attr(FMLOutboundHandler.FML_MESSAGETARGET).set(OutboundTarget.ALL);
             channel.writeOutbound(packet);
         }
     }
@@ -172,7 +173,7 @@ public abstract class AssemblyProgramCraftProxyCommon
         FMLEmbeddedChannel channel = AssemblyProgramCraft.instance.channels.get(Side.SERVER);
         synchronized (channel)
         {
-            channel.attr(FMLOutboundHandler.FML_MESSAGETARGET).set(FMLOutboundHandler.OutboundTarget.PLAYER);
+            channel.attr(FMLOutboundHandler.FML_MESSAGETARGET).set(OutboundTarget.PLAYER);
             channel.attr(FMLOutboundHandler.FML_MESSAGETARGETARGS).set(player);
             channel.writeOutbound(packet);
         }

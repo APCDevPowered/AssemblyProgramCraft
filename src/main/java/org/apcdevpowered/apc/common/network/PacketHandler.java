@@ -3,8 +3,10 @@ package org.apcdevpowered.apc.common.network;
 import org.apcdevpowered.apc.common.AssemblyProgramCraft;
 
 import net.minecraftforge.fml.common.network.NetworkRegistry;
+import net.minecraft.client.Minecraft;
 import net.minecraft.network.INetHandler;
 import net.minecraft.network.NetHandlerPlayServer;
+import net.minecraft.server.MinecraftServer;
 import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -16,13 +18,13 @@ public class PacketHandler extends SimpleChannelInboundHandler<AssemblyProgramCr
     protected void channelRead0(ChannelHandlerContext ctx, AssemblyProgramCraftPacket packet) throws Exception
     {
         INetHandler netHandler = ctx.channel().attr(NetworkRegistry.NET_HANDLER).get();
-        if(netHandler instanceof NetHandlerPlayServer)
+        if (netHandler instanceof NetHandlerPlayServer)
         {
-            AssemblyProgramCraft.handlePacket(packet, ((NetHandlerPlayServer)netHandler).playerEntity);
+            MinecraftServer.getServer().addScheduledTask(() -> AssemblyProgramCraft.handlePacket(packet, ((NetHandlerPlayServer) netHandler).playerEntity));
         }
         else
         {
-            AssemblyProgramCraft.handlePacket(packet, null);
+            Minecraft.getMinecraft().addScheduledTask(() -> AssemblyProgramCraft.handlePacket(packet, null));
         }
     }
 }

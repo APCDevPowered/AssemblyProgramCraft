@@ -8,8 +8,6 @@ import java.util.Map.Entry;
 
 import net.minecraftforge.fml.common.network.internal.FMLNetworkHandler;
 
-import org.apcdevpowered.apc.client.listener.TickEventListener;
-import org.apcdevpowered.apc.client.listener.TickEventListener.IGamePauseListener;
 import org.apcdevpowered.apc.common.AssemblyProgramCraft;
 import org.apcdevpowered.apc.common.block.BlockVCPU32Computer;
 import org.apcdevpowered.apc.common.block.BlockVCPU32ComputerConnector;
@@ -20,6 +18,8 @@ import org.apcdevpowered.apc.common.listener.WorldUnloadEventListener;
 import org.apcdevpowered.apc.common.network.AssemblyProgramCraftGuiHandler;
 import org.apcdevpowered.apc.common.network.AssemblyProgramCraftPacket;
 import org.apcdevpowered.apc.common.tileEntity.TileEntityExternalDevice.ComputerPos;
+import org.apcdevpowered.apc.common.util.GamePauseHelper;
+import org.apcdevpowered.apc.common.util.GamePauseHelper.IGamePauseListener;
 import org.apcdevpowered.apc.common.util.MethodHandler;
 import org.apcdevpowered.apc.common.util.NodeIOException;
 import org.apcdevpowered.apc.common.util.ProgramDataHelper;
@@ -289,7 +289,7 @@ public class TileEntityVCPU32Computer extends TileEntity implements IInventory, 
             ItemBlockVCPU32ComputerWire.updataConnector(connector);
         }
         WorldUnloadEventListener.addListener(worldUnloadMethodHandler);
-        TickEventListener.addListener(this);
+        GamePauseHelper.addListener(this);
     }
     public void update()
     {
@@ -334,7 +334,7 @@ public class TileEntityVCPU32Computer extends TileEntity implements IInventory, 
     }
     private void removeHook()
     {
-        TickEventListener.removeListener(this);
+        GamePauseHelper.removeListener(this);
         WorldUnloadEventListener.removeListener(worldUnloadMethodHandler);
     }
     private void shutdownVM()
@@ -594,14 +594,14 @@ public class TileEntityVCPU32Computer extends TileEntity implements IInventory, 
     {
         return true;
     }
-    public void gamePaused()
+    public void onGamePaused()
     {
         if (getVM() != null)
         {
             getVM().suspendVM();
         }
     }
-    public void gameResume()
+    public void onGameResume()
     {
         if (getVM() != null)
         {

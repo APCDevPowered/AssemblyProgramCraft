@@ -80,18 +80,18 @@ public class ConnectorFinder
                     RedirectBlockAccess redirectBlockAccess = new RedirectBlockAccess(world, currentWirePart.tileEntity.getPos(), currentWirePart.side);
                     for (EnumFacing linkedWireFace : EnumFacing.HORIZONTALS)
                     {
-                        IBlockState sideBlockState = redirectBlockAccess.getBlockState(new BlockPos(linkedWireFace.getDirectionVec()));
-                        IBlockState downBlockState = redirectBlockAccess.getBlockState(new BlockPos(linkedWireFace.getDirectionVec()).down());
+                        IBlockState sideBlockState = redirectBlockAccess.getBlockState(toBlockPos(linkedWireFace));
+                        IBlockState downBlockState = redirectBlockAccess.getBlockState(toBlockPos(linkedWireFace).down());
                         if (sideBlockState.getBlock() == AssemblyProgramCraftBlocks.block_vcpu_32_computer_connector)
                         {
                             if (((EnumFacing) sideBlockState.getValue(BlockVCPU32ComputerConnector.FACING)) == redirectBlockAccess.realFace(linkedWireFace.getOpposite()))
                             {
-                                connectorList.add((TileEntityVCPU32ComputerConnector) redirectBlockAccess.getTileEntity(new BlockPos(linkedWireFace.getDirectionVec())));
+                                connectorList.add((TileEntityVCPU32ComputerConnector) redirectBlockAccess.getTileEntity(toBlockPos(linkedWireFace)));
                             }
                         }
                         else if (sideBlockState.getBlock() == AssemblyProgramCraftBlocks.block_vcpu_32_computer_wire)
                         {
-                            WirePartInfo wirePartInfo = new WirePartInfo(redirectBlockAccess.realFace(EnumFacing.DOWN), WirePartInfo.castToWire(redirectBlockAccess.getTileEntity(new BlockPos(linkedWireFace.getDirectionVec()))));
+                            WirePartInfo wirePartInfo = new WirePartInfo(redirectBlockAccess.realFace(EnumFacing.DOWN), WirePartInfo.castToWire(redirectBlockAccess.getTileEntity(toBlockPos(linkedWireFace))));
                             if (wirePartInfo.exists())
                             {
                                 if (!searchedWireList.contains(wirePartInfo))
@@ -115,7 +115,7 @@ public class ConnectorFinder
                         {
                             if (downBlockState.getBlock() == AssemblyProgramCraftBlocks.block_vcpu_32_computer_wire)
                             {
-                                WirePartInfo wirePartInfo = new WirePartInfo(redirectBlockAccess.realFace(linkedWireFace.getOpposite()), WirePartInfo.castToWire(redirectBlockAccess.getTileEntity(new BlockPos(linkedWireFace.getDirectionVec()).down())));
+                                WirePartInfo wirePartInfo = new WirePartInfo(redirectBlockAccess.realFace(linkedWireFace.getOpposite()), WirePartInfo.castToWire(redirectBlockAccess.getTileEntity(toBlockPos(linkedWireFace).down())));
                                 if (wirePartInfo.exists())
                                 {
                                     if (!searchedWireList.contains(wirePartInfo))
@@ -170,6 +170,26 @@ public class ConnectorFinder
             return null;
         }
     }
+    private static BlockPos toBlockPos(EnumFacing facing)
+    {
+        switch (facing)
+        {
+            case DOWN:
+                return new BlockPos(0, -1, 0);
+            case UP:
+                return new BlockPos(0, 1, 0);
+            case NORTH:
+                return new BlockPos(0, 0, -1);
+            case SOUTH:
+                return new BlockPos(0, 0, 1);
+            case WEST:
+                return new BlockPos(-1, 0, 0);
+            case EAST:
+                return new BlockPos(1, 0, 0);
+            default:
+                throw new IllegalStateException();
+        }
+    }
     
     public static class WirePartInfo
     {
@@ -189,17 +209,17 @@ public class ConnectorFinder
                 RedirectBlockAccess redirectBlockAccess = new RedirectBlockAccess(tileEntity.getWorld(), tileEntity.getPos(), side);
                 for (EnumFacing linkedWireFace : EnumFacing.HORIZONTALS)
                 {
-                    IBlockState sideBlockState = redirectBlockAccess.getBlockState(new BlockPos(linkedWireFace.getDirectionVec()));
+                    IBlockState sideBlockState = redirectBlockAccess.getBlockState(toBlockPos(linkedWireFace));
                     if (!sideBlockState.getBlock().isFullBlock() || !sideBlockState.getBlock().isFullCube())
                     {
-                        WirePartInfo wirePartInfo = new WirePartInfo(redirectBlockAccess.realFace(linkedWireFace.getOpposite()), castToWire(redirectBlockAccess.getTileEntity(new BlockPos(linkedWireFace.getDirectionVec()).down())));
+                        WirePartInfo wirePartInfo = new WirePartInfo(redirectBlockAccess.realFace(linkedWireFace.getOpposite()), castToWire(redirectBlockAccess.getTileEntity(toBlockPos(linkedWireFace).down())));
                         if (wirePartInfo.exists())
                         {
                             wirePartInfoList.add(wirePartInfo);
                         }
                     }
                     {
-                        WirePartInfo wirePartInfo = new WirePartInfo(redirectBlockAccess.realFace(EnumFacing.DOWN), castToWire(redirectBlockAccess.getTileEntity(new BlockPos(linkedWireFace.getDirectionVec()))));
+                        WirePartInfo wirePartInfo = new WirePartInfo(redirectBlockAccess.realFace(EnumFacing.DOWN), castToWire(redirectBlockAccess.getTileEntity(toBlockPos(linkedWireFace))));
                         if (wirePartInfo.exists())
                         {
                             wirePartInfoList.add(wirePartInfo);

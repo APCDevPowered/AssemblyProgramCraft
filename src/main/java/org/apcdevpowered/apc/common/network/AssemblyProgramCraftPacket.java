@@ -1,11 +1,10 @@
 package org.apcdevpowered.apc.common.network;
 
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.ByteBufInputStream;
-import io.netty.buffer.ByteBufOutputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
+import net.minecraftforge.fml.common.network.ByteBufUtils;
+
 import java.io.IOException;
+import java.io.UncheckedIOException;
 
 public class AssemblyProgramCraftPacket
 {
@@ -50,38 +49,17 @@ public class AssemblyProgramCraftPacket
         this.dataInt = null;
         this.dataByte = null;
     }
-    private void writeData(DataOutputStream data) throws IOException
+    public void toBytes(ByteBuf data)
     {
         data.writeInt(this.packetType);
-        if (this.dataString != null)
-        {
-            data.writeInt(this.dataString.length);
-        }
-        else
-        {
-            data.writeInt(-1);
-        }
-        if (this.dataInt != null)
-        {
-            data.writeInt(this.dataInt.length);
-        }
-        else
-        {
-            data.writeInt(-1);
-        }
-        if (this.dataByte != null)
-        {
-            data.writeInt(this.dataByte.length);
-        }
-        else
-        {
-            data.writeInt(-1);
-        }
+        data.writeInt(this.dataString == null ? -1 : this.dataString.length);
+        data.writeInt(this.dataInt == null ? -1 : this.dataInt.length);
+        data.writeInt(this.dataByte == null ? -1 : this.dataByte.length);
         if (this.dataString != null)
         {
             for (String s : this.dataString)
             {
-                data.writeUTF(s);
+                ByteBufUtils.writeUTF8String(data, s);
             }
         }
         if (this.dataInt != null)
@@ -99,7 +77,7 @@ public class AssemblyProgramCraftPacket
             }
         }
     }
-    private void readData(DataInputStream data) throws IOException
+    public void fromBytes(ByteBuf data)
     {
         this.packetType = data.readInt();
         int nString = data.readInt();
@@ -107,25 +85,17 @@ public class AssemblyProgramCraftPacket
         int nByte = data.readInt();
         if ((nString < -1) || (nInt < -1) || (nByte < -1))
         {
-            throw new IOException();
+            throw new UncheckedIOException(new IOException("Illegal packet"));
         }
-        if (nString == -1)
-        {
-            this.dataString = null;
-        }
-        else
+        if (nString != -1)
         {
             this.dataString = new String[nString];
             for (int k = 0; k < nString; k++)
             {
-                this.dataString[k] = data.readUTF();
+                this.dataString[k] = ByteBufUtils.readUTF8String(data);
             }
         }
-        if (nInt == -1)
-        {
-            this.dataInt = null;
-        }
-        else
+        if (nInt != -1)
         {
             this.dataInt = new int[nInt];
             for (int k = 0; k < nInt; k++)
@@ -133,41 +103,13 @@ public class AssemblyProgramCraftPacket
                 this.dataInt[k] = data.readInt();
             }
         }
-        if (nByte == -1)
-        {
-            this.dataByte = null;
-        }
-        else
+        if (nByte != -1)
         {
             this.dataByte = new byte[nByte];
             for (int k = 0; k < nByte; k++)
             {
                 this.dataByte[k] = data.readByte();
             }
-        }
-    }
-    public void writeData(ByteBuf data)
-    {
-        ByteBufOutputStream bbos = new ByteBufOutputStream(data);
-        try
-        {
-            writeData(new DataOutputStream(bbos));
-        }
-        catch (IOException e)
-        {
-            throw new RuntimeException(e);
-        }
-    }
-    public void readData(ByteBuf data)
-    {
-        ByteBufInputStream bbis = new ByteBufInputStream(data);
-        try
-        {
-            readData(new DataInputStream(bbis));
-        }
-        catch (IOException e)
-        {
-            throw new RuntimeException(e);
         }
     }
 }
