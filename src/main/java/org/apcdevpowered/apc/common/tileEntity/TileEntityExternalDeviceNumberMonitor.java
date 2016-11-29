@@ -68,6 +68,6 @@ public class TileEntityExternalDeviceNumberMonitor extends TileEntityExternalDev
         pak.dataInt[2] = getPos().getZ();
         pak.dataInt[3] = getWorld().provider.getDimensionId();
         pak.dataInt[4] = number;
-        AssemblyProgramCraft.sendToAllPlayers(pak);
+        AssemblyProgramCraft.sendToAll(pak);
     }
 }

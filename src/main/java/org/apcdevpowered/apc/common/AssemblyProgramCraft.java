@@ -1,24 +1,22 @@
 package org.apcdevpowered.apc.common;
 
-import java.util.EnumMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.apcdevpowered.apc.common.config.ConfigSystem;
-import org.apcdevpowered.apc.common.network.AssemblyProgramCraftChannelHandler;
 import org.apcdevpowered.apc.common.network.AssemblyProgramCraftGuiHandler;
+import org.apcdevpowered.apc.common.network.AssemblyProgramCraftMessageHandler;
 import org.apcdevpowered.apc.common.network.AssemblyProgramCraftPacket;
-import org.apcdevpowered.apc.common.network.PacketHandler;
 import org.apcdevpowered.apc.common.proxy.AssemblyProgramCraftProxyCommon;
 
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import net.minecraftforge.fml.common.network.FMLEmbeddedChannel;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
+import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import net.minecraftforge.fml.relauncher.Side;
 
 @Mod( modid = AssemblyProgramCraft.MODID, name=AssemblyProgramCraft.NAME, version=AssemblyProgramCraft.VERSION)
@@ -33,16 +31,18 @@ public class AssemblyProgramCraft
     public static final String NAME = "AssemblyProgramCraft";
     public static final String VERSION = "@VERSION@";
     
-    public EnumMap<Side, FMLEmbeddedChannel> channels;
+    public static final SimpleNetworkWrapper NETWORK_INSTANCE = NetworkRegistry.INSTANCE.newSimpleChannel("APCraft");
     
     public ConfigSystem cfgSystem = new ConfigSystem();
     
     public ExecutorService executor = Executors.newCachedThreadPool();
     
+    
     @Mod.EventHandler
     public void load(FMLInitializationEvent event)
     {
-        channels = NetworkRegistry.INSTANCE.newChannel("APCraft", new AssemblyProgramCraftChannelHandler(), new PacketHandler());
+        NETWORK_INSTANCE.registerMessage(AssemblyProgramCraftMessageHandler.class, AssemblyProgramCraftPacket.class, 0, Side.SERVER);
+        NETWORK_INSTANCE.registerMessage(AssemblyProgramCraftMessageHandler.class, AssemblyProgramCraftPacket.class, 0, Side.CLIENT);
         
         proxy.registerBlocksAndItems();
         proxy.registerTileEntities();
@@ -63,19 +63,19 @@ public class AssemblyProgramCraft
     {
         return VERSION ;
     }
-    public static void sendToPlayer(EntityPlayer player, AssemblyProgramCraftPacket packet)
+    public static void sendTo(EntityPlayerMP player, AssemblyProgramCraftPacket message)
     {
-        proxy.sendToPlayer(player, packet);
+        NETWORK_INSTANCE.sendTo(message, player);
     }
-    public static void sendToAllPlayers(AssemblyProgramCraftPacket packet)
+    public static void sendToAll(AssemblyProgramCraftPacket message)
     {
-        proxy.sendToAllPlayers(packet);
+        NETWORK_INSTANCE.sendToAll(message);
     }
-    public static void sendToServer(AssemblyProgramCraftPacket packet)
+    public static void sendToServer(AssemblyProgramCraftPacket message)
     {
-        proxy.sendToServer(packet);
+        NETWORK_INSTANCE.sendToServer(message);
     }
-    public static void handlePacket(AssemblyProgramCraftPacket packet, EntityPlayer player)
+    public static void handlePacket(AssemblyProgramCraftPacket packet, EntityPlayerMP player)
     {
         proxy.handlePacket(packet, player);
     }

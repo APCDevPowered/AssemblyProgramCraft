@@ -28,7 +28,7 @@ import org.apcdevpowered.apc.common.util.WorldHelper;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.model.ModelResourceLocation;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockPos;
@@ -36,9 +36,6 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.common.network.FMLEmbeddedChannel;
-import net.minecraftforge.fml.common.network.FMLOutboundHandler;
-import net.minecraftforge.fml.common.network.FMLOutboundHandler.OutboundTarget;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -56,7 +53,7 @@ public class AssemblyProgramCraftProxyClient extends AssemblyProgramCraftProxyCo
         return FMLClientHandler.instance().getClient().isGamePaused();
     }
     @Override
-    public void handlePacket(AssemblyProgramCraftPacket packet, EntityPlayer player)
+    public void handlePacket(AssemblyProgramCraftPacket packet, EntityPlayerMP player)
     {
         super.handlePacket(packet, player);
         if (packet.packetType == AssemblyProgramCraftPacket.ServerPacket.ComputerPowerChange.getValue())
@@ -190,26 +187,6 @@ public class AssemblyProgramCraftProxyClient extends AssemblyProgramCraftProxyCo
         {
             return super.getWorldFromDimension(dimension, side);
         }
-    }
-    @Override
-    public void sendToServer(AssemblyProgramCraftPacket packet)
-    {
-        FMLEmbeddedChannel channel = AssemblyProgramCraft.instance.channels.get(Side.CLIENT);
-        synchronized (channel)
-        {
-            channel.attr(FMLOutboundHandler.FML_MESSAGETARGET).set(OutboundTarget.TOSERVER);
-            channel.writeOutbound(packet);
-        }
-    }
-    @Override
-    public void sendToAllPlayers(AssemblyProgramCraftPacket packet)
-    {
-        super.sendToAllPlayers(packet);
-    }
-    @Override
-    public void sendToPlayer(EntityPlayer player, AssemblyProgramCraftPacket packet)
-    {
-        super.sendToPlayer(player, packet);
     }
     @Override
     public void registerBlocksAndItems()

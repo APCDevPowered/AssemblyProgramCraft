@@ -215,7 +215,7 @@ public class TileEntityExternalDeviceConsoleScreen extends TileEntityExternalDev
         pak.dataInt[3] = getWorld().provider.getDimensionId();
         pak.dataInt[4] = idx;
         pak.dataInt[5] = value;
-        AssemblyProgramCraft.sendToAllPlayers(pak);
+        AssemblyProgramCraft.sendToAll(pak);
     }
     public int getTickCounter()
     {

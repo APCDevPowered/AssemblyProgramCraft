@@ -2,11 +2,12 @@ package org.apcdevpowered.apc.common.network;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
+import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
 
-public class AssemblyProgramCraftPacket
+public class AssemblyProgramCraftPacket implements IMessage
 {
     public static enum ServerPacket
     {
@@ -49,6 +50,7 @@ public class AssemblyProgramCraftPacket
         this.dataInt = null;
         this.dataByte = null;
     }
+    @Override
     public void toBytes(ByteBuf data)
     {
         data.writeInt(this.packetType);
@@ -77,6 +79,7 @@ public class AssemblyProgramCraftPacket
             }
         }
     }
+    @Override
     public void fromBytes(ByteBuf data)
     {
         this.packetType = data.readInt();

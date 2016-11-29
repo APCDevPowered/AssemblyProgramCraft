@@ -3,7 +3,7 @@ package org.apcdevpowered.apc.server.proxy;
 import org.apcdevpowered.apc.common.network.AssemblyProgramCraftPacket;
 import org.apcdevpowered.apc.common.proxy.AssemblyProgramCraftProxyCommon;
 
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -22,7 +22,7 @@ public class AssemblyProgramCraftProxyServer extends AssemblyProgramCraftProxyCo
         return false;
     }
     @Override
-    public void handlePacket(final AssemblyProgramCraftPacket packet, final EntityPlayer player)
+    public void handlePacket(final AssemblyProgramCraftPacket packet, final EntityPlayerMP player)
     {
         super.handlePacket(packet, player);
     }
@@ -30,21 +30,6 @@ public class AssemblyProgramCraftProxyServer extends AssemblyProgramCraftProxyCo
     public World getWorldFromDimension(int dimension, Side side)
     {
         return super.getWorldFromDimension(dimension, side);
-    }
-    @Override
-    public void sendToServer(AssemblyProgramCraftPacket packet)
-    {
-        //Do nothing.
-    }
-    @Override
-    public void sendToAllPlayers(AssemblyProgramCraftPacket packet)
-    {
-        super.sendToAllPlayers(packet);
-    }
-    @Override
-    public void sendToPlayer(EntityPlayer player, AssemblyProgramCraftPacket packet)
-    {
-        super.sendToPlayer(player, packet);
     }
     @Override
     public void registerBlocksAndItems()

@@ -21,16 +21,13 @@ import org.apcdevpowered.apc.common.util.WorldHelper;
 import org.apcdevpowered.vcpu32.asm.CompileLogger;
 import org.apcdevpowered.vcpu32.vm.extdev.ExternalDeviceKeyboard;
 
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.common.network.FMLEmbeddedChannel;
-import net.minecraftforge.fml.common.network.FMLOutboundHandler;
-import net.minecraftforge.fml.common.network.FMLOutboundHandler.OutboundTarget;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 
@@ -38,7 +35,7 @@ public abstract class AssemblyProgramCraftProxyCommon
 {
     public abstract boolean isClient();
     public abstract boolean isGamePaused();
-    public void handlePacket(final AssemblyProgramCraftPacket packet, final EntityPlayer player)
+    public void handlePacket(final AssemblyProgramCraftPacket packet, final EntityPlayerMP player)
     {
         if (packet.packetType == AssemblyProgramCraftPacket.ClientPacket.BIOSWriterDoCompiled.getValue())
         {
@@ -52,7 +49,7 @@ public abstract class AssemblyProgramCraftProxyCommon
                 pak.dataString[0] = logger.toString();
                 pak.dataByte = new byte[1];
                 pak.dataByte[0] = ((result == true) ? (byte) 1 : (byte) 0);
-                AssemblyProgramCraft.sendToPlayer(player, pak);
+                AssemblyProgramCraft.sendTo(player, pak);
             }
         }
         else if (packet.packetType == AssemblyProgramCraftPacket.ClientPacket.BIOSWriterDoWrite.getValue())
@@ -64,7 +61,7 @@ public abstract class AssemblyProgramCraftProxyCommon
                 pak.packetType = AssemblyProgramCraftPacket.ServerPacket.WriteResult.getValue();
                 pak.dataByte = new byte[1];
                 pak.dataByte[0] = ((result == true) ? (byte) 1 : (byte) 0);
-                AssemblyProgramCraft.sendToPlayer(player, pak);
+                AssemblyProgramCraft.sendTo(player, pak);
             }
         }
         else if (packet.packetType == AssemblyProgramCraftPacket.ClientPacket.BIOSWriterDoDecompiled.getValue())
@@ -78,7 +75,7 @@ public abstract class AssemblyProgramCraftProxyCommon
                 pak.dataByte = new byte[1];
                 pak.dataByte[0] = ((source == null) ? (byte) 0 : (byte) 1);
                 pak.dataString[0] = (source == null ? "" : source);
-                AssemblyProgramCraft.sendToPlayer(player, pak);
+                AssemblyProgramCraft.sendTo(player, pak);
             }
         }
         else if (packet.packetType == AssemblyProgramCraftPacket.ClientPacket.PortSettingToolSetID.getValue())
@@ -103,7 +100,7 @@ public abstract class AssemblyProgramCraftProxyCommon
                     pak.dataInt[2] = tileentity.getPos().getX();
                     pak.dataInt[3] = tileentity.getWorld().provider.getDimensionId();
                     pak.dataInt[4] = port;
-                    AssemblyProgramCraft.sendToAllPlayers(pak);
+                    AssemblyProgramCraft.sendToAll(pak);
                 }
             }
         }
@@ -156,26 +153,6 @@ public abstract class AssemblyProgramCraftProxyCommon
         else
         {
             return null;
-        }
-    }
-    public abstract void sendToServer(AssemblyProgramCraftPacket packet);
-    public void sendToAllPlayers(AssemblyProgramCraftPacket packet)
-    {
-        FMLEmbeddedChannel channel = AssemblyProgramCraft.instance.channels.get(Side.SERVER);
-        synchronized (channel)
-        {
-            channel.attr(FMLOutboundHandler.FML_MESSAGETARGET).set(OutboundTarget.ALL);
-            channel.writeOutbound(packet);
-        }
-    }
-    public void sendToPlayer(EntityPlayer player, AssemblyProgramCraftPacket packet)
-    {
-        FMLEmbeddedChannel channel = AssemblyProgramCraft.instance.channels.get(Side.SERVER);
-        synchronized (channel)
-        {
-            channel.attr(FMLOutboundHandler.FML_MESSAGETARGET).set(OutboundTarget.PLAYER);
-            channel.attr(FMLOutboundHandler.FML_MESSAGETARGETARGS).set(player);
-            channel.writeOutbound(packet);
         }
     }
     public void registerBlocksAndItems()

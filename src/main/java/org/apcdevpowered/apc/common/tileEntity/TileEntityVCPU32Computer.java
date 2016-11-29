@@ -213,7 +213,7 @@ public class TileEntityVCPU32Computer extends TileEntity implements IInventory, 
         pak.dataInt[2] = getPos().getZ();
         pak.dataInt[3] = getWorld().provider.getDimensionId();
         pak.dataByte[0] = (runtimeError ? ((byte) 1) : ((byte) 0));
-        AssemblyProgramCraft.sendToAllPlayers(pak);
+        AssemblyProgramCraft.sendToAll(pak);
     }
     public void onChunkUnload()
     {
@@ -278,7 +278,7 @@ public class TileEntityVCPU32Computer extends TileEntity implements IInventory, 
         pak.dataInt[2] = getPos().getZ();
         pak.dataInt[3] = getWorld().provider.getDimensionId();
         pak.dataByte[0] = (powerStatus ? ((byte) 1) : ((byte) 0));
-        AssemblyProgramCraft.sendToAllPlayers(pak);
+        AssemblyProgramCraft.sendToAll(pak);
     }
     public void init()
     {
