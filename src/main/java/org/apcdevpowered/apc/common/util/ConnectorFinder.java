@@ -252,7 +252,8 @@ public class ConnectorFinder
             }
             return false;
         }
-        public String toString()
+        @Override
+		public String toString()
         {
             if (vaild())
             {
@@ -260,7 +261,8 @@ public class ConnectorFinder
             }
             return "WirePartInfo{INVAILD}";
         }
-        public boolean equals(Object obj)
+        @Override
+		public boolean equals(Object obj)
         {
             if (vaild())
             {

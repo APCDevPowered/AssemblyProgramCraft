@@ -20,6 +20,7 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.WorldRenderer;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.ChatAllowedCharacters;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.client.FMLClientHandler;
@@ -227,11 +228,11 @@ public class GuiMultipleLineTextField extends Gui implements IEventNode
     {
         int start = Math.min(selectedFrom, selectedTo);
         int end = Math.max(selectedFrom, selectedTo);
-        if(start < 0)
+        if (start < 0)
         {
             start = 0;
         }
-        if(end > text.length())
+        if (end > text.length())
         {
             end = text.length();
         }
@@ -659,7 +660,7 @@ public class GuiMultipleLineTextField extends Gui implements IEventNode
             else if (isCtrlDown() && key == Keyboard.KEY_Z && isEditable)
             {
                 HistoryEntry entry = historyManager.undoHistory();
-                if(entry != null)
+                if (entry != null)
                 {
                     try
                     {
@@ -678,7 +679,7 @@ public class GuiMultipleLineTextField extends Gui implements IEventNode
             else if (isCtrlDown() && key == Keyboard.KEY_Y && isEditable)
             {
                 HistoryEntry entry = historyManager.redoHistory();
-                if(entry != null)
+                if (entry != null)
                 {
                     try
                     {
@@ -854,11 +855,7 @@ public class GuiMultipleLineTextField extends Gui implements IEventNode
                 int buttomCut = (((verticalPosTmp + FONT_HEIGHT + FONT_SPACTING_V / 2) - (scrollV + maskH)) > 0) ? ((verticalPosTmp + FONT_HEIGHT + FONT_SPACTING_V / 2) - (scrollV + maskH)) : 0;
                 int leftCut = ((horizontalPosTmp - FONT_SPACTING_H / 2 - scrollH) < 0) ? -(horizontalPosTmp - FONT_SPACTING_H / 2 - scrollH) : 0;
                 int rightCut = (((horizontalPosTmp - FONT_SPACTING_H / 2 + 1) - (scrollH + maskW)) > 0) ? ((horizontalPosTmp - FONT_SPACTING_H / 2 + 1) - (scrollH + maskW)) : 0;
-                drawRect(maskX - scrollH + horizontalPosTmp - FONT_SPACTING_H / 2 + leftCut
-                        , maskY - scrollV + verticalPosTmp - FONT_SPACTING_V / 2 + topCut
-                        , maskX - scrollH + horizontalPosTmp - FONT_SPACTING_H / 2 + 1 - rightCut
-                        , maskY - scrollV + verticalPosTmp + FONT_HEIGHT + FONT_SPACTING_V / 2 - buttomCut
-                        , cursouColor);
+                drawRect(maskX - scrollH + horizontalPosTmp - FONT_SPACTING_H / 2 + leftCut, maskY - scrollV + verticalPosTmp - FONT_SPACTING_V / 2 + topCut, maskX - scrollH + horizontalPosTmp - FONT_SPACTING_H / 2 + 1 - rightCut, maskY - scrollV + verticalPosTmp + FONT_HEIGHT + FONT_SPACTING_V / 2 - buttomCut, cursouColor);
             }
         }
     }
@@ -907,11 +904,7 @@ public class GuiMultipleLineTextField extends Gui implements IEventNode
                         int buttomCut = (((verticalPosTmp + FONT_HEIGHT + FONT_SPACTING_V / 2) - (scrollV + maskH)) > 0) ? ((verticalPosTmp + FONT_HEIGHT + FONT_SPACTING_V / 2) - (scrollV + maskH)) : 0;
                         int leftCut = ((horizontalPosTmp - FONT_SPACTING_H / 2 - scrollH) < 0) ? -(horizontalPosTmp - FONT_SPACTING_H / 2 - scrollH) : 0;
                         int rightCut = (((horizontalPosTmp + charWidth + FONT_SPACTING_H / 2) - (scrollH + maskW)) > 0) ? ((horizontalPosTmp + charWidth + FONT_SPACTING_H / 2) - (scrollH + maskW)) : 0;
-                        drawRect(maskX - scrollH + horizontalPosTmp - FONT_SPACTING_H / 2 + leftCut
-                                , maskY - scrollV + verticalPosTmp - FONT_SPACTING_V / 2 + topCut
-                                , maskX - scrollH + horizontalPosTmp + charWidth + FONT_SPACTING_H / 2 - rightCut
-                                , maskY - scrollV + verticalPosTmp + FONT_HEIGHT + FONT_SPACTING_V / 2 - buttomCut
-                                , selectionColor);
+                        drawRect(maskX - scrollH + horizontalPosTmp - FONT_SPACTING_H / 2 + leftCut, maskY - scrollV + verticalPosTmp - FONT_SPACTING_V / 2 + topCut, maskX - scrollH + horizontalPosTmp + charWidth + FONT_SPACTING_H / 2 - rightCut, maskY - scrollV + verticalPosTmp + FONT_HEIGHT + FONT_SPACTING_V / 2 - buttomCut, selectionColor);
                     }
                 }
                 if (horizontalPos >= (scrollH - charWidth) && verticalPos >= (scrollV - 8) && horizontalPos < (scrollH + maskW) && verticalPos < (scrollV + maskH))
@@ -961,39 +954,35 @@ public class GuiMultipleLineTextField extends Gui implements IEventNode
             double var10 = var7 - var6;
             Tessellator tessellator = Tessellator.getInstance();
             WorldRenderer worldRenderer = tessellator.getWorldRenderer();
-            worldRenderer.startDrawing(GL11.GL_TRIANGLE_STRIP);
-            worldRenderer.addVertexWithUV
-                    (
-                            xPos + leftCut,
-                            yPos + topCut,
-                            0.0D,
+            worldRenderer.begin(GL11.GL_TRIANGLE_STRIP, DefaultVertexFormats.POSITION_TEX);
+            worldRenderer.pos(
+                    xPos + leftCut,
+                    yPos + topCut,
+                    0.0D).tex(
                             var8 / 256.0D + leftCut / 256.0D + 0.004D * leftCut,
-                            var9 / 256.0D + topCut / 256.0D + 0.004D * topCut
-                    );
-            worldRenderer.addVertexWithUV
-                    (
-                            xPos + leftCut,
-                            yPos + 8.0D - buttomCut,
-                            0.0D,
+                            var9 / 256.0D + topCut / 256.0D + 0.004D * topCut)
+                    .endVertex();
+            worldRenderer.pos(
+                    xPos + leftCut,
+                    yPos + 8.0D - buttomCut,
+                    0.0D).tex(
                             var8 / 256.0D + leftCut / 256.0D + 0.004D * leftCut,
-                            (var9 + 16.0D) / 256.0D - buttomCut / 256.0D - 0.004D * buttomCut
-                    );
-            worldRenderer.addVertexWithUV
-                    (
-                            xPos + var10 / 2.0D - rightCut,
-                            yPos + topCut,
-                            0.0D,
+                            (var9 + 16.0D) / 256.0D - buttomCut / 256.0D - 0.004D * buttomCut)
+                    .endVertex();
+            worldRenderer.pos(
+                    xPos + var10 / 2.0D - rightCut,
+                    yPos + topCut,
+                    0.0D).tex(
                             (var8 + var10) / 256.0D - rightCut / 256.0D - 0.004D * rightCut,
-                            var9 / 256.0D + topCut / 256.0D + 0.004D * topCut
-                    );
-            worldRenderer.addVertexWithUV
-                    (
-                            xPos + var10 / 2.0D - rightCut,
-                            yPos + 8.0D - buttomCut,
-                            0.0D,
+                            var9 / 256.0D + topCut / 256.0D + 0.004D * topCut)
+                    .endVertex();
+            worldRenderer.pos(
+                    xPos + var10 / 2.0D - rightCut,
+                    yPos + 8.0D - buttomCut,
+                    0.0D).tex(
                             (var8 + var10) / 256.0D - rightCut / 256.0D - 0.004D * rightCut,
-                            (var9 + 16.0D) / 256.0D - buttomCut / 256.0D - 0.004D * buttomCut
-                    );
+                            (var9 + 16.0D) / 256.0D - buttomCut / 256.0D - 0.004D * buttomCut)
+                    .endVertex();
             tessellator.draw();
         }
     }
@@ -1148,7 +1137,6 @@ public class GuiMultipleLineTextField extends Gui implements IEventNode
     static
     {
         InputStream inputstream = null;
-
         try
         {
             inputstream = Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("font/glyph_sizes.bin")).getInputStream();

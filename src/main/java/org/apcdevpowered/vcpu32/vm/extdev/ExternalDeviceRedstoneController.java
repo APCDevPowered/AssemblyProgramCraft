@@ -12,15 +12,18 @@ public class ExternalDeviceRedstoneController extends AbstractExternalDevice
     {
         this.redstoneController = redstoneController;
     }
-    public String getDevicesName()
+    @Override
+	public String getDevicesName()
     {
         return "RedstoneController";
     }
-    public DeviceTypes getDeviceType()
+    @Override
+	public DeviceTypes getDeviceType()
     {
         return DeviceTypes.Auxiliary;
     }
-    public void setMemoryValue(int idx, int value)
+    @Override
+	public void setMemoryValue(int idx, int value)
     {
         if(idx > 11 || idx < 0)
         {
@@ -36,7 +39,8 @@ public class ExternalDeviceRedstoneController extends AbstractExternalDevice
             redstoneController.needSync = true;
         }
     }
-    public int getMemoryValue(int idx)
+    @Override
+	public int getMemoryValue(int idx)
     {
         if(idx > 11 || idx < 0)
         {
@@ -52,14 +56,16 @@ public class ExternalDeviceRedstoneController extends AbstractExternalDevice
         }
         return 0;
     }
-    public void setMemoryValues(int idx, int[] values)
+    @Override
+	public void setMemoryValues(int idx, int[] values)
     {
         for(int i = 0;i < values.length;i++)
         {
             setMemoryValue(idx + i, values[i]);
         }
     }
-    public int[] getMemoryValues(int idx, int length)
+    @Override
+	public int[] getMemoryValues(int idx, int length)
     {
         if(length <= 0)
         {
@@ -72,15 +78,18 @@ public class ExternalDeviceRedstoneController extends AbstractExternalDevice
         }
         return values;
     }
-    public boolean shutDown()
+    @Override
+	public boolean shutDown()
     {
         return true;
     }
-    public boolean reset()
+    @Override
+	public boolean reset()
     {
         return true;
     }
-    public boolean start()
+    @Override
+	public boolean start()
     {
         return true;
     }

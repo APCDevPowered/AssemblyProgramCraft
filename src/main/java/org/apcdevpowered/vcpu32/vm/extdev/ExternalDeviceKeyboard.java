@@ -10,15 +10,18 @@ public class ExternalDeviceKeyboard extends AbstractExternalDevice
     
     private final Object keyboardLock = new Object();
     
-    public String getDevicesName()
+    @Override
+	public String getDevicesName()
     {
         return "Keyboard";
     }
-    public DeviceTypes getDeviceType()
+    @Override
+	public DeviceTypes getDeviceType()
     {
         return DeviceTypes.Input;
     }
-    public void setMemoryValue(int idx, int value)
+    @Override
+	public void setMemoryValue(int idx, int value)
     {
         synchronized(keyboardLock)
         {
@@ -84,7 +87,8 @@ public class ExternalDeviceKeyboard extends AbstractExternalDevice
             }
         }
     }
-    public int getMemoryValue(int idx)
+    @Override
+	public int getMemoryValue(int idx)
     {
         synchronized(keyboardLock)
         {
@@ -119,14 +123,16 @@ public class ExternalDeviceKeyboard extends AbstractExternalDevice
             return 0;
         }
     }
-    public void setMemoryValues(int idx, int[] values)
+    @Override
+	public void setMemoryValues(int idx, int[] values)
     {
         for(int i = 0;i < values.length;i++)
         {
             setMemoryValue(idx + i, values[i]);
         }
     }
-    public int[] getMemoryValues(int idx, int length)
+    @Override
+	public int[] getMemoryValues(int idx, int length)
     {
         if(length <= 0)
         {
@@ -139,7 +145,8 @@ public class ExternalDeviceKeyboard extends AbstractExternalDevice
         }
         return values;
     }
-    public boolean shutDown()
+    @Override
+	public boolean shutDown()
     {
         synchronized(keyboardLock)
         {
@@ -148,7 +155,8 @@ public class ExternalDeviceKeyboard extends AbstractExternalDevice
             return true;
         }
     }
-    public boolean reset()
+    @Override
+	public boolean reset()
     {
         synchronized(keyboardLock)
         {
@@ -157,7 +165,8 @@ public class ExternalDeviceKeyboard extends AbstractExternalDevice
             return true;
         }
     }
-    public boolean start()
+    @Override
+	public boolean start()
     {
         synchronized(keyboardLock)
         {

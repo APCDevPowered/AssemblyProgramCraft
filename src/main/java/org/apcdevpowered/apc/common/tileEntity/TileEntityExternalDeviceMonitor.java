@@ -21,31 +21,37 @@ public class TileEntityExternalDeviceMonitor extends TileEntityExternalDevice
     {
         Arrays.fill(graphicsMemory, 0xFF000000);
     }
-    public AbstractExternalDevice getExternalDevice()
+    @Override
+	public AbstractExternalDevice getExternalDevice()
     {
         return externalDeviceMonitor;
     }
-    public EnumFacing[] getConnectorConnectableFaces(IBlockState state)
+    @Override
+	public EnumFacing[] getConnectorConnectableFaces(IBlockState state)
     {
         return new EnumFacing[]
         {
                 ((EnumFacing) state.getValue(BlockExternalDeviceMonitor.FACING)).getOpposite()
         };
     }
-    public void writeDescriptionNbt(NBTTagCompound nbtTagCompound)
+    @Override
+	public void writeDescriptionNbt(NBTTagCompound nbtTagCompound)
     {
         nbtTagCompound.setIntArray("graphicsMemory", graphicsMemory);
     }
-    public void readDescriptionNbt(NBTTagCompound nbtTagCompound)
+    @Override
+	public void readDescriptionNbt(NBTTagCompound nbtTagCompound)
     {
         graphicsMemory = nbtTagCompound.getIntArray("graphicsMemory");
     }
-    public void readFromNBT(NBTTagCompound nbtTagCompound)
+    @Override
+	public void readFromNBT(NBTTagCompound nbtTagCompound)
     {
         super.readFromNBT(nbtTagCompound);
         graphicsMemory = nbtTagCompound.getIntArray("graphicsMemory");
     }
-    public void writeToNBT(NBTTagCompound nbtTagCompound)
+    @Override
+	public void writeToNBT(NBTTagCompound nbtTagCompound)
     {
         super.writeToNBT(nbtTagCompound);
         nbtTagCompound.setIntArray("graphicsMemory", graphicsMemory);

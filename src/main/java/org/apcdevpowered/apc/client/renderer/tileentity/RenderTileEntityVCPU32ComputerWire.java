@@ -4,6 +4,7 @@ import org.apcdevpowered.apc.common.AssemblyProgramCraft;
 import org.apcdevpowered.apc.common.block.BlockVCPU32ComputerConnector;
 import org.apcdevpowered.apc.common.tileEntity.TileEntityVCPU32ComputerConnector;
 import org.apcdevpowered.apc.common.tileEntity.TileEntityVCPU32ComputerWire;
+import org.lwjgl.opengl.GL11;
 
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -11,12 +12,13 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.WorldRenderer;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 
 @SideOnly(Side.CLIENT)
-public class RenderTileEntityVCPU32ComputerWire extends TileEntitySpecialRenderer
+public class RenderTileEntityVCPU32ComputerWire extends TileEntitySpecialRenderer<TileEntityVCPU32ComputerWire>
 {
     private static final ResourceLocation wireTextures = new ResourceLocation(AssemblyProgramCraft.MODID + ":" + "textures/tileentity/wire.png");
     
@@ -39,71 +41,74 @@ public class RenderTileEntityVCPU32ComputerWire extends TileEntitySpecialRendere
      * 7.如果有数据线连接，平行则直接连接，否则按拐角渲染规则渲染。
      * 8.渲染下个数据线。
      */
-    public void renderTileEntityAt(TileEntity tileentity, double x, double y, double z, float partialTickTime, int partialBlockDamage)
+    @Override
+	public void renderTileEntityAt(TileEntityVCPU32ComputerWire tileentity, double x, double y, double z, float partialTickTime, int partialBlockDamage)
     {
+        if(tileentity == null)
+            return;
+        
         Tessellator tessellator = Tessellator.getInstance();
         WorldRenderer worldRenderer = tessellator.getWorldRenderer();
         
-        TileEntityVCPU32ComputerWire tileEntityWire = (TileEntityVCPU32ComputerWire)tileentity;
         this.bindTexture(wireTextures);
         GlStateManager.disableLighting();
         GlStateManager.pushMatrix();
         
         GlStateManager.translate(x, y, z);
         
-        if(tileEntityWire.hasSide(EnumFacing.UP))
+        if(tileentity.hasSide(EnumFacing.UP))
         {
             GlStateManager.pushMatrix();
             GlStateManager.rotate(180F, 1, 0, 0);
             GlStateManager.translate(0, -1, -1);
             
-            getSideStatus(tileEntityWire, tessellator, worldRenderer, EnumFacing.UP);
+            getSideStatus(tileentity, tessellator, worldRenderer, EnumFacing.UP);
             
             GlStateManager.popMatrix();
         }
-        if(tileEntityWire.hasSide(EnumFacing.DOWN))
+        if(tileentity.hasSide(EnumFacing.DOWN))
         {
-            getSideStatus(tileEntityWire, tessellator, worldRenderer, EnumFacing.DOWN);
+            getSideStatus(tileentity, tessellator, worldRenderer, EnumFacing.DOWN);
         }
-        if(tileEntityWire.hasSide(EnumFacing.WEST))
+        if(tileentity.hasSide(EnumFacing.WEST))
         {
             GlStateManager.pushMatrix();
             GlStateManager.rotate(270F, 0, 0, 1);
             GlStateManager.rotate(180F, 0, 1, 0);
             GlStateManager.translate(0, 0, -1);
             
-            getSideStatus(tileEntityWire, tessellator, worldRenderer, EnumFacing.WEST);
+            getSideStatus(tileentity, tessellator, worldRenderer, EnumFacing.WEST);
             
             GlStateManager.popMatrix();
         }
-        if(tileEntityWire.hasSide(EnumFacing.EAST))
+        if(tileentity.hasSide(EnumFacing.EAST))
         {
             GlStateManager.pushMatrix();
             GlStateManager.rotate(90F, 0, 0, 1);
             GlStateManager.translate(0, -1, 0);
             
-            getSideStatus(tileEntityWire, tessellator, worldRenderer, EnumFacing.EAST);
+            getSideStatus(tileentity, tessellator, worldRenderer, EnumFacing.EAST);
             
             GlStateManager.popMatrix();
         }
-        if(tileEntityWire.hasSide(EnumFacing.SOUTH))
+        if(tileentity.hasSide(EnumFacing.SOUTH))
         {
             GlStateManager.pushMatrix();
             GlStateManager.rotate(270F, 1, 0, 0);
             GlStateManager.rotate(90F, 0, -1, 0);
             GlStateManager.translate(0, -1, -1);
             
-            getSideStatus(tileEntityWire, tessellator, worldRenderer, EnumFacing.SOUTH);
+            getSideStatus(tileentity, tessellator, worldRenderer, EnumFacing.SOUTH);
             
             GlStateManager.popMatrix();
         }
-        if(tileEntityWire.hasSide(EnumFacing.NORTH))
+        if(tileentity.hasSide(EnumFacing.NORTH))
         {
             GlStateManager.pushMatrix();
             GlStateManager.rotate(90F, 1, 0, 0);
             GlStateManager.rotate(90F, 0, 1, 0);
             
-            getSideStatus(tileEntityWire, tessellator, worldRenderer, EnumFacing.NORTH);
+            getSideStatus(tileentity, tessellator, worldRenderer, EnumFacing.NORTH);
             
             GlStateManager.popMatrix();
         }
@@ -1066,79 +1071,79 @@ public class RenderTileEntityVCPU32ComputerWire extends TileEntitySpecialRendere
     }
     public void renderSide(int left, int right, int front, int back, Tessellator tessellator, WorldRenderer worldRenderer, int overlappingNotRenderSide)
     {
-        worldRenderer.startDrawingQuads();
+        worldRenderer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
         //Center
-        worldRenderer.addVertexWithUV(0, (4.0D/16.0D), 0, 0.25D, 0.0D);
-        worldRenderer.addVertexWithUV(0, (4.0D/16.0D), 1, 0.25D, 0.25D);
-        worldRenderer.addVertexWithUV(1, (4.0D/16.0D), 1, 0.5D, 0.25D);
-        worldRenderer.addVertexWithUV(1, (4.0D/16.0D), 0, 0.5D, 0.0D);
+        worldRenderer.pos(0, (4.0D/16.0D), 0).tex(0.25D, 0.0D).endVertex();
+        worldRenderer.pos(0, (4.0D/16.0D), 1).tex(0.25D, 0.25D).endVertex();
+        worldRenderer.pos(1, (4.0D/16.0D), 1).tex(0.5D, 0.25D).endVertex();
+        worldRenderer.pos(1, (4.0D/16.0D), 0).tex(0.5D, 0.0D).endVertex();
         
-        worldRenderer.addVertexWithUV(0, 0, 0, 0.25D, 0.0D);
-        worldRenderer.addVertexWithUV(1, 0, 0, 0.25D, 0.25D);
-        worldRenderer.addVertexWithUV(1, 0, 1, 0.5D, 0.25D);
-        worldRenderer.addVertexWithUV(0, 0, 1, 0.5D, 0.0D);
+        worldRenderer.pos(0, 0, 0).tex(0.25D, 0.0D).endVertex();
+        worldRenderer.pos(1, 0, 0).tex(0.25D, 0.25D).endVertex();
+        worldRenderer.pos(1, 0, 1).tex(0.5D, 0.25D).endVertex();
+        worldRenderer.pos(0, 0, 1).tex(0.5D, 0.0D).endVertex();
         
         if(left == 0 && right == 0 && front == 0 && back == 0)
         {
-            worldRenderer.addVertexWithUV(0, (4.0D/16.0D), 0, 0.5D, 0.0D);
-            worldRenderer.addVertexWithUV(0, (4.0D/16.0D), 1, 0.5D, 0.25D);
-            worldRenderer.addVertexWithUV(1, (4.0D/16.0D), 1, 0.75D, 0.25D);
-            worldRenderer.addVertexWithUV(1, (4.0D/16.0D), 0, 0.75D, 0.0D);
+            worldRenderer.pos(0, (4.0D/16.0D), 0).tex(0.5D, 0.0D).endVertex();
+            worldRenderer.pos(0, (4.0D/16.0D), 1).tex(0.5D, 0.25D).endVertex();
+            worldRenderer.pos(1, (4.0D/16.0D), 1).tex(0.75D, 0.25D).endVertex();
+            worldRenderer.pos(1, (4.0D/16.0D), 0).tex(0.75D, 0.0D).endVertex();
             
-            worldRenderer.addVertexWithUV(0, (4.0D/16.0D), 0, 0.75D, 0.25D);
-            worldRenderer.addVertexWithUV(0, (4.0D/16.0D), 1, 0.75D, 0.0D);
-            worldRenderer.addVertexWithUV(1, (4.0D/16.0D), 1, 0.5D, 0.0D);
-            worldRenderer.addVertexWithUV(1, (4.0D/16.0D), 0, 0.5D, 0.25D);
+            worldRenderer.pos(0, (4.0D/16.0D), 0).tex(0.75D, 0.25D).endVertex();
+            worldRenderer.pos(0, (4.0D/16.0D), 1).tex(0.75D, 0.0D).endVertex();
+            worldRenderer.pos(1, (4.0D/16.0D), 1).tex(0.5D, 0.0D).endVertex();
+            worldRenderer.pos(1, (4.0D/16.0D), 0).tex(0.5D, 0.25D).endVertex();
             
-            worldRenderer.addVertexWithUV(0, 0, 0, 0.75D, 0.0D);
-            worldRenderer.addVertexWithUV(1, 0, 0, 0.5D, 0.0D);
-            worldRenderer.addVertexWithUV(1, 0, 1, 0.5D, 0.25D);
-            worldRenderer.addVertexWithUV(0, 0, 1, 0.75D, 0.25D);
+            worldRenderer.pos(0, 0, 0).tex(0.75D, 0.0D).endVertex();
+            worldRenderer.pos(1, 0, 0).tex(0.5D, 0.0D).endVertex();
+            worldRenderer.pos(1, 0, 1).tex(0.5D, 0.25D).endVertex();
+            worldRenderer.pos(0, 0, 1).tex(0.75D, 0.25D).endVertex();
             
-            worldRenderer.addVertexWithUV(0, 0, 0, 0.5D, 0.25D);
-            worldRenderer.addVertexWithUV(1, 0, 0, 0.75D, 0.25D);
-            worldRenderer.addVertexWithUV(1, 0, 1, 0.75D, 0.0D);
-            worldRenderer.addVertexWithUV(0, 0, 1, 0.5D, 0.0D);
+            worldRenderer.pos(0, 0, 0).tex(0.5D, 0.25D).endVertex();
+            worldRenderer.pos(1, 0, 0).tex(0.75D, 0.25D).endVertex();
+            worldRenderer.pos(1, 0, 1).tex(0.75D, 0.0D).endVertex();
+            worldRenderer.pos(0, 0, 1).tex(0.5D, 0.0D).endVertex();
             
-            worldRenderer.addVertexWithUV(0, 0, (11.0D/16.0D), 0.0D, 0.5D);
-            worldRenderer.addVertexWithUV(1, 0, (11.0D/16.0D), 0.25D, 0.5D);
-            worldRenderer.addVertexWithUV(1, 1, (11.0D/16.0D), 0.25D, 0.25D);
-            worldRenderer.addVertexWithUV(0, 1, (11.0D/16.0D), 0.0D, 0.25D);
+            worldRenderer.pos(0, 0, (11.0D/16.0D)).tex(0.0D, 0.5D).endVertex();
+            worldRenderer.pos(1, 0, (11.0D/16.0D)).tex(0.25D, 0.5D).endVertex();
+            worldRenderer.pos(1, 1, (11.0D/16.0D)).tex(0.25D, 0.25D).endVertex();
+            worldRenderer.pos(0, 1, (11.0D/16.0D)).tex(0.0D, 0.25D).endVertex();
             
-            worldRenderer.addVertexWithUV(1, 0, (5.0D/16.0D), 0.0D, 0.5D);
-            worldRenderer.addVertexWithUV(0, 0, (5.0D/16.0D), 0.25D, 0.5D);
-            worldRenderer.addVertexWithUV(0, 1, (5.0D/16.0D), 0.25D, 0.25D);
-            worldRenderer.addVertexWithUV(1, 1, (5.0D/16.0D), 0.0D, 0.25D);
+            worldRenderer.pos(1, 0, (5.0D/16.0D)).tex(0.0D, 0.5D).endVertex();
+            worldRenderer.pos(0, 0, (5.0D/16.0D)).tex(0.25D, 0.5D).endVertex();
+            worldRenderer.pos(0, 1, (5.0D/16.0D)).tex(0.25D, 0.25D).endVertex();
+            worldRenderer.pos(1, 1, (5.0D/16.0D)).tex(0.0D, 0.25D).endVertex();
             
-            worldRenderer.addVertexWithUV(0, 0, (5.0D/16.0D), 0.0D, 0.5D);
-            worldRenderer.addVertexWithUV(0, 1, (5.0D/16.0D), 0.0D, 0.25D);
-            worldRenderer.addVertexWithUV(1, 1, (5.0D/16.0D), 0.25D, 0.25D);
-            worldRenderer.addVertexWithUV(1, 0, (5.0D/16.0D), 0.25D, 0.5D);
+            worldRenderer.pos(0, 0, (5.0D/16.0D)).tex(0.0D, 0.5D).endVertex();
+            worldRenderer.pos(0, 1, (5.0D/16.0D)).tex(0.0D, 0.25D).endVertex();
+            worldRenderer.pos(1, 1, (5.0D/16.0D)).tex(0.25D, 0.25D).endVertex();
+            worldRenderer.pos(1, 0, (5.0D/16.0D)).tex(0.25D, 0.5D).endVertex();
             
-            worldRenderer.addVertexWithUV(1, 0, (11.0D/16.0D), 0.0D, 0.5D);
-            worldRenderer.addVertexWithUV(1, 1, (11.0D/16.0D), 0.0D, 0.25D);
-            worldRenderer.addVertexWithUV(0, 1, (11.0D/16.0D), 0.25D, 0.25D);
-            worldRenderer.addVertexWithUV(0, 0, (11.0D/16.0D), 0.25D, 0.5D);
+            worldRenderer.pos(1, 0, (11.0D/16.0D)).tex(0.0D, 0.5D).endVertex();
+            worldRenderer.pos(1, 1, (11.0D/16.0D)).tex(0.0D, 0.25D).endVertex();
+            worldRenderer.pos(0, 1, (11.0D/16.0D)).tex(0.25D, 0.25D).endVertex();
+            worldRenderer.pos(0, 0, (11.0D/16.0D)).tex(0.25D, 0.5D).endVertex();
             
-            worldRenderer.addVertexWithUV((12.0D/16.0D), 1, 1, 0.25D, 0.25D);
-            worldRenderer.addVertexWithUV((12.0D/16.0D), 0, 1, 0.25D, 0.5D);
-            worldRenderer.addVertexWithUV((12.0D/16.0D), 0, 0, 0.5D, 0.5D);
-            worldRenderer.addVertexWithUV((12.0D/16.0D), 1, 0, 0.5D, 0.25D);
+            worldRenderer.pos((12.0D/16.0D), 1, 1).tex(0.25D, 0.25D).endVertex();
+            worldRenderer.pos((12.0D/16.0D), 0, 1).tex(0.25D, 0.5D).endVertex();
+            worldRenderer.pos((12.0D/16.0D), 0, 0).tex(0.5D, 0.5D).endVertex();
+            worldRenderer.pos((12.0D/16.0D), 1, 0).tex(0.5D, 0.25D).endVertex();
             
-            worldRenderer.addVertexWithUV((4.0D/16.0D), 1, 1, 0.25D, 0.25D);
-            worldRenderer.addVertexWithUV((4.0D/16.0D), 1, 0, 0.5D, 0.25D);
-            worldRenderer.addVertexWithUV((4.0D/16.0D), 0, 0, 0.5D, 0.5D);
-            worldRenderer.addVertexWithUV((4.0D/16.0D), 0, 1, 0.25D, 0.5D);
+            worldRenderer.pos((4.0D/16.0D), 1, 1).tex(0.25D, 0.25D).endVertex();
+            worldRenderer.pos((4.0D/16.0D), 1, 0).tex(0.5D, 0.25D).endVertex();
+            worldRenderer.pos((4.0D/16.0D), 0, 0).tex(0.5D, 0.5D).endVertex();
+            worldRenderer.pos((4.0D/16.0D), 0, 1).tex(0.25D, 0.5D).endVertex();
             
-            worldRenderer.addVertexWithUV(1, 0, (11.0D/16.0D), 0.5D, 0.5D);
-            worldRenderer.addVertexWithUV(1, 1, (11.0D/16.0D), 0.5D, 0.25D);
-            worldRenderer.addVertexWithUV(0, 1, (11.0D/16.0D), 0.75D, 0.25D);
-            worldRenderer.addVertexWithUV(0, 0, (11.0D/16.0D), 0.75D, 0.5D);
+            worldRenderer.pos(1, 0, (11.0D/16.0D)).tex(0.5D, 0.5D).endVertex();
+            worldRenderer.pos(1, 1, (11.0D/16.0D)).tex(0.5D, 0.25D).endVertex();
+            worldRenderer.pos(0, 1, (11.0D/16.0D)).tex(0.75D, 0.25D).endVertex();
+            worldRenderer.pos(0, 0, (11.0D/16.0D)).tex(0.75D, 0.5D).endVertex();
             
-            worldRenderer.addVertexWithUV(1, 0, (5.0D/16.0D), 0.5D, 0.5D);
-            worldRenderer.addVertexWithUV(0, 0, (5.0D/16.0D), 0.75D, 0.5D);
-            worldRenderer.addVertexWithUV(0, 1, (5.0D/16.0D), 0.75D, 0.25D);
-            worldRenderer.addVertexWithUV(1, 1, (5.0D/16.0D), 0.5D, 0.25D);
+            worldRenderer.pos(1, 0, (5.0D/16.0D)).tex(0.5D, 0.5D).endVertex();
+            worldRenderer.pos(0, 0, (5.0D/16.0D)).tex(0.75D, 0.5D).endVertex();
+            worldRenderer.pos(0, 1, (5.0D/16.0D)).tex(0.75D, 0.25D).endVertex();
+            worldRenderer.pos(1, 1, (5.0D/16.0D)).tex(0.5D, 0.25D).endVertex();
         }
         else
         {
@@ -1146,564 +1151,564 @@ public class RenderTileEntityVCPU32ComputerWire extends TileEntitySpecialRendere
             {
                 if(left == 0 && right == 0 && back != 0)
                 {
-                    worldRenderer.addVertexWithUV(0, (4.0D/16.0D), 0, 0.75D, 0.25D);
-                    worldRenderer.addVertexWithUV(0, (4.0D/16.0D), 1, 0.75D, 0.0D);
-                    worldRenderer.addVertexWithUV(1, (4.0D/16.0D), 1, 0.5D, 0.0D);
-                    worldRenderer.addVertexWithUV(1, (4.0D/16.0D), 0, 0.5D, 0.25D);
+                    worldRenderer.pos(0, (4.0D/16.0D), 0).tex(0.75D, 0.25D).endVertex();
+                    worldRenderer.pos(0, (4.0D/16.0D), 1).tex(0.75D, 0.0D).endVertex();
+                    worldRenderer.pos(1, (4.0D/16.0D), 1).tex(0.5D, 0.0D).endVertex();
+                    worldRenderer.pos(1, (4.0D/16.0D), 0).tex(0.5D, 0.25D).endVertex();
                     
-                    worldRenderer.addVertexWithUV(0, 0, 0, 0.75D, 0.0D);
-                    worldRenderer.addVertexWithUV(1, 0, 0, 0.5D, 0.0D);
-                    worldRenderer.addVertexWithUV(1, 0, 1, 0.5D, 0.25D);
-                    worldRenderer.addVertexWithUV(0, 0, 1, 0.75D, 0.25D);
+                    worldRenderer.pos(0, 0, 0).tex(0.75D, 0.0D).endVertex();
+                    worldRenderer.pos(1, 0, 0).tex(0.5D, 0.0D).endVertex();
+                    worldRenderer.pos(1, 0, 1).tex(0.5D, 0.25D).endVertex();
+                    worldRenderer.pos(0, 0, 1).tex(0.75D, 0.25D).endVertex();
                     
-                    worldRenderer.addVertexWithUV(1, 0, (5.0D/16.0D), 0.0D, 0.5D);
-                    worldRenderer.addVertexWithUV(0, 0, (5.0D/16.0D), 0.25D, 0.5D);
-                    worldRenderer.addVertexWithUV(0, 1, (5.0D/16.0D), 0.25D, 0.25D);
-                    worldRenderer.addVertexWithUV(1, 1, (5.0D/16.0D), 0.0D, 0.25D);
+                    worldRenderer.pos(1, 0, (5.0D/16.0D)).tex(0.0D, 0.5D).endVertex();
+                    worldRenderer.pos(0, 0, (5.0D/16.0D)).tex(0.25D, 0.5D).endVertex();
+                    worldRenderer.pos(0, 1, (5.0D/16.0D)).tex(0.25D, 0.25D).endVertex();
+                    worldRenderer.pos(1, 1, (5.0D/16.0D)).tex(0.0D, 0.25D).endVertex();
                     
-                    worldRenderer.addVertexWithUV(1, 0, (11.0D/16.0D), 0.0D, 0.5D);
-                    worldRenderer.addVertexWithUV(1, 1, (11.0D/16.0D), 0.0D, 0.25D);
-                    worldRenderer.addVertexWithUV(0, 1, (11.0D/16.0D), 0.25D, 0.25D);
-                    worldRenderer.addVertexWithUV(0, 0, (11.0D/16.0D), 0.25D, 0.5D);
+                    worldRenderer.pos(1, 0, (11.0D/16.0D)).tex(0.0D, 0.5D).endVertex();
+                    worldRenderer.pos(1, 1, (11.0D/16.0D)).tex(0.0D, 0.25D).endVertex();
+                    worldRenderer.pos(0, 1, (11.0D/16.0D)).tex(0.25D, 0.25D).endVertex();
+                    worldRenderer.pos(0, 0, (11.0D/16.0D)).tex(0.25D, 0.5D).endVertex();
                     
-                    worldRenderer.addVertexWithUV((12.0D/16.0D), 1, 1, 0.25D, 0.25D);
-                    worldRenderer.addVertexWithUV((12.0D/16.0D), 0, 1, 0.25D, 0.5D);
-                    worldRenderer.addVertexWithUV((12.0D/16.0D), 0, 0, 0.5D, 0.5D);
-                    worldRenderer.addVertexWithUV((12.0D/16.0D), 1, 0, 0.5D, 0.25D);
+                    worldRenderer.pos((12.0D/16.0D), 1, 1).tex(0.25D, 0.25D).endVertex();
+                    worldRenderer.pos((12.0D/16.0D), 0, 1).tex(0.25D, 0.5D).endVertex();
+                    worldRenderer.pos((12.0D/16.0D), 0, 0).tex(0.5D, 0.5D).endVertex();
+                    worldRenderer.pos((12.0D/16.0D), 1, 0).tex(0.5D, 0.25D).endVertex();
                 }
                 else
                 {
-                    worldRenderer.addVertexWithUV((11.0D/16.0D), 1, 1, 0.5D, 0.25D);
-                    worldRenderer.addVertexWithUV((11.0D/16.0D), 0, 1, 0.5D, 0.5D);
-                    worldRenderer.addVertexWithUV((11.0D/16.0D), 0, 0, 0.75D, 0.5D);
-                    worldRenderer.addVertexWithUV((11.0D/16.0D), 1, 0, 0.75D, 0.25D);
+                    worldRenderer.pos((11.0D/16.0D), 1, 1).tex(0.5D, 0.25D).endVertex();
+                    worldRenderer.pos((11.0D/16.0D), 0, 1).tex(0.5D, 0.5D).endVertex();
+                    worldRenderer.pos((11.0D/16.0D), 0, 0).tex(0.75D, 0.5D).endVertex();
+                    worldRenderer.pos((11.0D/16.0D), 1, 0).tex(0.75D, 0.25D).endVertex();
                 }
             }
             else
             {
                 if(front == 1)
                 {
-                    worldRenderer.addVertexWithUV(0, (4.0D/16.0D), 0, 0.25D, 0.25D);
-                    worldRenderer.addVertexWithUV(0, (4.0D/16.0D), 1, 0.25D, 0.0D);
-                    worldRenderer.addVertexWithUV(1, (4.0D/16.0D), 1, 0.0D, 0.0D);
-                    worldRenderer.addVertexWithUV(1, (4.0D/16.0D), 0, 0.0D, 0.25D);
+                    worldRenderer.pos(0, (4.0D/16.0D), 0).tex(0.25D, 0.25D).endVertex();
+                    worldRenderer.pos(0, (4.0D/16.0D), 1).tex(0.25D, 0.0D).endVertex();
+                    worldRenderer.pos(1, (4.0D/16.0D), 1).tex(0.0D, 0.0D).endVertex();
+                    worldRenderer.pos(1, (4.0D/16.0D), 0).tex(0.0D, 0.25D).endVertex();
                     
-                    worldRenderer.addVertexWithUV(0, 0, 0, 0.25D, 0.0D);
-                    worldRenderer.addVertexWithUV(1, 0, 0, 0.0D, 0.0D);
-                    worldRenderer.addVertexWithUV(1, 0, 1, 0.0D, 0.25D);
-                    worldRenderer.addVertexWithUV(0, 0, 1, 0.25D, 0.25D);
+                    worldRenderer.pos(0, 0, 0).tex(0.25D, 0.0D).endVertex();
+                    worldRenderer.pos(1, 0, 0).tex(0.0D, 0.0D).endVertex();
+                    worldRenderer.pos(1, 0, 1).tex(0.0D, 0.25D).endVertex();
+                    worldRenderer.pos(0, 0, 1).tex(0.25D, 0.25D).endVertex();
                     
-                    worldRenderer.addVertexWithUV(1, 0, (5.0D/16.0D), 0.75D, 0.25D);
-                    worldRenderer.addVertexWithUV(0, 0, (5.0D/16.0D), 1.0D, 0.25D);
-                    worldRenderer.addVertexWithUV(0, 1, (5.0D/16.0D), 1.0D, 0.0D);
-                    worldRenderer.addVertexWithUV(1, 1, (5.0D/16.0D), 0.75D, 0.0D);
+                    worldRenderer.pos(1, 0, (5.0D/16.0D)).tex(0.75D, 0.25D).endVertex();
+                    worldRenderer.pos(0, 0, (5.0D/16.0D)).tex(1.0D, 0.25D).endVertex();
+                    worldRenderer.pos(0, 1, (5.0D/16.0D)).tex(1.0D, 0.0D).endVertex();
+                    worldRenderer.pos(1, 1, (5.0D/16.0D)).tex(0.75D, 0.0D).endVertex();
                     
-                    worldRenderer.addVertexWithUV(1, 0, (11.0D/16.0D), 0.75D, 0.25D);
-                    worldRenderer.addVertexWithUV(1, 1, (11.0D/16.0D), 0.75D, 0.0D);
-                    worldRenderer.addVertexWithUV(0, 1, (11.0D/16.0D), 1.0D, 0.0D);
-                    worldRenderer.addVertexWithUV(0, 0, (11.0D/16.0D), 1.0D, 0.25D);
+                    worldRenderer.pos(1, 0, (11.0D/16.0D)).tex(0.75D, 0.25D).endVertex();
+                    worldRenderer.pos(1, 1, (11.0D/16.0D)).tex(0.75D, 0.0D).endVertex();
+                    worldRenderer.pos(0, 1, (11.0D/16.0D)).tex(1.0D, 0.0D).endVertex();
+                    worldRenderer.pos(0, 0, (11.0D/16.0D)).tex(1.0D, 0.25D).endVertex();
                 }
                 else if(front == 2)
                 {
-                    worldRenderer.addVertexWithUV(0, (4.0D/16.0D), 0, 0.25D, 0.25D);
-                    worldRenderer.addVertexWithUV(0, (4.0D/16.0D), 1, 0.25D, 0.0D);
-                    worldRenderer.addVertexWithUV(1, (4.0D/16.0D), 1, 0.0D, 0.0D);
-                    worldRenderer.addVertexWithUV(1, (4.0D/16.0D), 0, 0.0D, 0.25D);
+                    worldRenderer.pos(0, (4.0D/16.0D), 0).tex(0.25D, 0.25D).endVertex();
+                    worldRenderer.pos(0, (4.0D/16.0D), 1).tex(0.25D, 0.0D).endVertex();
+                    worldRenderer.pos(1, (4.0D/16.0D), 1).tex(0.0D, 0.0D).endVertex();
+                    worldRenderer.pos(1, (4.0D/16.0D), 0).tex(0.0D, 0.25D).endVertex();
                     
-                    worldRenderer.addVertexWithUV(0, 0, 0, 0.25D, 0.0D);
-                    worldRenderer.addVertexWithUV(1, 0, 0, 0.0D, 0.0D);
-                    worldRenderer.addVertexWithUV(1, 0, 1, 0.0D, 0.25D);
-                    worldRenderer.addVertexWithUV(0, 0, 1, 0.25D, 0.25D);
+                    worldRenderer.pos(0, 0, 0).tex(0.25D, 0.0D).endVertex();
+                    worldRenderer.pos(1, 0, 0).tex(0.0D, 0.0D).endVertex();
+                    worldRenderer.pos(1, 0, 1).tex(0.0D, 0.25D).endVertex();
+                    worldRenderer.pos(0, 0, 1).tex(0.25D, 0.25D).endVertex();
                     
-                    worldRenderer.addVertexWithUV(1, 0, (5.0D/16.0D), 0.75D, 0.25D);
-                    worldRenderer.addVertexWithUV(0, 0, (5.0D/16.0D), 1.0D, 0.25D);
-                    worldRenderer.addVertexWithUV(0, 1, (5.0D/16.0D), 1.0D, 0.0D);
-                    worldRenderer.addVertexWithUV(1, 1, (5.0D/16.0D), 0.75D, 0.0D);
+                    worldRenderer.pos(1, 0, (5.0D/16.0D)).tex(0.75D, 0.25D).endVertex();
+                    worldRenderer.pos(0, 0, (5.0D/16.0D)).tex(1.0D, 0.25D).endVertex();
+                    worldRenderer.pos(0, 1, (5.0D/16.0D)).tex(1.0D, 0.0D).endVertex();
+                    worldRenderer.pos(1, 1, (5.0D/16.0D)).tex(0.75D, 0.0D).endVertex();
                     
-                    worldRenderer.addVertexWithUV(1, 0, (11.0D/16.0D), 0.75D, 0.25D);
-                    worldRenderer.addVertexWithUV(1, 1, (11.0D/16.0D), 0.75D, 0.0D);
-                    worldRenderer.addVertexWithUV(0, 1, (11.0D/16.0D), 1.0D, 0.0D);
-                    worldRenderer.addVertexWithUV(0, 0, (11.0D/16.0D), 1.0D, 0.25D);
+                    worldRenderer.pos(1, 0, (11.0D/16.0D)).tex(0.75D, 0.25D).endVertex();
+                    worldRenderer.pos(1, 1, (11.0D/16.0D)).tex(0.75D, 0.0D).endVertex();
+                    worldRenderer.pos(0, 1, (11.0D/16.0D)).tex(1.0D, 0.0D).endVertex();
+                    worldRenderer.pos(0, 0, (11.0D/16.0D)).tex(1.0D, 0.25D).endVertex();
                     
                     if((overlappingNotRenderSide & 1) == 0)
                     {
-                        worldRenderer.addVertexWithUV(1, 0, (5.0D/16.0D), 0.75D, 0.5D);
-                        worldRenderer.addVertexWithUV(1, 1, (5.0D/16.0D), 0.75D, 0.25D);
-                        worldRenderer.addVertexWithUV(2, 1, (5.0D/16.0D), 1.0D, 0.25D);
-                        worldRenderer.addVertexWithUV(2, 0, (5.0D/16.0D), 1.0D, 0.5D);
+                        worldRenderer.pos(1, 0, (5.0D/16.0D)).tex(0.75D, 0.5D).endVertex();
+                        worldRenderer.pos(1, 1, (5.0D/16.0D)).tex(0.75D, 0.25D).endVertex();
+                        worldRenderer.pos(2, 1, (5.0D/16.0D)).tex(1.0D, 0.25D).endVertex();
+                        worldRenderer.pos(2, 0, (5.0D/16.0D)).tex(1.0D, 0.5D).endVertex();
                         
-                        worldRenderer.addVertexWithUV(1, 0, (11.0D/16.0D), 0.75D, 0.5D);
-                        worldRenderer.addVertexWithUV(2, 0, (11.0D/16.0D), 1.0D, 0.5D);
-                        worldRenderer.addVertexWithUV(2, 1, (11.0D/16.0D), 1.0D, 0.25D);
-                        worldRenderer.addVertexWithUV(1, 1, (11.0D/16.0D), 0.75D, 0.25D);
+                        worldRenderer.pos(1, 0, (11.0D/16.0D)).tex(0.75D, 0.5D).endVertex();
+                        worldRenderer.pos(2, 0, (11.0D/16.0D)).tex(1.0D, 0.5D).endVertex();
+                        worldRenderer.pos(2, 1, (11.0D/16.0D)).tex(1.0D, 0.25D).endVertex();
+                        worldRenderer.pos(1, 1, (11.0D/16.0D)).tex(0.75D, 0.25D).endVertex();
                     }
                     
-                    worldRenderer.addVertexWithUV(2, (4.0D/16.0D), 0, 0.75D, 0.25D);
-                    worldRenderer.addVertexWithUV(1, (4.0D/16.0D), 0, 0.75D, 0.5D);
-                    worldRenderer.addVertexWithUV(1, (4.0D/16.0D), 1, 0.5D, 0.5D);
-                    worldRenderer.addVertexWithUV(2, (4.0D/16.0D), 1, 0.5D, 0.25D);
+                    worldRenderer.pos(2, (4.0D/16.0D), 0).tex(0.75D, 0.25D).endVertex();
+                    worldRenderer.pos(1, (4.0D/16.0D), 0).tex(0.75D, 0.5D).endVertex();
+                    worldRenderer.pos(1, (4.0D/16.0D), 1).tex(0.5D, 0.5D).endVertex();
+                    worldRenderer.pos(2, (4.0D/16.0D), 1).tex(0.5D, 0.25D).endVertex();
                 }
                 else if(front == 3)
                 {
-                    worldRenderer.addVertexWithUV(0, (4.0D/16.0D), 0, 0.75D, 0.25D);
-                    worldRenderer.addVertexWithUV(0, (4.0D/16.0D), 1, 0.75D, 0.0D);
-                    worldRenderer.addVertexWithUV(1, (4.0D/16.0D), 1, 0.5D, 0.0D);
-                    worldRenderer.addVertexWithUV(1, (4.0D/16.0D), 0, 0.5D, 0.25D);
+                    worldRenderer.pos(0, (4.0D/16.0D), 0).tex(0.75D, 0.25D).endVertex();
+                    worldRenderer.pos(0, (4.0D/16.0D), 1).tex(0.75D, 0.0D).endVertex();
+                    worldRenderer.pos(1, (4.0D/16.0D), 1).tex(0.5D, 0.0D).endVertex();
+                    worldRenderer.pos(1, (4.0D/16.0D), 0).tex(0.5D, 0.25D).endVertex();
                     
-                    worldRenderer.addVertexWithUV(0, 0, 0, 0.25D, 0.0D);
-                    worldRenderer.addVertexWithUV(1, 0, 0, 0.0D, 0.0D);
-                    worldRenderer.addVertexWithUV(1, 0, 1, 0.0D, 0.25D);
-                    worldRenderer.addVertexWithUV(0, 0, 1, 0.25D, 0.25D);
+                    worldRenderer.pos(0, 0, 0).tex(0.25D, 0.0D).endVertex();
+                    worldRenderer.pos(1, 0, 0).tex(0.0D, 0.0D).endVertex();
+                    worldRenderer.pos(1, 0, 1).tex(0.0D, 0.25D).endVertex();
+                    worldRenderer.pos(0, 0, 1).tex(0.25D, 0.25D).endVertex();
                     
                     if((overlappingNotRenderSide & 1) == 0)
                     {
-                        worldRenderer.addVertexWithUV(1, 0, (5.0D/16.0D), 0.75D, 0.25D);
-                        worldRenderer.addVertexWithUV(0, 0, (5.0D/16.0D), 1.0D, 0.25D);
-                        worldRenderer.addVertexWithUV(0, 1, (5.0D/16.0D), 1.0D, 0.0D);
-                        worldRenderer.addVertexWithUV(1, 1, (5.0D/16.0D), 0.75D, 0.0D);
+                        worldRenderer.pos(1, 0, (5.0D/16.0D)).tex(0.75D, 0.25D).endVertex();
+                        worldRenderer.pos(0, 0, (5.0D/16.0D)).tex(1.0D, 0.25D).endVertex();
+                        worldRenderer.pos(0, 1, (5.0D/16.0D)).tex(1.0D, 0.0D).endVertex();
+                        worldRenderer.pos(1, 1, (5.0D/16.0D)).tex(0.75D, 0.0D).endVertex();
                         
-                        worldRenderer.addVertexWithUV(1, 0, (11.0D/16.0D), 0.75D, 0.25D);
-                        worldRenderer.addVertexWithUV(1, 1, (11.0D/16.0D), 0.75D, 0.0D);
-                        worldRenderer.addVertexWithUV(0, 1, (11.0D/16.0D), 1.0D, 0.0D);
-                        worldRenderer.addVertexWithUV(0, 0, (11.0D/16.0D), 1.0D, 0.25D);
+                        worldRenderer.pos(1, 0, (11.0D/16.0D)).tex(0.75D, 0.25D).endVertex();
+                        worldRenderer.pos(1, 1, (11.0D/16.0D)).tex(0.75D, 0.0D).endVertex();
+                        worldRenderer.pos(0, 1, (11.0D/16.0D)).tex(1.0D, 0.0D).endVertex();
+                        worldRenderer.pos(0, 0, (11.0D/16.0D)).tex(1.0D, 0.25D).endVertex();
                     }
                     else
                     {
-                        worldRenderer.addVertexWithUV(1, 0, (5.0D/16.0D), 0.0D, 0.5D);
-                        worldRenderer.addVertexWithUV(0, 0, (5.0D/16.0D), 0.25D, 0.5D);
-                        worldRenderer.addVertexWithUV(0, 1, (5.0D/16.0D), 0.25D, 0.25D);
-                        worldRenderer.addVertexWithUV(1, 1, (5.0D/16.0D), 0.0D, 0.25D);
+                        worldRenderer.pos(1, 0, (5.0D/16.0D)).tex(0.0D, 0.5D).endVertex();
+                        worldRenderer.pos(0, 0, (5.0D/16.0D)).tex(0.25D, 0.5D).endVertex();
+                        worldRenderer.pos(0, 1, (5.0D/16.0D)).tex(0.25D, 0.25D).endVertex();
+                        worldRenderer.pos(1, 1, (5.0D/16.0D)).tex(0.0D, 0.25D).endVertex();
 
-                        worldRenderer.addVertexWithUV(1, 0, (11.0D/16.0D), 0.0D, 0.5D);
-                        worldRenderer.addVertexWithUV(1, 1, (11.0D/16.0D), 0.0D, 0.25D);
-                        worldRenderer.addVertexWithUV(0, 1, (11.0D/16.0D), 0.25D, 0.25D);
-                        worldRenderer.addVertexWithUV(0, 0, (11.0D/16.0D), 0.25D, 0.5D);
+                        worldRenderer.pos(1, 0, (11.0D/16.0D)).tex(0.0D, 0.5D).endVertex();
+                        worldRenderer.pos(1, 1, (11.0D/16.0D)).tex(0.0D, 0.25D).endVertex();
+                        worldRenderer.pos(0, 1, (11.0D/16.0D)).tex(0.25D, 0.25D).endVertex();
+                        worldRenderer.pos(0, 0, (11.0D/16.0D)).tex(0.25D, 0.5D).endVertex();
                     }
 
-                    worldRenderer.addVertexWithUV(1, 1, 1, 0.5D, 0.25D);
-                    worldRenderer.addVertexWithUV(1, 0, 1, 0.5D, 0.5D);
-                    worldRenderer.addVertexWithUV(1, 0, 0, 0.75D, 0.5D);
-                    worldRenderer.addVertexWithUV(1, 1, 0, 0.75D, 0.25D);
+                    worldRenderer.pos(1, 1, 1).tex(0.5D, 0.25D).endVertex();
+                    worldRenderer.pos(1, 0, 1).tex(0.5D, 0.5D).endVertex();
+                    worldRenderer.pos(1, 0, 0).tex(0.75D, 0.5D).endVertex();
+                    worldRenderer.pos(1, 1, 0).tex(0.75D, 0.25D).endVertex();
                 }
             }
             if(back == 0)
             {
                 if(left == 0 && right == 0 && front != 0)
                 {
-                    worldRenderer.addVertexWithUV(0, (4.0D/16.0D), 0, 0.5D, 0.0D);
-                    worldRenderer.addVertexWithUV(0, (4.0D/16.0D), 1, 0.5D, 0.25D);
-                    worldRenderer.addVertexWithUV(1, (4.0D/16.0D), 1, 0.75D, 0.25D);
-                    worldRenderer.addVertexWithUV(1, (4.0D/16.0D), 0, 0.75D, 0.0D);
+                    worldRenderer.pos(0, (4.0D/16.0D), 0).tex(0.5D, 0.0D).endVertex();
+                    worldRenderer.pos(0, (4.0D/16.0D), 1).tex(0.5D, 0.25D).endVertex();
+                    worldRenderer.pos(1, (4.0D/16.0D), 1).tex(0.75D, 0.25D).endVertex();
+                    worldRenderer.pos(1, (4.0D/16.0D), 0).tex(0.75D, 0.0D).endVertex();
                     
-                    worldRenderer.addVertexWithUV(0, 0, 0, 0.5D, 0.25D);
-                    worldRenderer.addVertexWithUV(1, 0, 0, 0.75D, 0.25D);
-                    worldRenderer.addVertexWithUV(1, 0, 1, 0.75D, 0.0D);
-                    worldRenderer.addVertexWithUV(0, 0, 1, 0.5D, 0.0D);
+                    worldRenderer.pos(0, 0, 0).tex(0.5D, 0.25D).endVertex();
+                    worldRenderer.pos(1, 0, 0).tex(0.75D, 0.25D).endVertex();
+                    worldRenderer.pos(1, 0, 1).tex(0.75D, 0.0D).endVertex();
+                    worldRenderer.pos(0, 0, 1).tex(0.5D, 0.0D).endVertex();
                     
-                    worldRenderer.addVertexWithUV(0, 0, (5.0D/16.0D), 0.0D, 0.5D);
-                    worldRenderer.addVertexWithUV(0, 1, (5.0D/16.0D), 0.0D, 0.25D);
-                    worldRenderer.addVertexWithUV(1, 1, (5.0D/16.0D), 0.25D, 0.25D);
-                    worldRenderer.addVertexWithUV(1, 0, (5.0D/16.0D), 0.25D, 0.5D);
+                    worldRenderer.pos(0, 0, (5.0D/16.0D)).tex(0.0D, 0.5D).endVertex();
+                    worldRenderer.pos(0, 1, (5.0D/16.0D)).tex(0.0D, 0.25D).endVertex();
+                    worldRenderer.pos(1, 1, (5.0D/16.0D)).tex(0.25D, 0.25D).endVertex();
+                    worldRenderer.pos(1, 0, (5.0D/16.0D)).tex(0.25D, 0.5D).endVertex();
                     
-                    worldRenderer.addVertexWithUV(0, 0, (11.0D/16.0D), 0.0D, 0.5D);
-                    worldRenderer.addVertexWithUV(1, 0, (11.0D/16.0D), 0.25D, 0.5D);
-                    worldRenderer.addVertexWithUV(1, 1, (11.0D/16.0D), 0.25D, 0.25D);
-                    worldRenderer.addVertexWithUV(0, 1, (11.0D/16.0D), 0.0D, 0.25D);
+                    worldRenderer.pos(0, 0, (11.0D/16.0D)).tex(0.0D, 0.5D).endVertex();
+                    worldRenderer.pos(1, 0, (11.0D/16.0D)).tex(0.25D, 0.5D).endVertex();
+                    worldRenderer.pos(1, 1, (11.0D/16.0D)).tex(0.25D, 0.25D).endVertex();
+                    worldRenderer.pos(0, 1, (11.0D/16.0D)).tex(0.0D, 0.25D).endVertex();
                     
-                    worldRenderer.addVertexWithUV((4.0D/16.0D), 1, 1, 0.25D, 0.25D);
-                    worldRenderer.addVertexWithUV((4.0D/16.0D), 1, 0, 0.5D, 0.25D);
-                    worldRenderer.addVertexWithUV((4.0D/16.0D), 0, 0, 0.5D, 0.5D);
-                    worldRenderer.addVertexWithUV((4.0D/16.0D), 0, 1, 0.25D, 0.5D);
+                    worldRenderer.pos((4.0D/16.0D), 1, 1).tex(0.25D, 0.25D).endVertex();
+                    worldRenderer.pos((4.0D/16.0D), 1, 0).tex(0.5D, 0.25D).endVertex();
+                    worldRenderer.pos((4.0D/16.0D), 0, 0).tex(0.5D, 0.5D).endVertex();
+                    worldRenderer.pos((4.0D/16.0D), 0, 1).tex(0.25D, 0.5D).endVertex();
                 }
                 else
                 {
-                    worldRenderer.addVertexWithUV((5.0D/16.0D), 1, 1, 0.5D, 0.25D);
-                    worldRenderer.addVertexWithUV((5.0D/16.0D), 1, 0, 0.75D, 0.25D);
-                    worldRenderer.addVertexWithUV((5.0D/16.0D), 0, 0, 0.75D, 0.5D);
-                    worldRenderer.addVertexWithUV((5.0D/16.0D), 0, 1, 0.5D, 0.5D);
+                    worldRenderer.pos((5.0D/16.0D), 1, 1).tex(0.5D, 0.25D).endVertex();
+                    worldRenderer.pos((5.0D/16.0D), 1, 0).tex(0.75D, 0.25D).endVertex();
+                    worldRenderer.pos((5.0D/16.0D), 0, 0).tex(0.75D, 0.5D).endVertex();
+                    worldRenderer.pos((5.0D/16.0D), 0, 1).tex(0.5D, 0.5D).endVertex();
                 }
             }
             else
             {
                 if(back == 1)
                 {
-                    worldRenderer.addVertexWithUV(0, (4.0D/16.0D), 0, 0.0D, 0.0D);
-                    worldRenderer.addVertexWithUV(0, (4.0D/16.0D), 1, 0.0D, 0.25D);
-                    worldRenderer.addVertexWithUV(1, (4.0D/16.0D), 1, 0.25D, 0.25D);
-                    worldRenderer.addVertexWithUV(1, (4.0D/16.0D), 0, 0.25D, 0.0D);
+                    worldRenderer.pos(0, (4.0D/16.0D), 0).tex(0.0D, 0.0D).endVertex();
+                    worldRenderer.pos(0, (4.0D/16.0D), 1).tex(0.0D, 0.25D).endVertex();
+                    worldRenderer.pos(1, (4.0D/16.0D), 1).tex(0.25D, 0.25D).endVertex();
+                    worldRenderer.pos(1, (4.0D/16.0D), 0).tex(0.25D, 0.0D).endVertex();
                     
-                    worldRenderer.addVertexWithUV(0, 0, 0, 0.0D, 0.25D);
-                    worldRenderer.addVertexWithUV(1, 0, 0, 0.25D, 0.25D);
-                    worldRenderer.addVertexWithUV(1, 0, 1, 0.25D, 0.0D);
-                    worldRenderer.addVertexWithUV(0, 0, 1, 0.0D, 0.0D);
+                    worldRenderer.pos(0, 0, 0).tex(0.0D, 0.25D).endVertex();
+                    worldRenderer.pos(1, 0, 0).tex(0.25D, 0.25D).endVertex();
+                    worldRenderer.pos(1, 0, 1).tex(0.25D, 0.0D).endVertex();
+                    worldRenderer.pos(0, 0, 1).tex(0.0D, 0.0D).endVertex();
                     
-                    worldRenderer.addVertexWithUV(0, 0, (5.0D/16.0D), 0.75D, 0.25D);
-                    worldRenderer.addVertexWithUV(0, 1, (5.0D/16.0D), 0.75D, 0.0D);
-                    worldRenderer.addVertexWithUV(1, 1, (5.0D/16.0D), 1.0D, 0.0D);
-                    worldRenderer.addVertexWithUV(1, 0, (5.0D/16.0D), 1.0D, 0.25D);
+                    worldRenderer.pos(0, 0, (5.0D/16.0D)).tex(0.75D, 0.25D).endVertex();
+                    worldRenderer.pos(0, 1, (5.0D/16.0D)).tex(0.75D, 0.0D).endVertex();
+                    worldRenderer.pos(1, 1, (5.0D/16.0D)).tex(1.0D, 0.0D).endVertex();
+                    worldRenderer.pos(1, 0, (5.0D/16.0D)).tex(1.0D, 0.25D).endVertex();
                     
-                    worldRenderer.addVertexWithUV(0, 0, (11.0D/16.0D), 0.75D, 0.25D);
-                    worldRenderer.addVertexWithUV(1, 0, (11.0D/16.0D), 1.0D, 0.25D);
-                    worldRenderer.addVertexWithUV(1, 1, (11.0D/16.0D), 1.0D, 0.0D);
-                    worldRenderer.addVertexWithUV(0, 1, (11.0D/16.0D), 0.75D, 0.0D);
+                    worldRenderer.pos(0, 0, (11.0D/16.0D)).tex(0.75D, 0.25D).endVertex();
+                    worldRenderer.pos(1, 0, (11.0D/16.0D)).tex(1.0D, 0.25D).endVertex();
+                    worldRenderer.pos(1, 1, (11.0D/16.0D)).tex(1.0D, 0.0D).endVertex();
+                    worldRenderer.pos(0, 1, (11.0D/16.0D)).tex(0.75D, 0.0D).endVertex();
                 }
                 else if(back == 2)
                 {
-                    worldRenderer.addVertexWithUV(0, (4.0D/16.0D), 0, 0.0D, 0.0D);
-                    worldRenderer.addVertexWithUV(0, (4.0D/16.0D), 1, 0.0D, 0.25D);
-                    worldRenderer.addVertexWithUV(1, (4.0D/16.0D), 1, 0.25D, 0.25D);
-                    worldRenderer.addVertexWithUV(1, (4.0D/16.0D), 0, 0.25D, 0.0D);
+                    worldRenderer.pos(0, (4.0D/16.0D), 0).tex(0.0D, 0.0D).endVertex();
+                    worldRenderer.pos(0, (4.0D/16.0D), 1).tex(0.0D, 0.25D).endVertex();
+                    worldRenderer.pos(1, (4.0D/16.0D), 1).tex(0.25D, 0.25D).endVertex();
+                    worldRenderer.pos(1, (4.0D/16.0D), 0).tex(0.25D, 0.0D).endVertex();
                     
-                    worldRenderer.addVertexWithUV(0, 0, 0, 0.0D, 0.25D);
-                    worldRenderer.addVertexWithUV(1, 0, 0, 0.25D, 0.25D);
-                    worldRenderer.addVertexWithUV(1, 0, 1, 0.25D, 0.0D);
-                    worldRenderer.addVertexWithUV(0, 0, 1, 0.0D, 0.0D);
+                    worldRenderer.pos(0, 0, 0).tex(0.0D, 0.25D).endVertex();
+                    worldRenderer.pos(1, 0, 0).tex(0.25D, 0.25D).endVertex();
+                    worldRenderer.pos(1, 0, 1).tex(0.25D, 0.0D).endVertex();
+                    worldRenderer.pos(0, 0, 1).tex(0.0D, 0.0D).endVertex();
                     
-                    worldRenderer.addVertexWithUV(0, 0, (5.0D/16.0D), 0.75D, 0.25D);
-                    worldRenderer.addVertexWithUV(0, 1, (5.0D/16.0D), 0.75D, 0.0D);
-                    worldRenderer.addVertexWithUV(1, 1, (5.0D/16.0D), 1.0D, 0.0D);
-                    worldRenderer.addVertexWithUV(1, 0, (5.0D/16.0D), 1.0D, 0.25D);
+                    worldRenderer.pos(0, 0, (5.0D/16.0D)).tex(0.75D, 0.25D).endVertex();
+                    worldRenderer.pos(0, 1, (5.0D/16.0D)).tex(0.75D, 0.0D).endVertex();
+                    worldRenderer.pos(1, 1, (5.0D/16.0D)).tex(1.0D, 0.0D).endVertex();
+                    worldRenderer.pos(1, 0, (5.0D/16.0D)).tex(1.0D, 0.25D).endVertex();
                     
-                    worldRenderer.addVertexWithUV(0, 0, (11.0D/16.0D), 0.75D, 0.25D);
-                    worldRenderer.addVertexWithUV(1, 0, (11.0D/16.0D), 1.0D, 0.25D);
-                    worldRenderer.addVertexWithUV(1, 1, (11.0D/16.0D), 1.0D, 0.0D);
-                    worldRenderer.addVertexWithUV(0, 1, (11.0D/16.0D), 0.75D, 0.0D);
+                    worldRenderer.pos(0, 0, (11.0D/16.0D)).tex(0.75D, 0.25D).endVertex();
+                    worldRenderer.pos(1, 0, (11.0D/16.0D)).tex(1.0D, 0.25D).endVertex();
+                    worldRenderer.pos(1, 1, (11.0D/16.0D)).tex(1.0D, 0.0D).endVertex();
+                    worldRenderer.pos(0, 1, (11.0D/16.0D)).tex(0.75D, 0.0D).endVertex();
                     
                     if((overlappingNotRenderSide & 2) == 0)
                     {
-                        worldRenderer.addVertexWithUV(0, 0, (5.0D/16.0D), 0.75D, 0.5D);
-                        worldRenderer.addVertexWithUV(-1, 0, (5.0D/16.0D), 1.0D, 0.5D);
-                        worldRenderer.addVertexWithUV(-1, 1, (5.0D/16.0D), 1.0D, 0.25D);
-                        worldRenderer.addVertexWithUV(0, 1, (5.0D/16.0D), 0.75D, 0.25D);
+                        worldRenderer.pos(0, 0, (5.0D/16.0D)).tex(0.75D, 0.5D).endVertex();
+                        worldRenderer.pos(-1, 0, (5.0D/16.0D)).tex(1.0D, 0.5D).endVertex();
+                        worldRenderer.pos(-1, 1, (5.0D/16.0D)).tex(1.0D, 0.25D).endVertex();
+                        worldRenderer.pos(0, 1, (5.0D/16.0D)).tex(0.75D, 0.25D).endVertex();
                         
-                        worldRenderer.addVertexWithUV(-1, 1, (11.0D/16.0D), 1.0D, 0.25D);
-                        worldRenderer.addVertexWithUV(-1, 0, (11.0D/16.0D), 1.0D, 0.5D);
-                        worldRenderer.addVertexWithUV(0, 0, (11.0D/16.0D), 0.75D, 0.5D);
-                        worldRenderer.addVertexWithUV(0, 1, (11.0D/16.0D), 0.75D, 0.25D);
+                        worldRenderer.pos(-1, 1, (11.0D/16.0D)).tex(1.0D, 0.25D).endVertex();
+                        worldRenderer.pos(-1, 0, (11.0D/16.0D)).tex(1.0D, 0.5D).endVertex();
+                        worldRenderer.pos(0, 0, (11.0D/16.0D)).tex(0.75D, 0.5D).endVertex();
+                        worldRenderer.pos(0, 1, (11.0D/16.0D)).tex(0.75D, 0.25D).endVertex();
                     }
                     
-                    worldRenderer.addVertexWithUV(0, (4.0D/16.0D), 0, 0.5D, 0.5D);
-                    worldRenderer.addVertexWithUV(-1, (4.0D/16.0D), 0, 0.5D, 0.25D);
-                    worldRenderer.addVertexWithUV(-1, (4.0D/16.0D), 1, 0.75D, 0.25D);
-                    worldRenderer.addVertexWithUV(0, (4.0D/16.0D), 1, 0.75D, 0.5D);
+                    worldRenderer.pos(0, (4.0D/16.0D), 0).tex(0.5D, 0.5D).endVertex();
+                    worldRenderer.pos(-1, (4.0D/16.0D), 0).tex(0.5D, 0.25D).endVertex();
+                    worldRenderer.pos(-1, (4.0D/16.0D), 1).tex(0.75D, 0.25D).endVertex();
+                    worldRenderer.pos(0, (4.0D/16.0D), 1).tex(0.75D, 0.5D).endVertex();
                 }
                 else if(back == 3)
                 {
-                    worldRenderer.addVertexWithUV(0, (4.0D/16.0D), 0, 0.5D, 0.0D);
-                    worldRenderer.addVertexWithUV(0, (4.0D/16.0D), 1, 0.5D, 0.25D);
-                    worldRenderer.addVertexWithUV(1, (4.0D/16.0D), 1, 0.75D, 0.25D);
-                    worldRenderer.addVertexWithUV(1, (4.0D/16.0D), 0, 0.75D, 0.0D);
+                    worldRenderer.pos(0, (4.0D/16.0D), 0).tex(0.5D, 0.0D).endVertex();
+                    worldRenderer.pos(0, (4.0D/16.0D), 1).tex(0.5D, 0.25D).endVertex();
+                    worldRenderer.pos(1, (4.0D/16.0D), 1).tex(0.75D, 0.25D).endVertex();
+                    worldRenderer.pos(1, (4.0D/16.0D), 0).tex(0.75D, 0.0D).endVertex();
                     
-                    worldRenderer.addVertexWithUV(0, 0, 0, 0.0D, 0.25D);
-                    worldRenderer.addVertexWithUV(1, 0, 0, 0.25D, 0.25D);
-                    worldRenderer.addVertexWithUV(1, 0, 1, 0.25D, 0.0D);
-                    worldRenderer.addVertexWithUV(0, 0, 1, 0.0D, 0.0D);
+                    worldRenderer.pos(0, 0, 0).tex(0.0D, 0.25D).endVertex();
+                    worldRenderer.pos(1, 0, 0).tex(0.25D, 0.25D).endVertex();
+                    worldRenderer.pos(1, 0, 1).tex(0.25D, 0.0D).endVertex();
+                    worldRenderer.pos(0, 0, 1).tex(0.0D, 0.0D).endVertex();
                     
                     if((overlappingNotRenderSide & 2) == 0)
                     {
-                        worldRenderer.addVertexWithUV(1, 1, (5.0D/16.0D), 1.0D, 0.0D);
-                        worldRenderer.addVertexWithUV(1, 0, (5.0D/16.0D), 1.0D, 0.25D);
-                        worldRenderer.addVertexWithUV(0, 0, (5.0D/16.0D), 0.75D, 0.25D);
-                        worldRenderer.addVertexWithUV(0, 1, (5.0D/16.0D), 0.75D, 0.0D);
+                        worldRenderer.pos(1, 1, (5.0D/16.0D)).tex(1.0D, 0.0D).endVertex();
+                        worldRenderer.pos(1, 0, (5.0D/16.0D)).tex(1.0D, 0.25D).endVertex();
+                        worldRenderer.pos(0, 0, (5.0D/16.0D)).tex(0.75D, 0.25D).endVertex();
+                        worldRenderer.pos(0, 1, (5.0D/16.0D)).tex(0.75D, 0.0D).endVertex();
                         
-                        worldRenderer.addVertexWithUV(1, 1, (11.0D/16.0D), 1.0D, 0.0D);
-                        worldRenderer.addVertexWithUV(0, 1, (11.0D/16.0D), 0.75D, 0.0D);
-                        worldRenderer.addVertexWithUV(0, 0, (11.0D/16.0D), 0.75D, 0.25D);
-                        worldRenderer.addVertexWithUV(1, 0, (11.0D/16.0D), 1.0D, 0.25D);
+                        worldRenderer.pos(1, 1, (11.0D/16.0D)).tex(1.0D, 0.0D).endVertex();
+                        worldRenderer.pos(0, 1, (11.0D/16.0D)).tex(0.75D, 0.0D).endVertex();
+                        worldRenderer.pos(0, 0, (11.0D/16.0D)).tex(0.75D, 0.25D).endVertex();
+                        worldRenderer.pos(1, 0, (11.0D/16.0D)).tex(1.0D, 0.25D).endVertex();
                     }
                     else
                     {
-                        worldRenderer.addVertexWithUV(0, 0, (11.0D/16.0D), 0.0D, 0.5D);
-                        worldRenderer.addVertexWithUV(1, 0, (11.0D/16.0D), 0.25D, 0.5D);
-                        worldRenderer.addVertexWithUV(1, 1, (11.0D/16.0D), 0.25D, 0.25D);
-                        worldRenderer.addVertexWithUV(0, 1, (11.0D/16.0D), 0.0D, 0.25D);
+                        worldRenderer.pos(0, 0, (11.0D/16.0D)).tex(0.0D, 0.5D).endVertex();
+                        worldRenderer.pos(1, 0, (11.0D/16.0D)).tex(0.25D, 0.5D).endVertex();
+                        worldRenderer.pos(1, 1, (11.0D/16.0D)).tex(0.25D, 0.25D).endVertex();
+                        worldRenderer.pos(0, 1, (11.0D/16.0D)).tex(0.0D, 0.25D).endVertex();
 
-                        worldRenderer.addVertexWithUV(0, 0, (5.0D/16.0D), 0.0D, 0.5D);
-                        worldRenderer.addVertexWithUV(0, 1, (5.0D/16.0D), 0.0D, 0.25D);
-                        worldRenderer.addVertexWithUV(1, 1, (5.0D/16.0D), 0.25D, 0.25D);
-                        worldRenderer.addVertexWithUV(1, 0, (5.0D/16.0D), 0.25D, 0.5D); 
+                        worldRenderer.pos(0, 0, (5.0D/16.0D)).tex(0.0D, 0.5D).endVertex();
+                        worldRenderer.pos(0, 1, (5.0D/16.0D)).tex(0.0D, 0.25D).endVertex();
+                        worldRenderer.pos(1, 1, (5.0D/16.0D)).tex(0.25D, 0.25D).endVertex();
+                        worldRenderer.pos(1, 0, (5.0D/16.0D)).tex(0.25D, 0.5D).endVertex(); 
                     }
 
-                    worldRenderer.addVertexWithUV(0, 1, 1, 0.5D, 0.25D);
-                    worldRenderer.addVertexWithUV(0, 1, 0, 0.75D, 0.25D);
-                    worldRenderer.addVertexWithUV(0, 0, 0, 0.75D, 0.5D);
-                    worldRenderer.addVertexWithUV(0, 0, 1, 0.5D, 0.5D);
+                    worldRenderer.pos(0, 1, 1).tex(0.5D, 0.25D).endVertex();
+                    worldRenderer.pos(0, 1, 0).tex(0.75D, 0.25D).endVertex();
+                    worldRenderer.pos(0, 0, 0).tex(0.75D, 0.5D).endVertex();
+                    worldRenderer.pos(0, 0, 1).tex(0.5D, 0.5D).endVertex();
                 }
             }
             if(left == 0)
             {
                 if(front == 0 && back == 0 && right != 0)
                 {
-                    worldRenderer.addVertexWithUV(0, (4.0D/16.0D), 0, 0.5D, 0.0D);
-                    worldRenderer.addVertexWithUV(0, (4.0D/16.0D), 1, 0.75D, 0.0D);
-                    worldRenderer.addVertexWithUV(1, (4.0D/16.0D), 1, 0.75D, 0.25D);
-                    worldRenderer.addVertexWithUV(1, (4.0D/16.0D), 0, 0.5D, 0.25D);
+                    worldRenderer.pos(0, (4.0D/16.0D), 0).tex(0.5D, 0.0D).endVertex();
+                    worldRenderer.pos(0, (4.0D/16.0D), 1).tex(0.75D, 0.0D).endVertex();
+                    worldRenderer.pos(1, (4.0D/16.0D), 1).tex(0.75D, 0.25D).endVertex();
+                    worldRenderer.pos(1, (4.0D/16.0D), 0).tex(0.5D, 0.25D).endVertex();
                     
-                    worldRenderer.addVertexWithUV(0, 0, 0, 0.5D, 0.25D);
-                    worldRenderer.addVertexWithUV(1, 0, 0, 0.5D, 0.0D);
-                    worldRenderer.addVertexWithUV(1, 0, 1, 0.75D, 0.0D);
-                    worldRenderer.addVertexWithUV(0, 0, 1, 0.75D, 0.25D);
+                    worldRenderer.pos(0, 0, 0).tex(0.5D, 0.25D).endVertex();
+                    worldRenderer.pos(1, 0, 0).tex(0.5D, 0.0D).endVertex();
+                    worldRenderer.pos(1, 0, 1).tex(0.75D, 0.0D).endVertex();
+                    worldRenderer.pos(0, 0, 1).tex(0.75D, 0.25D).endVertex();
                     
-                    worldRenderer.addVertexWithUV((11.0D/16.0D), 0, 0, 0.0D, 0.5D);
-                    worldRenderer.addVertexWithUV((11.0D/16.0D), 1, 0, 0.0D, 0.25D);
-                    worldRenderer.addVertexWithUV((11.0D/16.0D), 1, 1, 0.25D, 0.25D);
-                    worldRenderer.addVertexWithUV((11.0D/16.0D), 0, 1, 0.25D, 0.5D);
+                    worldRenderer.pos((11.0D/16.0D), 0, 0).tex(0.0D, 0.5D).endVertex();
+                    worldRenderer.pos((11.0D/16.0D), 1, 0).tex(0.0D, 0.25D).endVertex();
+                    worldRenderer.pos((11.0D/16.0D), 1, 1).tex(0.25D, 0.25D).endVertex();
+                    worldRenderer.pos((11.0D/16.0D), 0, 1).tex(0.25D, 0.5D).endVertex();
                     
-                    worldRenderer.addVertexWithUV((5.0D/16.0D), 0, 0, 0.0D, 0.5D);
-                    worldRenderer.addVertexWithUV((5.0D/16.0D), 0, 1, 0.25D, 0.5D);
-                    worldRenderer.addVertexWithUV((5.0D/16.0D), 1, 1, 0.25D, 0.25D);
-                    worldRenderer.addVertexWithUV((5.0D/16.0D), 1, 0, 0.0D, 0.25D);
+                    worldRenderer.pos((5.0D/16.0D), 0, 0).tex(0.0D, 0.5D).endVertex();
+                    worldRenderer.pos((5.0D/16.0D), 0, 1).tex(0.25D, 0.5D).endVertex();
+                    worldRenderer.pos((5.0D/16.0D), 1, 1).tex(0.25D, 0.25D).endVertex();
+                    worldRenderer.pos((5.0D/16.0D), 1, 0).tex(0.0D, 0.25D).endVertex();
                     
-                    worldRenderer.addVertexWithUV(1, 1, (4.0D/16.0D), 0.25D, 0.25D);
-                    worldRenderer.addVertexWithUV(1, 0, (4.0D/16.0D), 0.25D, 0.5D);
-                    worldRenderer.addVertexWithUV(0, 0, (4.0D/16.0D), 0.5D, 0.5D);
-                    worldRenderer.addVertexWithUV(0, 1, (4.0D/16.0D), 0.5D, 0.25D);
+                    worldRenderer.pos(1, 1, (4.0D/16.0D)).tex(0.25D, 0.25D).endVertex();
+                    worldRenderer.pos(1, 0, (4.0D/16.0D)).tex(0.25D, 0.5D).endVertex();
+                    worldRenderer.pos(0, 0, (4.0D/16.0D)).tex(0.5D, 0.5D).endVertex();
+                    worldRenderer.pos(0, 1, (4.0D/16.0D)).tex(0.5D, 0.25D).endVertex();
                 }
                 else
                 {
-                    worldRenderer.addVertexWithUV(1, 1, (5.0D/16.0D), 0.5D, 0.25D);
-                    worldRenderer.addVertexWithUV(1, 0, (5.0D/16.0D), 0.5D, 0.5D);
-                    worldRenderer.addVertexWithUV(0, 0, (5.0D/16.0D), 0.75D, 0.5D);
-                    worldRenderer.addVertexWithUV(0, 1, (5.0D/16.0D), 0.75D, 0.25D);
+                    worldRenderer.pos(1, 1, (5.0D/16.0D)).tex(0.5D, 0.25D).endVertex();
+                    worldRenderer.pos(1, 0, (5.0D/16.0D)).tex(0.5D, 0.5D).endVertex();
+                    worldRenderer.pos(0, 0, (5.0D/16.0D)).tex(0.75D, 0.5D).endVertex();
+                    worldRenderer.pos(0, 1, (5.0D/16.0D)).tex(0.75D, 0.25D).endVertex();
                 }
             }
             else
             {
                 if(left == 1)
                 {
-                    worldRenderer.addVertexWithUV(0, (4.0D/16.0D), 0, 0.0D, 0.0D);
-                    worldRenderer.addVertexWithUV(0, (4.0D/16.0D), 1, 0.25D, 0.0D);
-                    worldRenderer.addVertexWithUV(1, (4.0D/16.0D), 1, 0.25D, 0.25D);
-                    worldRenderer.addVertexWithUV(1, (4.0D/16.0D), 0, 0.0D, 0.25D);
+                    worldRenderer.pos(0, (4.0D/16.0D), 0).tex(0.0D, 0.0D).endVertex();
+                    worldRenderer.pos(0, (4.0D/16.0D), 1).tex(0.25D, 0.0D).endVertex();
+                    worldRenderer.pos(1, (4.0D/16.0D), 1).tex(0.25D, 0.25D).endVertex();
+                    worldRenderer.pos(1, (4.0D/16.0D), 0).tex(0.0D, 0.25D).endVertex();
                     
-                    worldRenderer.addVertexWithUV(0, 0, 0, 0.0D, 0.25D);
-                    worldRenderer.addVertexWithUV(1, 0, 0, 0.0D, 0.0D);
-                    worldRenderer.addVertexWithUV(1, 0, 1, 0.25D, 0.0D);
-                    worldRenderer.addVertexWithUV(0, 0, 1, 0.25D, 0.25D);
+                    worldRenderer.pos(0, 0, 0).tex(0.0D, 0.25D).endVertex();
+                    worldRenderer.pos(1, 0, 0).tex(0.0D, 0.0D).endVertex();
+                    worldRenderer.pos(1, 0, 1).tex(0.25D, 0.0D).endVertex();
+                    worldRenderer.pos(0, 0, 1).tex(0.25D, 0.25D).endVertex();
                     
-                    worldRenderer.addVertexWithUV((5.0D/16.0D), 0, 0, 0.75D, 0.25D);
-                    worldRenderer.addVertexWithUV((5.0D/16.0D), 0, 1, 1.0D, 0.25D);
-                    worldRenderer.addVertexWithUV((5.0D/16.0D), 1, 1, 1.0D, 0.0D);
-                    worldRenderer.addVertexWithUV((5.0D/16.0D), 1, 0, 0.75D, 0.0D);
+                    worldRenderer.pos((5.0D/16.0D), 0, 0).tex(0.75D, 0.25D).endVertex();
+                    worldRenderer.pos((5.0D/16.0D), 0, 1).tex(1.0D, 0.25D).endVertex();
+                    worldRenderer.pos((5.0D/16.0D), 1, 1).tex(1.0D, 0.0D).endVertex();
+                    worldRenderer.pos((5.0D/16.0D), 1, 0).tex(0.75D, 0.0D).endVertex();
                     
-                    worldRenderer.addVertexWithUV((11.0D/16.0D), 0, 0, 0.75D, 0.25D);
-                    worldRenderer.addVertexWithUV((11.0D/16.0D), 1, 0, 0.75D, 0.0D);
-                    worldRenderer.addVertexWithUV((11.0D/16.0D), 1, 1, 1.0D, 0.0D);
-                    worldRenderer.addVertexWithUV((11.0D/16.0D), 0, 1, 1.0D, 0.25D);
+                    worldRenderer.pos((11.0D/16.0D), 0, 0).tex(0.75D, 0.25D).endVertex();
+                    worldRenderer.pos((11.0D/16.0D), 1, 0).tex(0.75D, 0.0D).endVertex();
+                    worldRenderer.pos((11.0D/16.0D), 1, 1).tex(1.0D, 0.0D).endVertex();
+                    worldRenderer.pos((11.0D/16.0D), 0, 1).tex(1.0D, 0.25D).endVertex();
                 }
                 else if(left == 2)
                 {
-                    worldRenderer.addVertexWithUV(0, (4.0D/16.0D), 0, 0.0D, 0.0D);
-                    worldRenderer.addVertexWithUV(0, (4.0D/16.0D), 1, 0.25D, 0.0D);
-                    worldRenderer.addVertexWithUV(1, (4.0D/16.0D), 1, 0.25D, 0.25D);
-                    worldRenderer.addVertexWithUV(1, (4.0D/16.0D), 0, 0.0D, 0.25D);
+                    worldRenderer.pos(0, (4.0D/16.0D), 0).tex(0.0D, 0.0D).endVertex();
+                    worldRenderer.pos(0, (4.0D/16.0D), 1).tex(0.25D, 0.0D).endVertex();
+                    worldRenderer.pos(1, (4.0D/16.0D), 1).tex(0.25D, 0.25D).endVertex();
+                    worldRenderer.pos(1, (4.0D/16.0D), 0).tex(0.0D, 0.25D).endVertex();
                     
-                    worldRenderer.addVertexWithUV(0, 0, 0, 0.0D, 0.25D);
-                    worldRenderer.addVertexWithUV(1, 0, 0, 0.0D, 0.0D);
-                    worldRenderer.addVertexWithUV(1, 0, 1, 0.25D, 0.0D);
-                    worldRenderer.addVertexWithUV(0, 0, 1, 0.25D, 0.25D);
+                    worldRenderer.pos(0, 0, 0).tex(0.0D, 0.25D).endVertex();
+                    worldRenderer.pos(1, 0, 0).tex(0.0D, 0.0D).endVertex();
+                    worldRenderer.pos(1, 0, 1).tex(0.25D, 0.0D).endVertex();
+                    worldRenderer.pos(0, 0, 1).tex(0.25D, 0.25D).endVertex();
                     
-                    worldRenderer.addVertexWithUV((5.0D/16.0D), 0, 0, 0.75D, 0.25D);
-                    worldRenderer.addVertexWithUV((5.0D/16.0D), 0, 1, 1.0D, 0.25D);
-                    worldRenderer.addVertexWithUV((5.0D/16.0D), 1, 1, 1.0D, 0.0D);
-                    worldRenderer.addVertexWithUV((5.0D/16.0D), 1, 0, 0.75D, 0.0D);
+                    worldRenderer.pos((5.0D/16.0D), 0, 0).tex(0.75D, 0.25D).endVertex();
+                    worldRenderer.pos((5.0D/16.0D), 0, 1).tex(1.0D, 0.25D).endVertex();
+                    worldRenderer.pos((5.0D/16.0D), 1, 1).tex(1.0D, 0.0D).endVertex();
+                    worldRenderer.pos((5.0D/16.0D), 1, 0).tex(0.75D, 0.0D).endVertex();
                     
-                    worldRenderer.addVertexWithUV((11.0D/16.0D), 0, 0, 0.75D, 0.25D);
-                    worldRenderer.addVertexWithUV((11.0D/16.0D), 1, 0, 0.75D, 0.0D);
-                    worldRenderer.addVertexWithUV((11.0D/16.0D), 1, 1, 1.0D, 0.0D);
-                    worldRenderer.addVertexWithUV((11.0D/16.0D), 0, 1, 1.0D, 0.25D);
+                    worldRenderer.pos((11.0D/16.0D), 0, 0).tex(0.75D, 0.25D).endVertex();
+                    worldRenderer.pos((11.0D/16.0D), 1, 0).tex(0.75D, 0.0D).endVertex();
+                    worldRenderer.pos((11.0D/16.0D), 1, 1).tex(1.0D, 0.0D).endVertex();
+                    worldRenderer.pos((11.0D/16.0D), 0, 1).tex(1.0D, 0.25D).endVertex();
                     
                     if((overlappingNotRenderSide & 4) == 0)
                     {
-                        worldRenderer.addVertexWithUV((5.0D/16.0D), 0, 0, 0.75D, 0.5D);
-                        worldRenderer.addVertexWithUV((5.0D/16.0D), 1, 0, 0.75D, 0.25D);
-                        worldRenderer.addVertexWithUV((5.0D/16.0D), 1, -1, 1.0D, 0.25D);
-                        worldRenderer.addVertexWithUV((5.0D/16.0D), 0, -1, 1.0D, 0.5D);
+                        worldRenderer.pos((5.0D/16.0D), 0, 0).tex(0.75D, 0.5D).endVertex();
+                        worldRenderer.pos((5.0D/16.0D), 1, 0).tex(0.75D, 0.25D).endVertex();
+                        worldRenderer.pos((5.0D/16.0D), 1, -1).tex(1.0D, 0.25D).endVertex();
+                        worldRenderer.pos((5.0D/16.0D), 0, -1).tex(1.0D, 0.5D).endVertex();
                         
-                        worldRenderer.addVertexWithUV((11.0D/16.0D), 1, -1, 1.0D, 0.25D);
-                        worldRenderer.addVertexWithUV((11.0D/16.0D), 1, 0, 0.75D, 0.25D);
-                        worldRenderer.addVertexWithUV((11.0D/16.0D), 0, 0, 0.75D, 0.5D);
-                        worldRenderer.addVertexWithUV((11.0D/16.0D), 0, -1, 1.0D, 0.5D);
+                        worldRenderer.pos((11.0D/16.0D), 1, -1).tex(1.0D, 0.25D).endVertex();
+                        worldRenderer.pos((11.0D/16.0D), 1, 0).tex(0.75D, 0.25D).endVertex();
+                        worldRenderer.pos((11.0D/16.0D), 0, 0).tex(0.75D, 0.5D).endVertex();
+                        worldRenderer.pos((11.0D/16.0D), 0, -1).tex(1.0D, 0.5D).endVertex();
                     }
                     
-                    worldRenderer.addVertexWithUV(0, (4.0D/16.0D), 0, 0.5D, 0.5D);
-                    worldRenderer.addVertexWithUV(1, (4.0D/16.0D), 0, 0.75D, 0.5D);
-                    worldRenderer.addVertexWithUV(1, (4.0D/16.0D), -1, 0.75D, 0.25D);
-                    worldRenderer.addVertexWithUV(0, (4.0D/16.0D), -1, 0.5D, 0.25D);
+                    worldRenderer.pos(0, (4.0D/16.0D), 0).tex(0.5D, 0.5D).endVertex();
+                    worldRenderer.pos(1, (4.0D/16.0D), 0).tex(0.75D, 0.5D).endVertex();
+                    worldRenderer.pos(1, (4.0D/16.0D), -1).tex(0.75D, 0.25D).endVertex();
+                    worldRenderer.pos(0, (4.0D/16.0D), -1).tex(0.5D, 0.25D).endVertex();
                 }
                 else if(left == 3)
                 {
-                    worldRenderer.addVertexWithUV(0, (4.0D/16.0D), 0, 0.5D, 0.0D);
-                    worldRenderer.addVertexWithUV(0, (4.0D/16.0D), 1, 0.75D, 0.0D);
-                    worldRenderer.addVertexWithUV(1, (4.0D/16.0D), 1, 0.75D, 0.25D);
-                    worldRenderer.addVertexWithUV(1, (4.0D/16.0D), 0, 0.5D, 0.25D);
+                    worldRenderer.pos(0, (4.0D/16.0D), 0).tex(0.5D, 0.0D).endVertex();
+                    worldRenderer.pos(0, (4.0D/16.0D), 1).tex(0.75D, 0.0D).endVertex();
+                    worldRenderer.pos(1, (4.0D/16.0D), 1).tex(0.75D, 0.25D).endVertex();
+                    worldRenderer.pos(1, (4.0D/16.0D), 0).tex(0.5D, 0.25D).endVertex();
                     
-                    worldRenderer.addVertexWithUV(0, 0, 0, 0.0D, 0.25D);
-                    worldRenderer.addVertexWithUV(1, 0, 0, 0.0D, 0.0D);
-                    worldRenderer.addVertexWithUV(1, 0, 1, 0.25D, 0.0D);
-                    worldRenderer.addVertexWithUV(0, 0, 1, 0.25D, 0.25D);
+                    worldRenderer.pos(0, 0, 0).tex(0.0D, 0.25D).endVertex();
+                    worldRenderer.pos(1, 0, 0).tex(0.0D, 0.0D).endVertex();
+                    worldRenderer.pos(1, 0, 1).tex(0.25D, 0.0D).endVertex();
+                    worldRenderer.pos(0, 0, 1).tex(0.25D, 0.25D).endVertex();
                     
                     if((overlappingNotRenderSide & 4) == 0)
                     {
-                        worldRenderer.addVertexWithUV((5.0D/16.0D), 1, 1, 1.0D, 0.0D);
-                        worldRenderer.addVertexWithUV((5.0D/16.0D), 1, 0, 0.75D, 0.0D);
-                        worldRenderer.addVertexWithUV((5.0D/16.0D), 0, 0, 0.75D, 0.25D);
-                        worldRenderer.addVertexWithUV((5.0D/16.0D), 0, 1, 1.0D, 0.25D);
+                        worldRenderer.pos((5.0D/16.0D), 1, 1).tex(1.0D, 0.0D).endVertex();
+                        worldRenderer.pos((5.0D/16.0D), 1, 0).tex(0.75D, 0.0D).endVertex();
+                        worldRenderer.pos((5.0D/16.0D), 0, 0).tex(0.75D, 0.25D).endVertex();
+                        worldRenderer.pos((5.0D/16.0D), 0, 1).tex(1.0D, 0.25D).endVertex();
                         
-                        worldRenderer.addVertexWithUV((11.0D/16.0D), 1, 1, 1.0D, 0.0D);
-                        worldRenderer.addVertexWithUV((11.0D/16.0D), 0, 1, 1.0D, 0.25D);
-                        worldRenderer.addVertexWithUV((11.0D/16.0D), 0, 0, 0.75D, 0.25D);
-                        worldRenderer.addVertexWithUV((11.0D/16.0D), 1, 0, 0.75D, 0.0D);
+                        worldRenderer.pos((11.0D/16.0D), 1, 1).tex(1.0D, 0.0D).endVertex();
+                        worldRenderer.pos((11.0D/16.0D), 0, 1).tex(1.0D, 0.25D).endVertex();
+                        worldRenderer.pos((11.0D/16.0D), 0, 0).tex(0.75D, 0.25D).endVertex();
+                        worldRenderer.pos((11.0D/16.0D), 1, 0).tex(0.75D, 0.0D).endVertex();
                     }
 
-                    worldRenderer.addVertexWithUV(1, 1, 0, 0.5D, 0.25D);
-                    worldRenderer.addVertexWithUV(1, 0, 0, 0.5D, 0.5D);
-                    worldRenderer.addVertexWithUV(0, 0, 0, 0.75D, 0.5D);
-                    worldRenderer.addVertexWithUV(0, 1, 0, 0.75D, 0.25D);
+                    worldRenderer.pos(1, 1, 0).tex(0.5D, 0.25D).endVertex();
+                    worldRenderer.pos(1, 0, 0).tex(0.5D, 0.5D).endVertex();
+                    worldRenderer.pos(0, 0, 0).tex(0.75D, 0.5D).endVertex();
+                    worldRenderer.pos(0, 1, 0).tex(0.75D, 0.25D).endVertex();
                 }
             }
             if(right == 0)
             {
                 if(front == 0 && back == 0 && left != 0)
                 {
-                    worldRenderer.addVertexWithUV(0, (4.0D/16.0D), 0, 0.75D, 0.25D);
-                    worldRenderer.addVertexWithUV(0, (4.0D/16.0D), 1, 0.5D, 0.25D);
-                    worldRenderer.addVertexWithUV(1, (4.0D/16.0D), 1, 0.5D, 0.0D);
-                    worldRenderer.addVertexWithUV(1, (4.0D/16.0D), 0, 0.75D, 0.0D);
+                    worldRenderer.pos(0, (4.0D/16.0D), 0).tex(0.75D, 0.25D).endVertex();
+                    worldRenderer.pos(0, (4.0D/16.0D), 1).tex(0.5D, 0.25D).endVertex();
+                    worldRenderer.pos(1, (4.0D/16.0D), 1).tex(0.5D, 0.0D).endVertex();
+                    worldRenderer.pos(1, (4.0D/16.0D), 0).tex(0.75D, 0.0D).endVertex();
                     
-                    worldRenderer.addVertexWithUV(0, 0, 0, 0.75D, 0.0D);
-                    worldRenderer.addVertexWithUV(1, 0, 0, 0.75D, 0.25D);
-                    worldRenderer.addVertexWithUV(1, 0, 1, 0.5D, 0.25D);
-                    worldRenderer.addVertexWithUV(0, 0, 1, 0.5D, 0.0D);
+                    worldRenderer.pos(0, 0, 0).tex(0.75D, 0.0D).endVertex();
+                    worldRenderer.pos(1, 0, 0).tex(0.75D, 0.25D).endVertex();
+                    worldRenderer.pos(1, 0, 1).tex(0.5D, 0.25D).endVertex();
+                    worldRenderer.pos(0, 0, 1).tex(0.5D, 0.0D).endVertex();
                     
-                    worldRenderer.addVertexWithUV((11.0D/16.0D), 0, 0, 0.25D, 0.5D);
-                    worldRenderer.addVertexWithUV((11.0D/16.0D), 1, 0, 0.25D, 0.25D);
-                    worldRenderer.addVertexWithUV((11.0D/16.0D), 1, 1, 0.0D, 0.25D);
-                    worldRenderer.addVertexWithUV((11.0D/16.0D), 0, 1, 0.0D, 0.5D);
+                    worldRenderer.pos((11.0D/16.0D), 0, 0).tex(0.25D, 0.5D).endVertex();
+                    worldRenderer.pos((11.0D/16.0D), 1, 0).tex(0.25D, 0.25D).endVertex();
+                    worldRenderer.pos((11.0D/16.0D), 1, 1).tex(0.0D, 0.25D).endVertex();
+                    worldRenderer.pos((11.0D/16.0D), 0, 1).tex(0.0D, 0.5D).endVertex();
                     
-                    worldRenderer.addVertexWithUV((5.0D/16.0D), 0, 0, 0.25D, 0.5D);
-                    worldRenderer.addVertexWithUV((5.0D/16.0D), 0, 1, 0.0D, 0.5D);
-                    worldRenderer.addVertexWithUV((5.0D/16.0D), 1, 1, 0.0D, 0.25D);
-                    worldRenderer.addVertexWithUV((5.0D/16.0D), 1, 0, 0.25D, 0.25D);
+                    worldRenderer.pos((5.0D/16.0D), 0, 0).tex(0.25D, 0.5D).endVertex();
+                    worldRenderer.pos((5.0D/16.0D), 0, 1).tex(0.0D, 0.5D).endVertex();
+                    worldRenderer.pos((5.0D/16.0D), 1, 1).tex(0.0D, 0.25D).endVertex();
+                    worldRenderer.pos((5.0D/16.0D), 1, 0).tex(0.25D, 0.25D).endVertex();
                     
-                    worldRenderer.addVertexWithUV(0, 1, (12.0D/16.0D), 0.25D, 0.25D);
-                    worldRenderer.addVertexWithUV(0, 0, (12.0D/16.0D), 0.25D, 0.5D);
-                    worldRenderer.addVertexWithUV(1, 0, (12.0D/16.0D), 0.5D, 0.5D);
-                    worldRenderer.addVertexWithUV(1, 1, (12.0D/16.0D), 0.5D, 0.25D);
+                    worldRenderer.pos(0, 1, (12.0D/16.0D)).tex(0.25D, 0.25D).endVertex();
+                    worldRenderer.pos(0, 0, (12.0D/16.0D)).tex(0.25D, 0.5D).endVertex();
+                    worldRenderer.pos(1, 0, (12.0D/16.0D)).tex(0.5D, 0.5D).endVertex();
+                    worldRenderer.pos(1, 1, (12.0D/16.0D)).tex(0.5D, 0.25D).endVertex();
                 }
                 else
                 {
-                    worldRenderer.addVertexWithUV(0, 1, (11.0D/16.0D), 0.5D, 0.25D);
-                    worldRenderer.addVertexWithUV(0, 0, (11.0D/16.0D), 0.5D, 0.5D);
-                    worldRenderer.addVertexWithUV(1, 0, (11.0D/16.0D), 0.75D, 0.5D);
-                    worldRenderer.addVertexWithUV(1, 1, (11.0D/16.0D), 0.75D, 0.25D);
+                    worldRenderer.pos(0, 1, (11.0D/16.0D)).tex(0.5D, 0.25D).endVertex();
+                    worldRenderer.pos(0, 0, (11.0D/16.0D)).tex(0.5D, 0.5D).endVertex();
+                    worldRenderer.pos(1, 0, (11.0D/16.0D)).tex(0.75D, 0.5D).endVertex();
+                    worldRenderer.pos(1, 1, (11.0D/16.0D)).tex(0.75D, 0.25D).endVertex();
                 }
             }
             else
             {
                 if(right == 1)
                 {
-                    worldRenderer.addVertexWithUV(0, (4.0D/16.0D), 0, 0.25D, 0.25D);
-                    worldRenderer.addVertexWithUV(0, (4.0D/16.0D), 1, 0.0D, 0.25D);
-                    worldRenderer.addVertexWithUV(1, (4.0D/16.0D), 1, 0.0D, 0.0D);
-                    worldRenderer.addVertexWithUV(1, (4.0D/16.0D), 0, 0.25D, 0.0D);
+                    worldRenderer.pos(0, (4.0D/16.0D), 0).tex(0.25D, 0.25D).endVertex();
+                    worldRenderer.pos(0, (4.0D/16.0D), 1).tex(0.0D, 0.25D).endVertex();
+                    worldRenderer.pos(1, (4.0D/16.0D), 1).tex(0.0D, 0.0D).endVertex();
+                    worldRenderer.pos(1, (4.0D/16.0D), 0).tex(0.25D, 0.0D).endVertex();
                     
-                    worldRenderer.addVertexWithUV(0, 0, 0, 0.25D, 0.0D);
-                    worldRenderer.addVertexWithUV(1, 0, 0, 0.25D, 0.25D);
-                    worldRenderer.addVertexWithUV(1, 0, 1, 0.0D, 0.25D);
-                    worldRenderer.addVertexWithUV(0, 0, 1, 0.0D, 0.0D);
+                    worldRenderer.pos(0, 0, 0).tex(0.25D, 0.0D).endVertex();
+                    worldRenderer.pos(1, 0, 0).tex(0.25D, 0.25D).endVertex();
+                    worldRenderer.pos(1, 0, 1).tex(0.0D, 0.25D).endVertex();
+                    worldRenderer.pos(0, 0, 1).tex(0.0D, 0.0D).endVertex();
                     
-                    worldRenderer.addVertexWithUV((5.0D/16.0D), 0, 1, 0.75D, 0.25D);
-                    worldRenderer.addVertexWithUV((5.0D/16.0D), 1, 1, 0.75D, 0.0D);
-                    worldRenderer.addVertexWithUV((5.0D/16.0D), 1, 0, 1.0D, 0.0D);
-                    worldRenderer.addVertexWithUV((5.0D/16.0D), 0, 0, 1.0D, 0.25D);
+                    worldRenderer.pos((5.0D/16.0D), 0, 1).tex(0.75D, 0.25D).endVertex();
+                    worldRenderer.pos((5.0D/16.0D), 1, 1).tex(0.75D, 0.0D).endVertex();
+                    worldRenderer.pos((5.0D/16.0D), 1, 0).tex(1.0D, 0.0D).endVertex();
+                    worldRenderer.pos((5.0D/16.0D), 0, 0).tex(1.0D, 0.25D).endVertex();
                     
-                    worldRenderer.addVertexWithUV((11.0D/16.0D), 0, 1, 0.75D, 0.25D);
-                    worldRenderer.addVertexWithUV((11.0D/16.0D), 0, 0, 1.0D, 0.25D);
-                    worldRenderer.addVertexWithUV((11.0D/16.0D), 1, 0, 1.0D, 0.0D);
-                    worldRenderer.addVertexWithUV((11.0D/16.0D), 1, 1, 0.75D, 0.0D);
+                    worldRenderer.pos((11.0D/16.0D), 0, 1).tex(0.75D, 0.25D).endVertex();
+                    worldRenderer.pos((11.0D/16.0D), 0, 0).tex(1.0D, 0.25D).endVertex();
+                    worldRenderer.pos((11.0D/16.0D), 1, 0).tex(1.0D, 0.0D).endVertex();
+                    worldRenderer.pos((11.0D/16.0D), 1, 1).tex(0.75D, 0.0D).endVertex();
                 }
                 else if(right == 2)
                 {
-                    worldRenderer.addVertexWithUV(0, (4.0D/16.0D), 0, 0.25D, 0.25D);
-                    worldRenderer.addVertexWithUV(0, (4.0D/16.0D), 1, 0.0D, 0.25D);
-                    worldRenderer.addVertexWithUV(1, (4.0D/16.0D), 1, 0.0D, 0.0D);
-                    worldRenderer.addVertexWithUV(1, (4.0D/16.0D), 0, 0.25D, 0.0D);
+                    worldRenderer.pos(0, (4.0D/16.0D), 0).tex(0.25D, 0.25D).endVertex();
+                    worldRenderer.pos(0, (4.0D/16.0D), 1).tex(0.0D, 0.25D).endVertex();
+                    worldRenderer.pos(1, (4.0D/16.0D), 1).tex(0.0D, 0.0D).endVertex();
+                    worldRenderer.pos(1, (4.0D/16.0D), 0).tex(0.25D, 0.0D).endVertex();
                     
-                    worldRenderer.addVertexWithUV(0, 0, 0, 0.25D, 0.0D);
-                    worldRenderer.addVertexWithUV(1, 0, 0, 0.25D, 0.25D);
-                    worldRenderer.addVertexWithUV(1, 0, 1, 0.0D, 0.25D);
-                    worldRenderer.addVertexWithUV(0, 0, 1, 0.0D, 0.0D);
+                    worldRenderer.pos(0, 0, 0).tex(0.25D, 0.0D).endVertex();
+                    worldRenderer.pos(1, 0, 0).tex(0.25D, 0.25D).endVertex();
+                    worldRenderer.pos(1, 0, 1).tex(0.0D, 0.25D).endVertex();
+                    worldRenderer.pos(0, 0, 1).tex(0.0D, 0.0D).endVertex();
                     
-                    worldRenderer.addVertexWithUV((5.0D/16.0D), 0, 1, 0.75D, 0.25D);
-                    worldRenderer.addVertexWithUV((5.0D/16.0D), 1, 1, 0.75D, 0.0D);
-                    worldRenderer.addVertexWithUV((5.0D/16.0D), 1, 0, 1.0D, 0.0D);
-                    worldRenderer.addVertexWithUV((5.0D/16.0D), 0, 0, 1.0D, 0.25D);
+                    worldRenderer.pos((5.0D/16.0D), 0, 1).tex(0.75D, 0.25D).endVertex();
+                    worldRenderer.pos((5.0D/16.0D), 1, 1).tex(0.75D, 0.0D).endVertex();
+                    worldRenderer.pos((5.0D/16.0D), 1, 0).tex(1.0D, 0.0D).endVertex();
+                    worldRenderer.pos((5.0D/16.0D), 0, 0).tex(1.0D, 0.25D).endVertex();
                     
-                    worldRenderer.addVertexWithUV((11.0D/16.0D), 0, 1, 0.75D, 0.25D);
-                    worldRenderer.addVertexWithUV((11.0D/16.0D), 0, 0, 1.0D, 0.25D);
-                    worldRenderer.addVertexWithUV((11.0D/16.0D), 1, 0, 1.0D, 0.0D);
-                    worldRenderer.addVertexWithUV((11.0D/16.0D), 1, 1, 0.75D, 0.0D);
+                    worldRenderer.pos((11.0D/16.0D), 0, 1).tex(0.75D, 0.25D).endVertex();
+                    worldRenderer.pos((11.0D/16.0D), 0, 0).tex(1.0D, 0.25D).endVertex();
+                    worldRenderer.pos((11.0D/16.0D), 1, 0).tex(1.0D, 0.0D).endVertex();
+                    worldRenderer.pos((11.0D/16.0D), 1, 1).tex(0.75D, 0.0D).endVertex();
                     
                     if((overlappingNotRenderSide & 8) == 0)
                     {
-                        worldRenderer.addVertexWithUV((5.0D/16.0D), 0, 2, 1.0D, 0.5D);
-                        worldRenderer.addVertexWithUV((5.0D/16.0D), 1, 2, 1.0D, 0.25D);
-                        worldRenderer.addVertexWithUV((5.0D/16.0D), 1, 1, 0.75D, 0.25D);
-                        worldRenderer.addVertexWithUV((5.0D/16.0D), 0, 1, 0.75D, 0.5D);
+                        worldRenderer.pos((5.0D/16.0D), 0, 2).tex(1.0D, 0.5D).endVertex();
+                        worldRenderer.pos((5.0D/16.0D), 1, 2).tex(1.0D, 0.25D).endVertex();
+                        worldRenderer.pos((5.0D/16.0D), 1, 1).tex(0.75D, 0.25D).endVertex();
+                        worldRenderer.pos((5.0D/16.0D), 0, 1).tex(0.75D, 0.5D).endVertex();
                         
-                        worldRenderer.addVertexWithUV((11.0D/16.0D), 1, 1, 0.75D, 0.25D);
-                        worldRenderer.addVertexWithUV((11.0D/16.0D), 1, 2, 1.0D, 0.25D);
-                        worldRenderer.addVertexWithUV((11.0D/16.0D), 0, 2, 1.0D, 0.5D);
-                        worldRenderer.addVertexWithUV((11.0D/16.0D), 0, 1, 0.75D, 0.5D);
+                        worldRenderer.pos((11.0D/16.0D), 1, 1).tex(0.75D, 0.25D).endVertex();
+                        worldRenderer.pos((11.0D/16.0D), 1, 2).tex(1.0D, 0.25D).endVertex();
+                        worldRenderer.pos((11.0D/16.0D), 0, 2).tex(1.0D, 0.5D).endVertex();
+                        worldRenderer.pos((11.0D/16.0D), 0, 1).tex(0.75D, 0.5D).endVertex();
                     }
                     
-                    worldRenderer.addVertexWithUV(0, (4.0D/16.0D), 2, 0.75D, 0.25D);
-                    worldRenderer.addVertexWithUV(1, (4.0D/16.0D), 2, 0.5D, 0.25D);
-                    worldRenderer.addVertexWithUV(1, (4.0D/16.0D), 1, 0.5D, 0.5D);
-                    worldRenderer.addVertexWithUV(0, (4.0D/16.0D), 1, 0.75D, 0.5D);
+                    worldRenderer.pos(0, (4.0D/16.0D), 2).tex(0.75D, 0.25D).endVertex();
+                    worldRenderer.pos(1, (4.0D/16.0D), 2).tex(0.5D, 0.25D).endVertex();
+                    worldRenderer.pos(1, (4.0D/16.0D), 1).tex(0.5D, 0.5D).endVertex();
+                    worldRenderer.pos(0, (4.0D/16.0D), 1).tex(0.75D, 0.5D).endVertex();
                 }
                 else if(right == 3)
                 {
-                    worldRenderer.addVertexWithUV(0, (4.0D/16.0D), 0, 0.75D, 0.25D);
-                    worldRenderer.addVertexWithUV(0, (4.0D/16.0D), 1, 0.5D, 0.25D);
-                    worldRenderer.addVertexWithUV(1, (4.0D/16.0D), 1, 0.5D, 0.0D);
-                    worldRenderer.addVertexWithUV(1, (4.0D/16.0D), 0, 0.75D, 0.0D);
+                    worldRenderer.pos(0, (4.0D/16.0D), 0).tex(0.75D, 0.25D).endVertex();
+                    worldRenderer.pos(0, (4.0D/16.0D), 1).tex(0.5D, 0.25D).endVertex();
+                    worldRenderer.pos(1, (4.0D/16.0D), 1).tex(0.5D, 0.0D).endVertex();
+                    worldRenderer.pos(1, (4.0D/16.0D), 0).tex(0.75D, 0.0D).endVertex();
                     
-                    worldRenderer.addVertexWithUV(0, 0, 0, 0.25D, 0.0D);
-                    worldRenderer.addVertexWithUV(1, 0, 0, 0.25D, 0.25D);
-                    worldRenderer.addVertexWithUV(1, 0, 1, 0.0D, 0.25D);
-                    worldRenderer.addVertexWithUV(0, 0, 1, 0.0D, 0.0D);
+                    worldRenderer.pos(0, 0, 0).tex(0.25D, 0.0D).endVertex();
+                    worldRenderer.pos(1, 0, 0).tex(0.25D, 0.25D).endVertex();
+                    worldRenderer.pos(1, 0, 1).tex(0.0D, 0.25D).endVertex();
+                    worldRenderer.pos(0, 0, 1).tex(0.0D, 0.0D).endVertex();
                     
                     if((overlappingNotRenderSide & 8) == 0)
                     {
-                        worldRenderer.addVertexWithUV((5.0D/16.0D), 1, 1, 0.75D, 0.0D);
-                        worldRenderer.addVertexWithUV((5.0D/16.0D), 1, 0, 1.0D, 0.0D);
-                        worldRenderer.addVertexWithUV((5.0D/16.0D), 0, 0, 1.0D, 0.25D);
-                        worldRenderer.addVertexWithUV((5.0D/16.0D), 0, 1, 0.75D, 0.25D);
+                        worldRenderer.pos((5.0D/16.0D), 1, 1).tex(0.75D, 0.0D).endVertex();
+                        worldRenderer.pos((5.0D/16.0D), 1, 0).tex(1.0D, 0.0D).endVertex();
+                        worldRenderer.pos((5.0D/16.0D), 0, 0).tex(1.0D, 0.25D).endVertex();
+                        worldRenderer.pos((5.0D/16.0D), 0, 1).tex(0.75D, 0.25D).endVertex();
                         
-                        worldRenderer.addVertexWithUV((11.0D/16.0D), 1, 1, 0.75D, 0.0D);
-                        worldRenderer.addVertexWithUV((11.0D/16.0D), 0, 1, 0.75D, 0.25D);
-                        worldRenderer.addVertexWithUV((11.0D/16.0D), 0, 0, 1.0D, 0.25D);
-                        worldRenderer.addVertexWithUV((11.0D/16.0D), 1, 0, 1.0D, 0.0D);
+                        worldRenderer.pos((11.0D/16.0D), 1, 1).tex(0.75D, 0.0D).endVertex();
+                        worldRenderer.pos((11.0D/16.0D), 0, 1).tex(0.75D, 0.25D).endVertex();
+                        worldRenderer.pos((11.0D/16.0D), 0, 0).tex(1.0D, 0.25D).endVertex();
+                        worldRenderer.pos((11.0D/16.0D), 1, 0).tex(1.0D, 0.0D).endVertex();
                     }
                     else
                     {
-                        worldRenderer.addVertexWithUV((5.0D/16.0D), 1, 1, 0.0D, 0.250D);
-                        worldRenderer.addVertexWithUV((5.0D/16.0D), 1, 0, 0.25D, 0.25D);
-                        worldRenderer.addVertexWithUV((5.0D/16.0D), 0, 0, 0.25D, 0.5D);
-                        worldRenderer.addVertexWithUV((5.0D/16.0D), 0, 1, 0.0D, 0.5D);
+                        worldRenderer.pos((5.0D/16.0D), 1, 1).tex(0.0D, 0.250D).endVertex();
+                        worldRenderer.pos((5.0D/16.0D), 1, 0).tex(0.25D, 0.25D).endVertex();
+                        worldRenderer.pos((5.0D/16.0D), 0, 0).tex(0.25D, 0.5D).endVertex();
+                        worldRenderer.pos((5.0D/16.0D), 0, 1).tex(0.0D, 0.5D).endVertex();
                         
-                        worldRenderer.addVertexWithUV((11.0D/16.0D), 1, 1, 0.0D, 0.25D);
-                        worldRenderer.addVertexWithUV((11.0D/16.0D), 0, 1, 0.0D, 0.5D);
-                        worldRenderer.addVertexWithUV((11.0D/16.0D), 0, 0, 0.25D, 0.5D);
-                        worldRenderer.addVertexWithUV((11.0D/16.0D), 1, 0, 0.25D, 0.25D);
+                        worldRenderer.pos((11.0D/16.0D), 1, 1).tex(0.0D, 0.25D).endVertex();
+                        worldRenderer.pos((11.0D/16.0D), 0, 1).tex(0.0D, 0.5D).endVertex();
+                        worldRenderer.pos((11.0D/16.0D), 0, 0).tex(0.25D, 0.5D).endVertex();
+                        worldRenderer.pos((11.0D/16.0D), 1, 0).tex(0.25D, 0.25D).endVertex();
                     }
 
-                    worldRenderer.addVertexWithUV(0, 1, 1, 0.5D, 0.25D);
-                    worldRenderer.addVertexWithUV(0, 0, 1, 0.5D, 0.5D);
-                    worldRenderer.addVertexWithUV(1, 0, 1, 0.75D, 0.5D);
-                    worldRenderer.addVertexWithUV(1, 1, 1, 0.75D, 0.25D);
+                    worldRenderer.pos(0, 1, 1).tex(0.5D, 0.25D).endVertex();
+                    worldRenderer.pos(0, 0, 1).tex(0.5D, 0.5D).endVertex();
+                    worldRenderer.pos(1, 0, 1).tex(0.75D, 0.5D).endVertex();
+                    worldRenderer.pos(1, 1, 1).tex(0.75D, 0.25D).endVertex();
                 }
             }
         }

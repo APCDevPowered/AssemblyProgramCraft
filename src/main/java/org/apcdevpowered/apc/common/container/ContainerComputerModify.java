@@ -29,11 +29,13 @@ public class ContainerComputerModify extends Container
             this.addSlotToContainer(new Slot(inventory, var3, 8 + var3 * 18, 163));
         }
     }
-    public boolean canInteractWith(EntityPlayer var1)
+    @Override
+	public boolean canInteractWith(EntityPlayer var1)
     {
         return true;
     }
-    public ItemStack transferStackInSlot(EntityPlayer par1EntityPlayer, int par2)
+    @Override
+	public ItemStack transferStackInSlot(EntityPlayer par1EntityPlayer, int par2)
     {
         ItemStack itemstack = null;
         Slot slot = (Slot)this.inventorySlots.get(par2);

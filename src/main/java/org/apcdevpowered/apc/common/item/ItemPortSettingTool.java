@@ -21,7 +21,8 @@ public class ItemPortSettingTool extends Item
         this.setMaxStackSize(1);
         this.setCreativeTab(AssemblyProgramCraftCreativeTabs.tabApc);
     }
-    public boolean onItemUseFirst(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ)
+    @Override
+	public boolean onItemUseFirst(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ)
     {
         if(world.isRemote)
         {

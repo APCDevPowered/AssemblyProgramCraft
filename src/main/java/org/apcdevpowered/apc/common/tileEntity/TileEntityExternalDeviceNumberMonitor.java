@@ -21,7 +21,8 @@ public class TileEntityExternalDeviceNumberMonitor extends TileEntityExternalDev
     public TileEntityExternalDeviceNumberMonitor()
     {
     }
-    public void update()
+    @Override
+	public void update()
     {
         super.update();
         if (needSync.compareAndSet(true, false))
@@ -29,31 +30,37 @@ public class TileEntityExternalDeviceNumberMonitor extends TileEntityExternalDev
             syncMonitorData();
         }
     }
-    public AbstractExternalDevice getExternalDevice()
+    @Override
+	public AbstractExternalDevice getExternalDevice()
     {
         return externalDeviceNumberMonitor;
     }
-    public EnumFacing[] getConnectorConnectableFaces(IBlockState state)
+    @Override
+	public EnumFacing[] getConnectorConnectableFaces(IBlockState state)
     {
         return new EnumFacing[]
         {
                 ((EnumFacing) state.getValue(BlockExternalDeviceNumberMonitor.FACING)).getOpposite()
         };
     }
-    public void writeDescriptionNbt(NBTTagCompound nbtTagCompound)
+    @Override
+	public void writeDescriptionNbt(NBTTagCompound nbtTagCompound)
     {
         nbtTagCompound.setInteger("number", number);
     }
-    public void readDescriptionNbt(NBTTagCompound nbtTagCompound)
+    @Override
+	public void readDescriptionNbt(NBTTagCompound nbtTagCompound)
     {
         number = nbtTagCompound.getInteger("number");
     }
-    public void readFromNBT(NBTTagCompound nbtTagCompound)
+    @Override
+	public void readFromNBT(NBTTagCompound nbtTagCompound)
     {
         super.readFromNBT(nbtTagCompound);
         number = nbtTagCompound.getInteger("number");
     }
-    public void writeToNBT(NBTTagCompound nbtTagCompound)
+    @Override
+	public void writeToNBT(NBTTagCompound nbtTagCompound)
     {
         super.writeToNBT(nbtTagCompound);
         nbtTagCompound.setInteger("number", number);

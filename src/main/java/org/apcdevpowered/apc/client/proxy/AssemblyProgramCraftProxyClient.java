@@ -33,9 +33,9 @@ import net.minecraft.item.Item;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
-import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -225,6 +225,6 @@ public class AssemblyProgramCraftProxyClient extends AssemblyProgramCraftProxyCo
     public void registerEvent()
     {
         super.registerEvent();
-        FMLCommonHandler.instance().bus().register(new TickEventListener());
+        MinecraftForge.EVENT_BUS.register(new TickEventListener());
     }
 }

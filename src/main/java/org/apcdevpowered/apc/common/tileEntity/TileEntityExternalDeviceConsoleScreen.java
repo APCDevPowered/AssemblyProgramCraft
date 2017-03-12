@@ -41,23 +41,27 @@ public class TileEntityExternalDeviceConsoleScreen extends TileEntityExternalDev
     public TileEntityExternalDeviceConsoleScreen()
     {
     }
-    public AbstractExternalDevice getExternalDevice()
+    @Override
+	public AbstractExternalDevice getExternalDevice()
     {
         return externalDeviceConsoleScreen;
     }
-    public EnumFacing[] getConnectorConnectableFaces(IBlockState state)
+    @Override
+	public EnumFacing[] getConnectorConnectableFaces(IBlockState state)
     {
         return new EnumFacing[]
         {
                 ((EnumFacing) state.getValue(BlockExternalDeviceConsoleScreen.FACING)).getOpposite()
         };
     }
-    public void update()
+    @Override
+	public void update()
     {
         super.update();
         tickCounter++;
     }
-    public void writeDescriptionNbt(NBTTagCompound nbtTagCompound)
+    @Override
+	public void writeDescriptionNbt(NBTTagCompound nbtTagCompound)
     {
         nbtTagCompound.setIntArray("charBuffer", charBuffer);
         nbtTagCompound.setInteger("defaultChar", defaultChar);
@@ -69,7 +73,8 @@ public class TileEntityExternalDeviceConsoleScreen extends TileEntityExternalDev
         nbtTagCompound.setInteger("verticalScale", verticalScale);
         nbtTagCompound.setInteger("horizontalScale", horizontalScale);
     }
-    public void readDescriptionNbt(NBTTagCompound nbtTagCompound)
+    @Override
+	public void readDescriptionNbt(NBTTagCompound nbtTagCompound)
     {
         charBuffer = nbtTagCompound.getIntArray("charBuffer");
         defaultChar = nbtTagCompound.getInteger("defaultChar");
@@ -81,7 +86,8 @@ public class TileEntityExternalDeviceConsoleScreen extends TileEntityExternalDev
         verticalScale = nbtTagCompound.getInteger("verticalScale");
         horizontalScale = nbtTagCompound.getInteger("horizontalScale");
     }
-    public void readFromNBT(NBTTagCompound nbtTagCompound)
+    @Override
+	public void readFromNBT(NBTTagCompound nbtTagCompound)
     {
         super.readFromNBT(nbtTagCompound);
         charBuffer = nbtTagCompound.getIntArray("charBuffer");
@@ -94,7 +100,8 @@ public class TileEntityExternalDeviceConsoleScreen extends TileEntityExternalDev
         verticalScale = nbtTagCompound.getInteger("verticalScale");
         horizontalScale = nbtTagCompound.getInteger("horizontalScale");
     }
-    public void writeToNBT(NBTTagCompound nbtTagCompound)
+    @Override
+	public void writeToNBT(NBTTagCompound nbtTagCompound)
     {
         super.writeToNBT(nbtTagCompound);
         nbtTagCompound.setIntArray("charBuffer", charBuffer);
@@ -282,7 +289,8 @@ public class TileEntityExternalDeviceConsoleScreen extends TileEntityExternalDev
     {
         return (EnumFacing) getWorld().getBlockState(getPos()).getValue(BlockExternalDeviceConsoleScreen.FACING);
     }
-    @SideOnly(Side.CLIENT)
+    @Override
+	@SideOnly(Side.CLIENT)
     public AxisAlignedBB getRenderBoundingBox()
     {
         return INFINITE_EXTENT_AABB;

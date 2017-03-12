@@ -88,7 +88,8 @@ public class BlockVCPU32ComputerWire extends BlockContainer
      * @param state
      *            The block state of the block.
      */
-    public void onBlockDestroyedByPlayer(World worldIn, BlockPos pos, IBlockState state)
+    @Override
+	public void onBlockDestroyedByPlayer(World worldIn, BlockPos pos, IBlockState state)
     {
         BlockHelper.updateIndirectNeighbors(worldIn, pos, this);
     }
@@ -118,7 +119,8 @@ public class BlockVCPU32ComputerWire extends BlockContainer
      * 
      * @return True if the block is actually destroyed.
      */
-    public boolean removedByPlayer(World world, BlockPos pos, EntityPlayer player, boolean willHarvest)
+    @Override
+	public boolean removedByPlayer(World world, BlockPos pos, EntityPlayer player, boolean willHarvest)
     {
         TileEntityVCPU32ComputerWire tileEntity = (TileEntityVCPU32ComputerWire) world.getTileEntity(pos);
         if (tileEntity == null)
@@ -253,7 +255,8 @@ public class BlockVCPU32ComputerWire extends BlockContainer
      * @return {@link net.minecraft.util.MovingObjectPosition} of collision
      *         result.
      */
-    public MovingObjectPosition collisionRayTrace(World worldIn, BlockPos pos, Vec3 start, Vec3 end)
+    @Override
+	public MovingObjectPosition collisionRayTrace(World worldIn, BlockPos pos, Vec3 start, Vec3 end)
     {
         TileEntityVCPU32ComputerWire tileentity = (TileEntityVCPU32ComputerWire) worldIn.getTileEntity(pos);
         if (tileentity == null)

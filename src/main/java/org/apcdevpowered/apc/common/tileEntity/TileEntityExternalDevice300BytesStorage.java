@@ -7,7 +7,8 @@ public class TileEntityExternalDevice300BytesStorage extends TileEntityExternalD
 {
     public ExternalDevice300BytesStorage externalDevice300BytesStorage = new ExternalDevice300BytesStorage();
     
-    public AbstractExternalDevice getExternalDevice()
+    @Override
+	public AbstractExternalDevice getExternalDevice()
     {
         return externalDevice300BytesStorage;
     }

@@ -29,7 +29,8 @@ public class GuiPortSetting extends GuiScreen
     {
         this.device = device;
     }
-    @SuppressWarnings("unchecked")
+    @Override
+	@SuppressWarnings("unchecked")
     public void initGui()
     {
         Keyboard.enableRepeatEvents(true);
@@ -43,7 +44,8 @@ public class GuiPortSetting extends GuiScreen
         this.portTextField.setFocused(true);
         this.portTextField.setText(String.valueOf(device.getPort()));
     }
-    protected void actionPerformed(GuiButton par1GuiButton)
+    @Override
+	protected void actionPerformed(GuiButton par1GuiButton)
     {
         if (par1GuiButton.id == confirm.id)
         {
@@ -74,25 +76,30 @@ public class GuiPortSetting extends GuiScreen
             this.mc.thePlayer.closeScreen();
         }
     }
-    protected void keyTyped(char typedChar, int keyCode) throws IOException
+    @Override
+	protected void keyTyped(char typedChar, int keyCode) throws IOException
     {
         super.keyTyped(typedChar, keyCode);
         this.portTextField.textboxKeyTyped(typedChar, keyCode);
     }
-    protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException
+    @Override
+	protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException
     {
         super.mouseClicked(mouseX, mouseY, mouseButton);
         this.portTextField.mouseClicked(mouseX, mouseY, mouseButton);
     }
-    public void updateScreen()
+    @Override
+	public void updateScreen()
     {
         this.portTextField.updateCursorCounter();
     }
-    public boolean doesGuiPauseGame()
+    @Override
+	public boolean doesGuiPauseGame()
     {
         return false;
     }
-    public void drawScreen(int par1, int par2, float par3)
+    @Override
+	public void drawScreen(int par1, int par2, float par3)
     {
         this.mc.renderEngine.bindTexture(guiPortSettingTextures);
         int x = (width - 118) / 2;

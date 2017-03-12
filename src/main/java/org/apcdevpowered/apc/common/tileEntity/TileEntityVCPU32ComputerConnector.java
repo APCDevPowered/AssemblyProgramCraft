@@ -9,13 +9,14 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.Packet;
+import net.minecraft.network.play.INetHandlerPlayClient;
 import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
-import net.minecraft.server.gui.IUpdatePlayerListBox;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.ITickable;
 
-public class TileEntityVCPU32ComputerConnector extends TileEntity implements IUpdatePlayerListBox
+public class TileEntityVCPU32ComputerConnector extends TileEntity implements ITickable
 {
     private boolean isInIt = false;
     
@@ -150,12 +151,14 @@ public class TileEntityVCPU32ComputerConnector extends TileEntity implements IUp
         }
         ItemBlockVCPU32ComputerWire.updataConnector(this, state);
     }
-    public Packet getDescriptionPacket()
+    @Override
+	public Packet<INetHandlerPlayClient> getDescriptionPacket()
     {
         NBTTagCompound nbttagcompound = new NBTTagCompound();
         return new S35PacketUpdateTileEntity(this.pos, Block.getIdFromBlock(AssemblyProgramCraftBlocks.block_vcpu_32_computer_connector), nbttagcompound);
     }
-    public void onDataPacket(NetworkManager net, S35PacketUpdateTileEntity pkt)
+    @Override
+	public void onDataPacket(NetworkManager net, S35PacketUpdateTileEntity pkt)
     {
         
     }

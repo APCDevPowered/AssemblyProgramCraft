@@ -8,15 +8,18 @@ import net.minecraft.nbt.NBTTagCompound;
 public class ExternalDevice300BytesStorage extends AbstractExternalDevice
 {    
     private int[] data = new int[300];
-    public String getDevicesName()
+    @Override
+	public String getDevicesName()
     {
         return "300BytesStorage";
     }
-    public DeviceTypes getDeviceType()
+    @Override
+	public DeviceTypes getDeviceType()
     {
         return DeviceTypes.Storage;
     }
-    public void setMemoryValue(int idx, int value)
+    @Override
+	public void setMemoryValue(int idx, int value)
     {
         if(idx >= data.length || idx < 0)
         {
@@ -28,7 +31,8 @@ public class ExternalDevice300BytesStorage extends AbstractExternalDevice
         }
         data[idx] = value;
     }
-    public int getMemoryValue(int idx)
+    @Override
+	public int getMemoryValue(int idx)
     {
         if(idx >= data.length || idx < 0)
         {
@@ -40,7 +44,8 @@ public class ExternalDevice300BytesStorage extends AbstractExternalDevice
         }
         return data[idx];
     }
-    public void setMemoryValues(int idx, int[] values)
+    @Override
+	public void setMemoryValues(int idx, int[] values)
     {
         if(data == null)
         {
@@ -48,7 +53,8 @@ public class ExternalDevice300BytesStorage extends AbstractExternalDevice
         }
         ArrayUtils.safeArraycopy(values, 0, data, idx, values.length);
     }
-    public int[] getMemoryValues(int idx, int length)
+    @Override
+	public int[] getMemoryValues(int idx, int length)
     {
         if(length <= 0)
         {
@@ -62,15 +68,18 @@ public class ExternalDevice300BytesStorage extends AbstractExternalDevice
         ArrayUtils.safeArraycopy(data, idx, tempArray, 0, length);
         return tempArray;
     }
-    public boolean shutDown()
+    @Override
+	public boolean shutDown()
     {
         return true;
     }
-    public boolean reset()
+    @Override
+	public boolean reset()
     {
         return true;
     }
-    public boolean start()
+    @Override
+	public boolean start()
     {
         return true;
     }

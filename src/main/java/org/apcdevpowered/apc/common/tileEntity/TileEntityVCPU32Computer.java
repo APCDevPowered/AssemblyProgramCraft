@@ -38,17 +38,18 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.Packet;
+import net.minecraft.network.play.INetHandlerPlayClient;
 import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
-import net.minecraft.server.gui.IUpdatePlayerListBox;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.IChatComponent;
+import net.minecraft.util.ITickable;
 import net.minecraft.world.World;
 
-public class TileEntityVCPU32Computer extends TileEntity implements IInventory, IGamePauseListener, IUpdatePlayerListBox
+public class TileEntityVCPU32Computer extends TileEntity implements IInventory, IGamePauseListener, ITickable
 {
     private MethodHandler worldUnloadMethodHandler;
     private HashMap<Integer, TileEntityExternalDevice> connectedDeviceList = new HashMap<Integer, TileEntityExternalDevice>();
@@ -215,7 +216,8 @@ public class TileEntityVCPU32Computer extends TileEntity implements IInventory, 
         pak.dataByte[0] = (runtimeError ? ((byte) 1) : ((byte) 0));
         AssemblyProgramCraft.sendToAll(pak);
     }
-    public void onChunkUnload()
+    @Override
+	public void onChunkUnload()
     {
         super.onChunkUnload();
         if (getWorld().isRemote || getVM() == null)
@@ -234,7 +236,8 @@ public class TileEntityVCPU32Computer extends TileEntity implements IInventory, 
         shutdownVM();
         removeHook();
     }
-    public void invalidate()
+    @Override
+	public void invalidate()
     {
         super.invalidate();
         if (getWorld().isRemote)
@@ -291,7 +294,8 @@ public class TileEntityVCPU32Computer extends TileEntity implements IInventory, 
         WorldUnloadEventListener.addListener(worldUnloadMethodHandler);
         GamePauseHelper.addListener(this);
     }
-    public void update()
+    @Override
+	public void update()
     {
         if (getWorld().isRemote)
         {
@@ -388,19 +392,22 @@ public class TileEntityVCPU32Computer extends TileEntity implements IInventory, 
         getVM().loadBIOS(program);
         getVM().startVM(false);
     }
-    public Packet getDescriptionPacket()
+    @Override
+	public Packet<INetHandlerPlayClient> getDescriptionPacket()
     {
         NBTTagCompound nbttagcompound = new NBTTagCompound();
         nbttagcompound.setBoolean("powerStatus", powerStatus);
         nbttagcompound.setBoolean("runtimeError", runtimeError);
         return new S35PacketUpdateTileEntity(getPos(), Block.getIdFromBlock(AssemblyProgramCraftBlocks.block_vcpu_32_computer), nbttagcompound);
     }
-    public void onDataPacket(NetworkManager net, S35PacketUpdateTileEntity pkt)
+    @Override
+	public void onDataPacket(NetworkManager net, S35PacketUpdateTileEntity pkt)
     {
         powerStatus = pkt.getNbtCompound().getBoolean("powerStatus");
         runtimeError = pkt.getNbtCompound().getBoolean("runtimeError");
     }
-    public void writeToNBT(NBTTagCompound par1NBTTagCompound)
+    @Override
+	public void writeToNBT(NBTTagCompound par1NBTTagCompound)
     {
         super.writeToNBT(par1NBTTagCompound);
         NBTTagList var2 = new NBTTagList();
@@ -431,7 +438,8 @@ public class TileEntityVCPU32Computer extends TileEntity implements IInventory, 
             par1NBTTagCompound.setString("virtualMachineUUID", uuid.toString());
         }
     }
-    public void readFromNBT(NBTTagCompound par1NBTTagCompound)
+    @Override
+	public void readFromNBT(NBTTagCompound par1NBTTagCompound)
     {
         super.readFromNBT(par1NBTTagCompound);
         NBTTagList var2 = par1NBTTagCompound.getTagList("items", 10);
@@ -505,15 +513,18 @@ public class TileEntityVCPU32Computer extends TileEntity implements IInventory, 
     {
         FMLNetworkHandler.openGui(entityplayer, AssemblyProgramCraft.instance, AssemblyProgramCraftGuiHandler.COMPUTER_MODIFY_GUI_ID, getWorld(), getPos().getX(), getPos().getY(), getPos().getZ());
     }
-    public int getSizeInventory()
+    @Override
+	public int getSizeInventory()
     {
         return computerContents.length;
     }
-    public ItemStack getStackInSlot(int index)
+    @Override
+	public ItemStack getStackInSlot(int index)
     {
         return this.computerContents[index];
     }
-    public ItemStack getStackInSlotOnClosing(int index)
+    @Override
+	public ItemStack removeStackFromSlot(int index)
     {
         if (this.computerContents[index] != null)
         {
@@ -526,7 +537,8 @@ public class TileEntityVCPU32Computer extends TileEntity implements IInventory, 
             return null;
         }
     }
-    public ItemStack decrStackSize(int index, int count)
+    @Override
+	public ItemStack decrStackSize(int index, int count)
     {
         if (this.computerContents[index] != null)
         {
@@ -554,7 +566,8 @@ public class TileEntityVCPU32Computer extends TileEntity implements IInventory, 
             return null;
         }
     }
-    public void setInventorySlotContents(int index, ItemStack stack)
+    @Override
+	public void setInventorySlotContents(int index, ItemStack stack)
     {
         this.computerContents[index] = stack;
         if (stack != null && stack.stackSize > this.getInventoryStackLimit())
@@ -563,25 +576,31 @@ public class TileEntityVCPU32Computer extends TileEntity implements IInventory, 
         }
         this.markDirty();
     }
-    public String getName()
+    @Override
+	public String getName()
     {
         return "computer_inv";
     }
-    public int getInventoryStackLimit()
+    @Override
+	public int getInventoryStackLimit()
     {
         return 1;
     }
-    public boolean isUseableByPlayer(EntityPlayer player)
+    @Override
+	public boolean isUseableByPlayer(EntityPlayer player)
     {
         return this.getWorld().getTileEntity(this.pos) != this ? false : player.getDistanceSq((double) this.pos.getX() + 0.5D, (double) this.pos.getY() + 0.5D, (double) this.pos.getZ() + 0.5D) <= 64.0D;
     }
-    public void openInventory(EntityPlayer player)
+    @Override
+	public void openInventory(EntityPlayer player)
     {
     }
-    public void closeInventory(EntityPlayer player)
+    @Override
+	public void closeInventory(EntityPlayer player)
     {
     }
-    public boolean hasCustomName()
+    @Override
+	public boolean hasCustomName()
     {
         return true;
     }
@@ -590,18 +609,21 @@ public class TileEntityVCPU32Computer extends TileEntity implements IInventory, 
     {
         return (IChatComponent) (this.hasCustomName() ? new ChatComponentText(this.getName()) : new ChatComponentTranslation(this.getName(), new Object[0]));
     }
-    public boolean isItemValidForSlot(int i, ItemStack itemstack)
+    @Override
+	public boolean isItemValidForSlot(int i, ItemStack itemstack)
     {
         return true;
     }
-    public void onGamePaused()
+    @Override
+	public void onGamePaused()
     {
         if (getVM() != null)
         {
             getVM().suspendVM();
         }
     }
-    public void onGameResume()
+    @Override
+	public void onGameResume()
     {
         if (getVM() != null)
         {

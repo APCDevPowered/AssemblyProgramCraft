@@ -12,15 +12,18 @@ public class ExternalDeviceMonitor extends AbstractExternalDevice
     {
         this.monitor = monitor;
     }
-    public String getDevicesName()
+    @Override
+	public String getDevicesName()
     {
         return "Monitor";
     }
-    public DeviceTypes getDeviceType()
+    @Override
+	public DeviceTypes getDeviceType()
     {
         return DeviceTypes.Display;
     }
-    public void setMemoryValue(int idx, int value)
+    @Override
+	public void setMemoryValue(int idx, int value)
     {
         if(idx > 7500 || idx < 0)
         {
@@ -47,7 +50,8 @@ public class ExternalDeviceMonitor extends AbstractExternalDevice
             monitor.syncMonitorData(idx, value);
         }
     }
-    public int getMemoryValue(int idx)
+    @Override
+	public int getMemoryValue(int idx)
     {
         if(idx > 7500 || idx < 0)
         {
@@ -73,14 +77,16 @@ public class ExternalDeviceMonitor extends AbstractExternalDevice
             return value;
         }
     }
-    public void setMemoryValues(int idx, int[] values)
+    @Override
+	public void setMemoryValues(int idx, int[] values)
     {
         for(int i = 0;i < values.length;i++)
         {
             setMemoryValue(idx + i, values[i]);
         }
     }
-    public int[] getMemoryValues(int idx, int length)
+    @Override
+	public int[] getMemoryValues(int idx, int length)
     {
         if(length <= 0)
         {
@@ -93,15 +99,18 @@ public class ExternalDeviceMonitor extends AbstractExternalDevice
         }
         return values;
     }
-    public boolean shutDown()
+    @Override
+	public boolean shutDown()
     {
         return true;
     }
-    public boolean reset()
+    @Override
+	public boolean reset()
     {
         return true;
     }
-    public boolean start()
+    @Override
+	public boolean start()
     {
         return true;
     }

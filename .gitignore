@@ -7,19 +7,24 @@ README.txt
 forge-*-changelog.txt
 
 #eclipse
-eclipse
-.project
-.classpath
-.settings
 bin
+*.launch
+.settings
+.metadata
+.classpath
+.project
 
-#idea
-*.iml
+# idea
+out
 *.ipr
 *.iws
+*.iml
 .idea
-out
 
-#gradle
+# gradle
 build
 .gradle
+
+# other
+eclipse
+run

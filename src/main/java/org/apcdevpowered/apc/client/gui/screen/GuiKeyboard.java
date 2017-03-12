@@ -24,7 +24,8 @@ public class GuiKeyboard extends GuiScreen
     {
         this.keyboard = keyboard;
     }
-    @SuppressWarnings("unchecked")
+    @Override
+	@SuppressWarnings("unchecked")
     public void initGui()
     {
         super.initGui();
@@ -35,7 +36,8 @@ public class GuiKeyboard extends GuiScreen
         turnVirtualKeyboard.enabled = false;
         this.buttonList.add(turnVirtualKeyboard);
     }
-    protected void actionPerformed(GuiButton par1GuiButton)
+    @Override
+	protected void actionPerformed(GuiButton par1GuiButton)
     {
         if (par1GuiButton.id == leaveKeyboard.id)
         {
@@ -46,7 +48,8 @@ public class GuiKeyboard extends GuiScreen
             isVirtualKeyboard = !isVirtualKeyboard;
         }
     }
-    protected void keyTyped(char par1, int par2)
+    @Override
+	protected void keyTyped(char par1, int par2)
     {
         AssemblyProgramCraftPacket pak = new AssemblyProgramCraftPacket();
         pak.packetType = AssemblyProgramCraftPacket.ClientPacket.KeyboardStatusChange.getValue();
@@ -88,11 +91,13 @@ public class GuiKeyboard extends GuiScreen
         pak.dataInt[4] = i;
         AssemblyProgramCraft.sendToServer(pak);
     }
-    public boolean doesGuiPauseGame()
+    @Override
+	public boolean doesGuiPauseGame()
     {
         return false;
     }
-    public void drawScreen(int par1, int par2, float par3)
+    @Override
+	public void drawScreen(int par1, int par2, float par3)
     {
         mc.renderEngine.bindTexture(guiKeyboardTextures);
         int x = (width + 227) / 2;
@@ -100,7 +105,8 @@ public class GuiKeyboard extends GuiScreen
         drawTexturedModalRect(x, y, 0, 0, 86, 106);
         super.drawScreen(par1, par2, par3);
     }
-    public void handleKeyboardInput()
+    @Override
+	public void handleKeyboardInput()
     {
         int key = Keyboard.getEventKey();
         char character = Keyboard.getEventCharacter();

@@ -7,6 +7,7 @@ import net.minecraft.block.Block;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.Packet;
+import net.minecraft.network.play.INetHandlerPlayClient;
 import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
@@ -120,7 +121,7 @@ public class TileEntityVCPU32ComputerWire extends TileEntity
         par1NBTTagCompound.setInteger("placedSide", placedSide);
     }
     @Override
-    public Packet getDescriptionPacket()
+    public Packet<INetHandlerPlayClient> getDescriptionPacket()
     {
         NBTTagCompound var1 = new NBTTagCompound();
         var1.setInteger("placedSide", placedSide);

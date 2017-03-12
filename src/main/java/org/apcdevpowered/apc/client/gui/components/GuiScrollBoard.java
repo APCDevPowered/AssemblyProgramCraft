@@ -1,6 +1,7 @@
 package org.apcdevpowered.apc.client.gui.components;
 
 import org.apcdevpowered.apc.client.gui.event.IEventNode;
+import org.lwjgl.opengl.GL11;
 
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.relauncher.Side;
@@ -9,6 +10,7 @@ import net.minecraft.client.gui.Gui;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.WorldRenderer;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.ResourceLocation;
 
 @SideOnly(Side.CLIENT)
@@ -116,17 +118,17 @@ public class GuiScrollBoard extends Gui implements IEventNode
             drawVerticalScrollButton(xPos + width - 14, yPos + 12 + VerticalScrollButtonOffset, VerticalScrollButtonLength);
         }
     }
-    public void drawTexturedModalRect(int par1, int par2, int par3, int par4, int par5, int par6, int par7, int par8)
+    public void drawTexturedModalRect(int x, int y, int u, int v, int uOffset, int vOffset, int width, int height)
     {
-        float var7 = 0.00390625F;
-        float var8 = 0.00390625F;
+        float uMultiplier = 0.00390625F;
+        float vMultiplier = 0.00390625F;
         Tessellator tessellator = Tessellator.getInstance();
         WorldRenderer worldRenderer = tessellator.getWorldRenderer();
-        worldRenderer.startDrawingQuads();
-        worldRenderer.addVertexWithUV((double) (par1 + 0), (double) (par2 + par8), (double) this.zLevel, (double) ((float) (par3 + 0) * var7), (double) ((float) (par4 + par6) * var8));
-        worldRenderer.addVertexWithUV((double) (par1 + par7), (double) (par2 + par8), (double) this.zLevel, (double) ((float) (par3 + par5) * var7), (double) ((float) (par4 + par6) * var8));
-        worldRenderer.addVertexWithUV((double) (par1 + par7), (double) (par2 + 0), (double) this.zLevel, (double) ((float) (par3 + par5) * var7), (double) ((float) (par4 + 0) * var8));
-        worldRenderer.addVertexWithUV((double) (par1 + 0), (double) (par2 + 0), (double) this.zLevel, (double) ((float) (par3 + 0) * var7), (double) ((float) (par4 + 0) * var8));
+        worldRenderer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
+        worldRenderer.pos((double) (x + 0), (double) (y + height), (double) this.zLevel).tex((double) ((float) (u + 0) * uMultiplier), (double) ((float) (v + vOffset) * vMultiplier)).endVertex();
+        worldRenderer.pos((double) (x + width), (double) (y + height), (double) this.zLevel).tex((double) ((float) (u + uOffset) * uMultiplier), (double) ((float) (v + vOffset) * vMultiplier)).endVertex();
+        worldRenderer.pos((double) (x + width), (double) (y + 0), (double) this.zLevel).tex((double) ((float) (u + uOffset) * uMultiplier), (double) ((float) (v + 0) * vMultiplier)).endVertex();
+        worldRenderer.pos((double) (x + 0), (double) (y + 0), (double) this.zLevel).tex((double) ((float) (u + 0) * uMultiplier), (double) ((float) (v + 0) * vMultiplier)).endVertex();
         tessellator.draw();
     }
     public void checkBorder()

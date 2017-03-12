@@ -44,7 +44,8 @@ public class GuiBIOSWriter extends GuiContainer
         this.xSize = 256;
         this.ySize = 231;
     }
-    @SuppressWarnings("unchecked")
+    @Override
+	@SuppressWarnings("unchecked")
     public void initGui()
     {
         super.initGui();
@@ -74,7 +75,8 @@ public class GuiBIOSWriter extends GuiContainer
     {
         textField.setText(program);
     }
-    protected void actionPerformed(GuiButton par1GuiButton)
+    @Override
+	protected void actionPerformed(GuiButton par1GuiButton)
     {
         if (par1GuiButton.id == 0)
         {
@@ -103,7 +105,8 @@ public class GuiBIOSWriter extends GuiContainer
             AssemblyProgramCraft.sendToServer(pak);
         }
     }
-    public void updateScreen()
+    @Override
+	public void updateScreen()
     {
         if (!guiInfoWindow.isShowing())
         {
@@ -116,7 +119,8 @@ public class GuiBIOSWriter extends GuiContainer
             this.mc.thePlayer.closeScreen();
         }
     }
-    public void onGuiClosed()
+    @Override
+	public void onGuiClosed()
     {
         super.onGuiClosed();
         Keyboard.enableRepeatEvents(false);
@@ -127,13 +131,14 @@ public class GuiBIOSWriter extends GuiContainer
             this.inventorySlots.onContainerClosed(this.mc.thePlayer);
         }
     }
-    public void handleMouseInput() throws IOException
+    @Override
+	public void handleMouseInput() throws IOException
     {
         if (!guiInfoWindow.isShowing())
         {
             super.handleMouseInput();
         }
-        ScaledResolution var1 = new ScaledResolution(this.mc, this.mc.displayWidth, this.mc.displayHeight);
+        ScaledResolution var1 = new ScaledResolution(this.mc);
         int var2 = var1.getScaledWidth();
         int var3 = var1.getScaledHeight();
         int mouseX = Mouse.getX() * var2 / this.mc.displayWidth;
@@ -176,7 +181,8 @@ public class GuiBIOSWriter extends GuiContainer
                 break;
         }
     }
-    public void handleKeyboardInput() throws IOException
+    @Override
+	public void handleKeyboardInput() throws IOException
     {
         int key = Keyboard.getEventKey();
         char character = Keyboard.getEventCharacter();
@@ -207,7 +213,8 @@ public class GuiBIOSWriter extends GuiContainer
         }
         this.mc.dispatchKeypresses();
     }
-    @SuppressWarnings("unchecked")
+    @Override
+	@SuppressWarnings("unchecked")
     public void drawScreen(int mouseX, int mouseY, float renderPartialTicks)
     {
         if (!guiInfoWindow.isShowing())
@@ -264,7 +271,8 @@ public class GuiBIOSWriter extends GuiContainer
         GlStateManager.popMatrix();
         itemRender.renderItemOverlayIntoGUI(this.fontRendererObj, itemstack, xDisplayPosition, yDisplayPosition, null);
     }
-    protected void drawGuiContainerBackgroundLayer(float renderPartialTicks, int mouseX, int mouseY)
+    @Override
+	protected void drawGuiContainerBackgroundLayer(float renderPartialTicks, int mouseX, int mouseY)
     {
         textField.drawMultipleLineTextField();
         GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
@@ -273,7 +281,8 @@ public class GuiBIOSWriter extends GuiContainer
         int y = (this.height - this.ySize) / 2;
         this.drawTexturedModalRect(x, y, 0, 0, this.xSize, this.ySize);
     }
-    protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY)
+    @Override
+	protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY)
     {
         GlStateManager.pushMatrix();
         GlStateManager.translate(-guiLeft, -guiTop, 0.0F);

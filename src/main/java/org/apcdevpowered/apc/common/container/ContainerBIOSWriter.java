@@ -39,7 +39,8 @@ public class ContainerBIOSWriter extends Container
             this.addSlotToContainer(new Slot(inventory, var3, 8 + var3 * 18, 207));
         }
     }
-    public void onContainerClosed(EntityPlayer par1EntityPlayer)
+    @Override
+	public void onContainerClosed(EntityPlayer par1EntityPlayer)
     {
         InventoryPlayer var2 = par1EntityPlayer.inventory;
 
@@ -124,11 +125,13 @@ public class ContainerBIOSWriter extends Container
         temp_inv.getStackInSlot(0).setTagCompound(programNBTTagCompound);
         return true;
     }
-    public boolean canInteractWith(EntityPlayer var1)
+    @Override
+	public boolean canInteractWith(EntityPlayer var1)
     {
         return true;
     }
-    public ItemStack transferStackInSlot(EntityPlayer par1EntityPlayer, int par2)
+    @Override
+	public ItemStack transferStackInSlot(EntityPlayer par1EntityPlayer, int par2)
     {
         ItemStack itemstack = null;
         Slot slot = (Slot)this.inventorySlots.get(par2);

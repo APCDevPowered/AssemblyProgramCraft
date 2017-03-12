@@ -11,11 +11,13 @@ public class TileEntityExternalDeviceKeyboard extends TileEntityExternalDevice
 {
     public ExternalDeviceKeyboard externalDeviceKeyboard = new ExternalDeviceKeyboard();
     
-    public AbstractExternalDevice getExternalDevice()
+    @Override
+	public AbstractExternalDevice getExternalDevice()
     {
         return externalDeviceKeyboard;
     }
-    public EnumFacing[] getConnectorConnectableFaces(IBlockState state)
+    @Override
+	public EnumFacing[] getConnectorConnectableFaces(IBlockState state)
     {
         return new EnumFacing[]
         {

@@ -201,7 +201,8 @@ public class Disassembler
         }
         public class DummyInstruction extends Instruction
         {
-            public int getUsedBytes()
+            @Override
+			public int getUsedBytes()
             {
                 return 0;
             }
@@ -214,7 +215,8 @@ public class Disassembler
             public int[] parsData;
             public int[] parsType;
             
-            public String getAssemblyString()
+            @Override
+			public String getAssemblyString()
             {
                 String assemblyString = name + (parCount == 0 ? "" : " ");
                 boolean isFirst = true;
@@ -233,7 +235,8 @@ public class Disassembler
                 }
                 return assemblyString;
             }
-            public int getUsedBytes()
+            @Override
+			public int getUsedBytes()
             {
                 return 1 + parCount;
             }
@@ -242,11 +245,13 @@ public class Disassembler
         {
             public String name = "";
             
-            public String getAssemblyString()
+            @Override
+			public String getAssemblyString()
             {
                 return ":" + name;
             }
-            public int getUsedBytes()
+            @Override
+			public int getUsedBytes()
             {
                 return 0;
             }

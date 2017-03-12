@@ -3,10 +3,14 @@ package org.apcdevpowered.apc.client.gui.structure;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+
+import org.lwjgl.opengl.GL11;
+
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.WorldRenderer;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.ResourceLocation;
 
 @SideOnly(Side.CLIENT)
@@ -53,12 +57,12 @@ public class GuiVanillaBackground extends Gui
         float uMultiplier = 0.00390625F;
         float vMultiplier = 0.00390625F;
         Tessellator tessellator = Tessellator.getInstance();
-        WorldRenderer worldrenderer = tessellator.getWorldRenderer();
-        worldrenderer.startDrawingQuads();
-        worldrenderer.addVertexWithUV((double) (x + 0), (double) (y + height), (double) this.zLevel, (double) ((float) (u + 0) * uMultiplier), (double) ((float) (v + vOffset) * vMultiplier));
-        worldrenderer.addVertexWithUV((double) (x + width), (double) (y + height), (double) this.zLevel, (double) ((float) (u + uOffset) * uMultiplier), (double) ((float) (v + vOffset) * vMultiplier));
-        worldrenderer.addVertexWithUV((double) (x + width), (double) (y + 0), (double) this.zLevel, (double) ((float) (u + uOffset) * uMultiplier), (double) ((float) (v + 0) * vMultiplier));
-        worldrenderer.addVertexWithUV((double) (x + 0), (double) (y + 0), (double) this.zLevel, (double) ((float) (u + 0) * uMultiplier), (double) ((float) (v + 0) * vMultiplier));
+        WorldRenderer worldRenderer = tessellator.getWorldRenderer();
+        worldRenderer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
+        worldRenderer.pos((double) (x + 0), (double) (y + height), (double) this.zLevel).tex((double) ((float) (u + 0) * uMultiplier), (double) ((float) (v + vOffset) * vMultiplier)).endVertex();
+        worldRenderer.pos((double) (x + width), (double) (y + height), (double) this.zLevel).tex((double) ((float) (u + uOffset) * uMultiplier), (double) ((float) (v + vOffset) * vMultiplier)).endVertex();
+        worldRenderer.pos((double) (x + width), (double) (y + 0), (double) this.zLevel).tex((double) ((float) (u + uOffset) * uMultiplier), (double) ((float) (v + 0) * vMultiplier)).endVertex();
+        worldRenderer.pos((double) (x + 0), (double) (y + 0), (double) this.zLevel).tex((double) ((float) (u + 0) * uMultiplier), (double) ((float) (v + 0) * vMultiplier)).endVertex();
         tessellator.draw();
     }
     public int getXPos()

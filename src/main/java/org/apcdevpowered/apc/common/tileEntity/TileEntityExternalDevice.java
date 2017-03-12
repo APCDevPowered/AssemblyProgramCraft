@@ -14,14 +14,15 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.Packet;
+import net.minecraft.network.play.INetHandlerPlayClient;
 import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
-import net.minecraft.server.gui.IUpdatePlayerListBox;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.ITickable;
 import net.minecraft.world.World;
 
-public abstract class TileEntityExternalDevice extends TileEntity implements IUpdatePlayerListBox
+public abstract class TileEntityExternalDevice extends TileEntity implements ITickable
 {
     private int port;
     private boolean isInIt = false;
@@ -120,7 +121,7 @@ public abstract class TileEntityExternalDevice extends TileEntity implements IUp
         par1NBTTagCompound.setTag("deviceData", nbtTagCompound);
     }
     @Override
-    public Packet getDescriptionPacket()
+    public Packet<INetHandlerPlayClient> getDescriptionPacket()
     {
         NBTTagCompound nbtTagCompound = new NBTTagCompound();
         nbtTagCompound.setInteger("port", port);

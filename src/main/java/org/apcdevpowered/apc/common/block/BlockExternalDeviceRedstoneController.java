@@ -76,7 +76,7 @@ public class BlockExternalDeviceRedstoneController extends BlockExternlaDevice
      * @return The power level of the {@code side}.
      */
     @Override
-    public int isProvidingWeakPower(IBlockAccess worldIn, BlockPos pos, IBlockState state, EnumFacing side)
+    public int getWeakPower(IBlockAccess worldIn, BlockPos pos, IBlockState state, EnumFacing side)
     {
         TileEntity tileEntity = worldIn.getTileEntity(pos);
         if (tileEntity instanceof TileEntityExternalDeviceRedstoneController)
@@ -139,7 +139,8 @@ public class BlockExternalDeviceRedstoneController extends BlockExternlaDevice
      * 
      * @return True if the block is solid on the specified side.
      */
-    public boolean isSideSolid(IBlockAccess world, BlockPos pos, EnumFacing side)
+    @Override
+	public boolean isSideSolid(IBlockAccess world, BlockPos pos, EnumFacing side)
     {
         return true;
     }

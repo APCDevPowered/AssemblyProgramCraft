@@ -10,29 +10,27 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.WorldRenderer;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
-import net.minecraft.tileentity.TileEntity;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
-public class RenderTileEntityExternalDeviceNumberMonitor extends TileEntitySpecialRenderer
+public class RenderTileEntityExternalDeviceNumberMonitor extends TileEntitySpecialRenderer<TileEntityExternalDeviceNumberMonitor>
 {
     private static final ResourceLocation numberMonitorTextures = new ResourceLocation(AssemblyProgramCraft.MODID + ":" + "textures/tileentity/number_monitor.png");
     
     @Override
-    public void renderTileEntityAt(TileEntity tileentity, double x, double y, double z, float partialTickTime, int partialBlockDamage)
+    public void renderTileEntityAt(TileEntityExternalDeviceNumberMonitor tileentity, double x, double y, double z, float partialTickTime, int partialBlockDamage)
     {
+        if(tileentity == null)
+            return;
+        
         Tessellator tessellator = Tessellator.getInstance();
         WorldRenderer worldRenderer = tessellator.getWorldRenderer();
         
-        TileEntityExternalDeviceNumberMonitor tileEntityExternalDeviceNumberMonitor = (TileEntityExternalDeviceNumberMonitor)tileentity;
-        if(tileEntityExternalDeviceNumberMonitor == null)
-        {
-            return;
-        }
-        EnumFacing face = (EnumFacing) tileEntityExternalDeviceNumberMonitor.getWorld().getBlockState(tileEntityExternalDeviceNumberMonitor.getPos()).getValue(BlockExternalDeviceNumberMonitor.FACING);
+        EnumFacing face = tileentity.getWorld().getBlockState(tileentity.getPos()).getValue(BlockExternalDeviceNumberMonitor.FACING);
         
         GlStateManager.disableLighting();
         
@@ -63,37 +61,37 @@ public class RenderTileEntityExternalDeviceNumberMonitor extends TileEntitySpeci
             GlStateManager.translate(-1, 0, 0);
         }
         
-        worldRenderer.startDrawing(GL11.GL_QUADS);
+        worldRenderer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
         
-        worldRenderer.addVertexWithUV(0, 0, 4F/16F, 0.5F, 1.0F);
-        worldRenderer.addVertexWithUV(1, 0, 4F/16F, 1.0F, 1.0F);
-        worldRenderer.addVertexWithUV(1, 1, 4F/16F, 1.0F, 0.5F);
-        worldRenderer.addVertexWithUV(0, 1, 4F/16F, 0.5F, 0.5F);
+        worldRenderer.pos(0, 0, 4F/16F).tex(0.5F, 1.0F).endVertex();
+        worldRenderer.pos(1, 0, 4F/16F).tex(1.0F, 1.0F).endVertex();
+        worldRenderer.pos(1, 1, 4F/16F).tex(1.0F, 0.5F).endVertex();
+        worldRenderer.pos(0, 1, 4F/16F).tex(0.5F, 0.5F).endVertex();
         
-        worldRenderer.addVertexWithUV(1, 0, 0, 0.5F, 1.0F);
-        worldRenderer.addVertexWithUV(0, 0, 0, 1.0F, 1.0F);
-        worldRenderer.addVertexWithUV(0, 1, 0, 1.0F, 0.5F);
-        worldRenderer.addVertexWithUV(1, 1, 0, 0.5F, 0.5F);
+        worldRenderer.pos(1, 0, 0).tex(0.5F, 1.0F).endVertex();
+        worldRenderer.pos(0, 0, 0).tex(1.0F, 1.0F).endVertex();
+        worldRenderer.pos(0, 1, 0).tex(1.0F, 0.5F).endVertex();
+        worldRenderer.pos(1, 1, 0).tex(0.5F, 0.5F).endVertex();
         
-        worldRenderer.addVertexWithUV(1, 14F/16F, 0, 0.5F, 0.5F);
-        worldRenderer.addVertexWithUV(0, 14F/16F, 0, 1F, 0.5F);
-        worldRenderer.addVertexWithUV(0, 14F/16F, 1, 1F, 0F);
-        worldRenderer.addVertexWithUV(1, 14F/16F, 1, 0.5F, 0F);
+        worldRenderer.pos(1, 14F/16F, 0).tex(0.5F, 0.5F).endVertex();
+        worldRenderer.pos(0, 14F/16F, 0).tex(1F, 0.5F).endVertex();
+        worldRenderer.pos(0, 14F/16F, 1).tex(1F, 0F).endVertex();
+        worldRenderer.pos(1, 14F/16F, 1).tex(0.5F, 0F).endVertex();
         
-        worldRenderer.addVertexWithUV(0, 1F/16F, 0, 1F, 0.5F);
-        worldRenderer.addVertexWithUV(1, 1F/16F, 0, 0.5F, 0.5F);
-        worldRenderer.addVertexWithUV(1, 1F/16F, 1, 0.5F, 0F);
-        worldRenderer.addVertexWithUV(0, 1F/16F, 1, 1F, 0F);
+        worldRenderer.pos(0, 1F/16F, 0).tex(1F, 0.5F).endVertex();
+        worldRenderer.pos(1, 1F/16F, 0).tex(0.5F, 0.5F).endVertex();
+        worldRenderer.pos(1, 1F/16F, 1).tex(0.5F, 0F).endVertex();
+        worldRenderer.pos(0, 1F/16F, 1).tex(1F, 0F).endVertex();
         
-        worldRenderer.addVertexWithUV(0, 0, 0, 0F, 1.0F);
-        worldRenderer.addVertexWithUV(0, 0, 1, 0F, 0.5F);
-        worldRenderer.addVertexWithUV(0, 1, 1, 0.5F, 0.5F);
-        worldRenderer.addVertexWithUV(0, 1, 0, 0.5F, 1.0F);
+        worldRenderer.pos(0, 0, 0).tex(0F, 1.0F).endVertex();
+        worldRenderer.pos(0, 0, 1).tex(0F, 0.5F).endVertex();
+        worldRenderer.pos(0, 1, 1).tex(0.5F, 0.5F).endVertex();
+        worldRenderer.pos(0, 1, 0).tex(0.5F, 1.0F).endVertex();
         
-        worldRenderer.addVertexWithUV(1, 0, 1, 0F, 0.5F);
-        worldRenderer.addVertexWithUV(1, 0, 0, 0F, 1.0F);
-        worldRenderer.addVertexWithUV(1, 1, 0, 0.5F, 1.0F);
-        worldRenderer.addVertexWithUV(1, 1, 1, 0.5F, 0.5F);
+        worldRenderer.pos(1, 0, 1).tex(0F, 0.5F).endVertex();
+        worldRenderer.pos(1, 0, 0).tex(0F, 1.0F).endVertex();
+        worldRenderer.pos(1, 1, 0).tex(0.5F, 1.0F).endVertex();
+        worldRenderer.pos(1, 1, 1).tex(0.5F, 0.5F).endVertex();
         
         tessellator.draw();
         
@@ -159,7 +157,7 @@ public class RenderTileEntityExternalDeviceNumberMonitor extends TileEntitySpeci
         
         GlStateManager.pushMatrix();
         
-        String number = String.valueOf(tileEntityExternalDeviceNumberMonitor.number);
+        String number = String.valueOf(tileentity.number);
         
         FontRenderer fontRenderer = this.getFontRenderer();
         

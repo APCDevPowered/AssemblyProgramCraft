@@ -21,7 +21,8 @@ public class GuiComputerModify extends GuiContainer
         this.xSize = 176;
         this.ySize = 187;
     }
-    protected void drawGuiContainerBackgroundLayer(float var1, int var2, int var3)
+    @Override
+	protected void drawGuiContainerBackgroundLayer(float var1, int var2, int var3)
     {
         GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
         this.mc.renderEngine.bindTexture(guiComputerModifyTextures);

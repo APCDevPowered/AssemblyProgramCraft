@@ -9,29 +9,27 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.WorldRenderer;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
-import net.minecraft.tileentity.TileEntity;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
-public class RenderTileEntityExpansionConsoleScreen extends TileEntitySpecialRenderer
+public class RenderTileEntityExpansionConsoleScreen extends TileEntitySpecialRenderer<TileEntityExpansionConsoleScreen>
 {
     private static final ResourceLocation expansionConsoleScreenTextures = new ResourceLocation(AssemblyProgramCraft.MODID + ":" + "textures/tileentity/expansion_console_screen.png");
     
     @Override
-    public void renderTileEntityAt(TileEntity tileentity, double x, double y, double z, float partialTickTime, int partialBlockDamage)
+    public void renderTileEntityAt(TileEntityExpansionConsoleScreen tileentity, double x, double y, double z, float partialTickTime, int partialBlockDamage)
     {
+        if(tileentity == null)
+            return;
+        
         Tessellator tessellator = Tessellator.getInstance();
         WorldRenderer worldRenderer = tessellator.getWorldRenderer();
         
-        TileEntityExpansionConsoleScreen tileEntityExpansionConsoleScreen = (TileEntityExpansionConsoleScreen)tileentity;
-        if(tileEntityExpansionConsoleScreen == null)
-        {
-            return;
-        }
-        EnumFacing face = (EnumFacing) tileEntityExpansionConsoleScreen.getWorld().getBlockState(tileEntityExpansionConsoleScreen.getPos()).getValue(BlockExpansionConsoleScreen.FACING);
+        EnumFacing face = tileentity.getWorld().getBlockState(tileentity.getPos()).getValue(BlockExpansionConsoleScreen.FACING);
         
         GlStateManager.disableLighting();
         
@@ -62,32 +60,32 @@ public class RenderTileEntityExpansionConsoleScreen extends TileEntitySpecialRen
             GlStateManager.translate(-1, 0, 0);
         }
         
-        worldRenderer.startDrawing(GL11.GL_QUADS);
+        worldRenderer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
         
-        worldRenderer.addVertexWithUV(0, 0, 4F/16F, 0.5F, 1.0F);
-        worldRenderer.addVertexWithUV(1, 0, 4F/16F, 1.0F, 1.0F);
-        worldRenderer.addVertexWithUV(1, 1, 4F/16F, 1.0F, 0.5F);
-        worldRenderer.addVertexWithUV(0, 1, 4F/16F, 0.5F, 0.5F);
+        worldRenderer.pos(0, 0, 4F / 16F).tex(0.5F, 1.0F).endVertex();
+        worldRenderer.pos(1, 0, 4F / 16F).tex(1.0F, 1.0F).endVertex();
+        worldRenderer.pos(1, 1, 4F / 16F).tex(1.0F, 0.5F).endVertex();
+        worldRenderer.pos(0, 1, 4F / 16F).tex(0.5F, 0.5F).endVertex();
         
-        worldRenderer.addVertexWithUV(1, 1, 0, 0.5F, 0.5F);
-        worldRenderer.addVertexWithUV(0, 1, 0, 1F, 0.5F);
-        worldRenderer.addVertexWithUV(0, 1, 1, 1F, 0F);
-        worldRenderer.addVertexWithUV(1, 1, 1, 0.5F, 0F);
+        worldRenderer.pos(1, 1, 0).tex(0.5F, 0.5F).endVertex();
+        worldRenderer.pos(0, 1, 0).tex(1F, 0.5F).endVertex();
+        worldRenderer.pos(0, 1, 1).tex(1F, 0F).endVertex();
+        worldRenderer.pos(1, 1, 1).tex(0.5F, 0F).endVertex();
         
-        worldRenderer.addVertexWithUV(0, 0, 0, 1F, 0.5F);
-        worldRenderer.addVertexWithUV(1, 0, 0, 0.5F, 0.5F);
-        worldRenderer.addVertexWithUV(1, 0, 1, 0.5F, 0F);
-        worldRenderer.addVertexWithUV(0, 0, 1, 1F, 0F);
+        worldRenderer.pos(0, 0, 0).tex(1F, 0.5F).endVertex();
+        worldRenderer.pos(1, 0, 0).tex(0.5F, 0.5F).endVertex();
+        worldRenderer.pos(1, 0, 1).tex(0.5F, 0F).endVertex();
+        worldRenderer.pos(0, 0, 1).tex(1F, 0F).endVertex();
         
-        worldRenderer.addVertexWithUV(0, 0, 0, 0F, 1.0F);
-        worldRenderer.addVertexWithUV(0, 0, 1, 0F, 0.5F);
-        worldRenderer.addVertexWithUV(0, 1, 1, 0.5F, 0.5F);
-        worldRenderer.addVertexWithUV(0, 1, 0, 0.5F, 1.0F);
+        worldRenderer.pos(0, 0, 0).tex(0F, 1.0F).endVertex();
+        worldRenderer.pos(0, 0, 1).tex(0F, 0.5F).endVertex();
+        worldRenderer.pos(0, 1, 1).tex(0.5F, 0.5F).endVertex();
+        worldRenderer.pos(0, 1, 0).tex(0.5F, 1.0F).endVertex();
         
-        worldRenderer.addVertexWithUV(1, 0, 1, 0F, 0.5F);
-        worldRenderer.addVertexWithUV(1, 0, 0, 0F, 1.0F);
-        worldRenderer.addVertexWithUV(1, 1, 0, 0.5F, 1.0F);
-        worldRenderer.addVertexWithUV(1, 1, 1, 0.5F, 0.5F);
+        worldRenderer.pos(1, 0, 1).tex(0F, 0.5F).endVertex();
+        worldRenderer.pos(1, 0, 0).tex(0F, 1.0F).endVertex();
+        worldRenderer.pos(1, 1, 0).tex(0.5F, 1.0F).endVertex();
+        worldRenderer.pos(1, 1, 1).tex(0.5F, 0.5F).endVertex();
         
         tessellator.draw();
         /*
@@ -145,12 +143,12 @@ public class RenderTileEntityExpansionConsoleScreen extends TileEntitySpecialRen
         
         GlStateManager.color(0, 0, 0, 255);
         
-        worldRenderer.startDrawing(GL11.GL_QUADS);
+        worldRenderer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION);
         
-        worldRenderer.addVertex(1, 0, 0);
-        worldRenderer.addVertex(0, 0, 0);
-        worldRenderer.addVertex(0, 1, 0);
-        worldRenderer.addVertex(1, 1, 0);
+        worldRenderer.pos(1, 0, 0).endVertex();
+        worldRenderer.pos(0, 0, 0).endVertex();
+        worldRenderer.pos(0, 1, 0).endVertex();
+        worldRenderer.pos(1, 1, 0).endVertex();
         
         tessellator.draw();
         

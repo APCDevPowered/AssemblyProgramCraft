@@ -10,14 +10,14 @@ import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.WorldRenderer;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
-import net.minecraft.tileentity.TileEntity;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
-public class RenderTileEntityExternalDeviceMonitor extends TileEntitySpecialRenderer
+public class RenderTileEntityExternalDeviceMonitor extends TileEntitySpecialRenderer<TileEntityExternalDeviceMonitor>
 {
     private static final ResourceLocation monitorTextures = new ResourceLocation(AssemblyProgramCraft.MODID + ":" + "textures/tileentity/monitor.png");
     
@@ -29,17 +29,15 @@ public class RenderTileEntityExternalDeviceMonitor extends TileEntitySpecialRend
     private DynamicTexture texture;
     
     @Override
-    public void renderTileEntityAt(TileEntity tileentity, double x, double y, double z, float partialTickTime, int partialBlockDamage)
+    public void renderTileEntityAt(TileEntityExternalDeviceMonitor tileentity, double x, double y, double z, float partialTickTime, int partialBlockDamage)
     {
+        if(tileentity == null)
+            return;
+        
         Tessellator tessellator = Tessellator.getInstance();
         WorldRenderer worldRenderer = tessellator.getWorldRenderer();
         
-        TileEntityExternalDeviceMonitor tileEntityExternalDeviceMonitor = (TileEntityExternalDeviceMonitor)tileentity;
-        if(tileEntityExternalDeviceMonitor == null)
-        {
-            return;
-        }
-        EnumFacing face = (EnumFacing) tileEntityExternalDeviceMonitor.getWorld().getBlockState(tileEntityExternalDeviceMonitor.getPos()).getValue(BlockExternalDeviceMonitor.FACING);
+        EnumFacing face = tileentity.getWorld().getBlockState(tileentity.getPos()).getValue(BlockExternalDeviceMonitor.FACING);
         
         GlStateManager.disableLighting();
         
@@ -70,37 +68,37 @@ public class RenderTileEntityExternalDeviceMonitor extends TileEntitySpecialRend
             GlStateManager.translate(-1, 0, 0);
         }
         
-        worldRenderer.startDrawing(GL11.GL_QUADS);
+        worldRenderer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
         
-        worldRenderer.addVertexWithUV(0, 0, 4F/16F, 0.5F, 1.0F);
-        worldRenderer.addVertexWithUV(1, 0, 4F/16F, 1.0F, 1.0F);
-        worldRenderer.addVertexWithUV(1, 1, 4F/16F, 1.0F, 0.5F);
-        worldRenderer.addVertexWithUV(0, 1, 4F/16F, 0.5F, 0.5F);
+        worldRenderer.pos(0, 0, 4F/16F).tex(0.5F, 1.0F).endVertex();
+        worldRenderer.pos(1, 0, 4F/16F).tex(1.0F, 1.0F).endVertex();
+        worldRenderer.pos(1, 1, 4F/16F).tex(1.0F, 0.5F).endVertex();
+        worldRenderer.pos(0, 1, 4F/16F).tex(0.5F, 0.5F).endVertex();
         
-        worldRenderer.addVertexWithUV(1, 0, 0, 0F, 0.5F);
-        worldRenderer.addVertexWithUV(0, 0, 0, 0.5F, 0.5F);
-        worldRenderer.addVertexWithUV(0, 1, 0, 0.5F, 0F);
-        worldRenderer.addVertexWithUV(1, 1, 0, 0F, 0F);
+        worldRenderer.pos(1, 0, 0).tex(0F, 0.5F).endVertex();
+        worldRenderer.pos(0, 0, 0).tex(0.5F, 0.5F).endVertex();
+        worldRenderer.pos(0, 1, 0).tex(0.5F, 0F).endVertex();
+        worldRenderer.pos(1, 1, 0).tex(0F, 0F).endVertex();
         
-        worldRenderer.addVertexWithUV(1, 14F/16F, 0, 0.5F, 0.5F);
-        worldRenderer.addVertexWithUV(0, 14F/16F, 0, 1F, 0.5F);
-        worldRenderer.addVertexWithUV(0, 14F/16F, 1, 1F, 0F);
-        worldRenderer.addVertexWithUV(1, 14F/16F, 1, 0.5F, 0F);
+        worldRenderer.pos(1, 14F/16F, 0).tex(0.5F, 0.5F).endVertex();
+        worldRenderer.pos(0, 14F/16F, 0).tex(1F, 0.5F).endVertex();
+        worldRenderer.pos(0, 14F/16F, 1).tex(1F, 0F).endVertex();
+        worldRenderer.pos(1, 14F/16F, 1).tex(0.5F, 0F).endVertex();
         
-        worldRenderer.addVertexWithUV(0, 1F/16F, 0, 1F, 0.5F);
-        worldRenderer.addVertexWithUV(1, 1F/16F, 0, 0.5F, 0.5F);
-        worldRenderer.addVertexWithUV(1, 1F/16F, 1, 0.5F, 0F);
-        worldRenderer.addVertexWithUV(0, 1F/16F, 1, 1F, 0F);
+        worldRenderer.pos(0, 1F/16F, 0).tex(1F, 0.5F).endVertex();
+        worldRenderer.pos(1, 1F/16F, 0).tex(0.5F, 0.5F).endVertex();
+        worldRenderer.pos(1, 1F/16F, 1).tex(0.5F, 0F).endVertex();
+        worldRenderer.pos(0, 1F/16F, 1).tex(1F, 0F).endVertex();
         
-        worldRenderer.addVertexWithUV(0, 0, 0, 0F, 1.0F);
-        worldRenderer.addVertexWithUV(0, 0, 1, 0F, 0.5F);
-        worldRenderer.addVertexWithUV(0, 1, 1, 0.5F, 0.5F);
-        worldRenderer.addVertexWithUV(0, 1, 0, 0.5F, 1.0F);
+        worldRenderer.pos(0, 0, 0).tex(0F, 1.0F).endVertex();
+        worldRenderer.pos(0, 0, 1).tex(0F, 0.5F).endVertex();
+        worldRenderer.pos(0, 1, 1).tex(0.5F, 0.5F).endVertex();
+        worldRenderer.pos(0, 1, 0).tex(0.5F, 1.0F).endVertex();
         
-        worldRenderer.addVertexWithUV(1, 0, 1, 0F, 0.5F);
-        worldRenderer.addVertexWithUV(1, 0, 0, 0F, 1.0F);
-        worldRenderer.addVertexWithUV(1, 1, 0, 0.5F, 1.0F);
-        worldRenderer.addVertexWithUV(1, 1, 1, 0.5F, 0.5F);
+        worldRenderer.pos(1, 0, 1).tex(0F, 0.5F).endVertex();
+        worldRenderer.pos(1, 0, 0).tex(0F, 1.0F).endVertex();
+        worldRenderer.pos(1, 1, 0).tex(0.5F, 1.0F).endVertex();
+        worldRenderer.pos(1, 1, 1).tex(0.5F, 0.5F).endVertex();
         
         tessellator.draw();
         
@@ -172,15 +170,15 @@ public class RenderTileEntityExternalDeviceMonitor extends TileEntitySpecialRend
         }
         
         GlStateManager.bindTexture(texture.getGlTextureId());
-        System.arraycopy(tileEntityExternalDeviceMonitor.graphicsMemory, 0, texture.getTextureData(), 0, 75 * 100);
+        System.arraycopy(tileentity.graphicsMemory, 0, texture.getTextureData(), 0, 75 * 100);
         texture.updateDynamicTexture();
         
-        worldRenderer.startDrawing(GL11.GL_QUADS);
+        worldRenderer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
         
-        worldRenderer.addVertexWithUV(14F/16F, 3F/16F, 0, 0F, 1F);
-        worldRenderer.addVertexWithUV(2F/16F, 3F/16F, 0, 1F, 1F);
-        worldRenderer.addVertexWithUV(2F/16F, 12F/16F, 0, 1F, 0F);
-        worldRenderer.addVertexWithUV(14F/16F, 12/16F, 0, 0F, 0F);
+        worldRenderer.pos(14F/16F, 3F/16F, 0).tex(0F, 1F).endVertex();
+        worldRenderer.pos(2F/16F, 3F/16F, 0).tex(1F, 1F).endVertex();
+        worldRenderer.pos(2F/16F, 12F/16F, 0).tex(1F, 0F).endVertex();
+        worldRenderer.pos(14F/16F, 12/16F, 0).tex(0F, 0F).endVertex();
         
         tessellator.draw();
         

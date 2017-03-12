@@ -15,7 +15,8 @@ public class TileEntityExternalDeviceRedstoneController extends TileEntityExtern
     public TileEntityExternalDeviceRedstoneController()
     {
     }
-    public void update()
+    @Override
+	public void update()
     {
         super.update();
         if (needSync == true)
@@ -24,16 +25,19 @@ public class TileEntityExternalDeviceRedstoneController extends TileEntityExtern
             needSync = false;
         }
     }
-    public AbstractExternalDevice getExternalDevice()
+    @Override
+	public AbstractExternalDevice getExternalDevice()
     {
         return externalDeviceRedstoneController;
     }
-    public void readFromNBT(NBTTagCompound nbtTagCompound)
+    @Override
+	public void readFromNBT(NBTTagCompound nbtTagCompound)
     {
         super.readFromNBT(nbtTagCompound);
         redstoneOutputPower = nbtTagCompound.getIntArray("redstoneOutputPower");
     }
-    public void writeToNBT(NBTTagCompound nbtTagCompound)
+    @Override
+	public void writeToNBT(NBTTagCompound nbtTagCompound)
     {
         super.writeToNBT(nbtTagCompound);
         nbtTagCompound.setIntArray("redstoneOutputPower", redstoneOutputPower);

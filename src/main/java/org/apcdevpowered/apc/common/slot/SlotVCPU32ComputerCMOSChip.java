@@ -12,7 +12,8 @@ public class SlotVCPU32ComputerCMOSChip extends Slot
     {
         super(inventory, slotIndex, xDisplayPosition, yDisplayPosition);
     }
-    public boolean isItemValid(ItemStack par1ItemStack)
+    @Override
+	public boolean isItemValid(ItemStack par1ItemStack)
     {
         if(par1ItemStack.getItem() != AssemblyProgramCraftItems.item_vcpu_32_computer_cmos_chip)
         {
