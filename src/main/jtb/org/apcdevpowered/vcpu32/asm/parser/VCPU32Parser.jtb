@@ -111,11 +111,7 @@ void StmList() :
 {
     Stm() (
     {
-        if(token.next == null)
-        {
-            token.next = token_source.getNextToken();
-        }
-        Token specialToken = token.next.specialToken;
+        Token specialToken = getToken(1).specialToken;
         if(specialToken == null || specialToken.kind != Space)
         {
             int[][] exptokseq = new int[][]{{Space}};
@@ -135,11 +131,7 @@ void Insn() :
 {
     <Opt> (
     {
-        if(token.next == null)
-        {
-            token.next = token_source.getNextToken();
-        }
-        Token specialToken = token.next.specialToken;
+        Token specialToken = getToken(1).specialToken;
         if(specialToken == null || specialToken.kind != Space)
         {
             int[][] exptokseq = new int[][]{{Space}};

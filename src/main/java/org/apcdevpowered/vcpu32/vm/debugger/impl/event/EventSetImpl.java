@@ -9,7 +9,7 @@ import org.apcdevpowered.vcpu32.vm.debugger.impl.ThreadReferenceImpl;
 import org.apcdevpowered.vcpu32.vm.debugger.impl.VirtualMachineReferenceImpl;
 import org.apcdevpowered.vcpu32.vm.debugger.impl.request.EventRequestImpl;
 
-public class EventSetImpl extends ArrayList<EventImpl>implements EventSet<EventImpl>
+public class EventSetImpl extends ArrayList<EventImpl> implements EventSet<EventImpl>
 {
     private static final long serialVersionUID = 1L;
     private VirtualMachineReferenceImpl virtualMachineReference;
@@ -127,7 +127,7 @@ public class EventSetImpl extends ArrayList<EventImpl>implements EventSet<EventI
         Collection<EventImpl> filteredEvents = new ArrayList<EventImpl>();
         for (EventImpl event : events)
         {
-            if (event.request() == null || event.request().filterEvent(event))
+            if (event.filterEvent())
             {
                 filteredEvents.add(event);
             }

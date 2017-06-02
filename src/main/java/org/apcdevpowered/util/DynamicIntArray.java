@@ -2,8 +2,8 @@ package org.apcdevpowered.util;
 
 import java.util.Arrays;
 import java.util.EmptyStackException;
-import java.util.Iterator;
 import java.util.NoSuchElementException;
+import java.util.PrimitiveIterator;
 
 public class DynamicIntArray implements Iterable<Integer>, Cloneable {
 	public final int initialSize;
@@ -221,9 +221,9 @@ public class DynamicIntArray implements Iterable<Integer>, Cloneable {
         return length();
     }
     @Override
-    public Iterator<Integer> iterator()
+    public PrimitiveIterator.OfInt iterator()
     {
-        return new Iterator<Integer>()
+        return new PrimitiveIterator.OfInt()
         {
             private int pointer = 0;
             
@@ -233,7 +233,7 @@ public class DynamicIntArray implements Iterable<Integer>, Cloneable {
                 return pointer < DynamicIntArray.this.length();
             }
             @Override
-            public Integer next()
+            public int nextInt()
             {
                 if (pointer < DynamicIntArray.this.length())
                 {

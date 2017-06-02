@@ -26,7 +26,7 @@ public class EventQueueImpl implements EventQueue
         return remove(0);
     }
     @Override
-    public synchronized EventSetImpl remove(long timeout) throws InterruptedException
+    public EventSetImpl remove(long timeout) throws InterruptedException
     {
         if (timeout < 0)
         {

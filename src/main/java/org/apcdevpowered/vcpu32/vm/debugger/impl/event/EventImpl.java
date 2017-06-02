@@ -24,4 +24,12 @@ public abstract class EventImpl implements Event
     {
         return eventRequest;
     }
+    protected boolean filterEvent()
+    {
+        EventRequestImpl eventRequest = request();
+        if (eventRequest == null)
+            return true;
+        else
+            return eventRequest.getCountFilterGroup().filterEvent(eventRequest, this);
+    }
 }

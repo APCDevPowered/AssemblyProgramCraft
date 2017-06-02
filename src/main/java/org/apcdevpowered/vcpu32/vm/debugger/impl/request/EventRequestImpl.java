@@ -1,14 +1,11 @@
 package org.apcdevpowered.vcpu32.vm.debugger.impl.request;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.apcdevpowered.vcpu32.vm.debugger.impl.VirtualMachineReferenceImpl;
-import org.apcdevpowered.vcpu32.vm.debugger.impl.event.EventImpl;
-import org.apcdevpowered.vcpu32.vm.debugger.impl.request.filter.CountFilter;
-import org.apcdevpowered.vcpu32.vm.debugger.impl.request.filter.IFilter;
+import org.apcdevpowered.vcpu32.vm.debugger.impl.request.filter.CountFilterGroup;
+import org.apcdevpowered.vcpu32.vm.debugger.impl.request.filter.CountFilterGroup.CountFilter;
 import org.apcdevpowered.vcpu32.vm.debugger.request.EventRequest;
 import org.apcdevpowered.vcpu32.vm.debugger.request.InvalidRequestStateException;
 
@@ -19,7 +16,7 @@ public abstract class EventRequestImpl implements EventRequest
     private boolean isEnabled;
     private int suspendPolicy;
     private Map<Object, Object> properties = new HashMap<Object, Object>();
-    private List<IFilter> filterList = new ArrayList<IFilter>();
+    private CountFilterGroup countFilterGroup = new CountFilterGroup();
     
     public EventRequestImpl(VirtualMachineReferenceImpl virtualMachineReference, EventRequestManagerImpl eventRequestManager)
     {
@@ -70,7 +67,7 @@ public abstract class EventRequestImpl implements EventRequest
         {
             throw new IllegalArgumentException();
         }
-        addFilter(new CountFilter(count));
+        countFilterGroup.addFilter(new CountFilter(count));
     }
     @Override
     public void setSuspendPolicy(int policy)
@@ -113,38 +110,9 @@ public abstract class EventRequestImpl implements EventRequest
             return properties.get(key);
         }
     }
-    public boolean filterEvent(EventImpl event)
+    public CountFilterGroup getCountFilterGroup()
     {
-        synchronized (filterList)
-        {
-            if (!filterList.isEmpty())
-            {
-                IFilter filter = filterList.get(0);
-                return filter.filterEvent(this, event);
-            }
-            return true;
-        }
-    }
-    public void addFilter(IFilter filter)
-    {
-        synchronized (filterList)
-        {
-            filterList.add(filter);
-        }
-    }
-    public void removeCurrentFilter()
-    {
-        synchronized (filterList)
-        {
-            filterList.remove(0);
-        }
-    }
-    public int getFilterNum()
-    {
-        synchronized (filterList)
-        {
-            return filterList.size();
-        }
+        return countFilterGroup;
     }
     protected boolean isVaild()
     {

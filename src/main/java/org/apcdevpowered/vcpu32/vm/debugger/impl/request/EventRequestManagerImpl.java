@@ -8,6 +8,7 @@ import org.apcdevpowered.vcpu32.vm.debugger.ThreadReference;
 import org.apcdevpowered.vcpu32.vm.debugger.impl.LocationImpl;
 import org.apcdevpowered.vcpu32.vm.debugger.impl.ThreadReferenceImpl;
 import org.apcdevpowered.vcpu32.vm.debugger.impl.VirtualMachineReferenceImpl;
+import org.apcdevpowered.vcpu32.vm.debugger.request.DuplicateRequestException;
 import org.apcdevpowered.vcpu32.vm.debugger.request.EventRequest;
 import org.apcdevpowered.vcpu32.vm.debugger.request.EventRequestManager;
 
@@ -75,6 +76,10 @@ public class EventRequestManagerImpl implements EventRequestManager
         StepRequestImpl stepRequest = new StepRequestImpl(virtualMachineReference, this, (ThreadReferenceImpl) thread, size, depth);
         synchronized (eventRequestList)
         {
+            if (eventRequestList.stream().anyMatch(request -> request instanceof StepRequestImpl))
+            {
+                throw new DuplicateRequestException();
+            }
             eventRequestList.add(stepRequest);
         }
         return stepRequest;
