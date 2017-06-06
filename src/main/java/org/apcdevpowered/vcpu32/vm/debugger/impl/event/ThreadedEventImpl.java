@@ -6,7 +6,7 @@ import org.apcdevpowered.vcpu32.vm.debugger.impl.VirtualMachineReferenceImpl;
 import org.apcdevpowered.vcpu32.vm.debugger.impl.request.EventRequestImpl;
 import org.apcdevpowered.vcpu32.vm.debugger.impl.request.ThreadedRequestImpl;
 
-public class ThreadedEventImpl extends EventImpl implements ThreadedEvent
+public abstract class ThreadedEventImpl extends EventImpl implements ThreadedEvent
 {
     private ThreadReferenceImpl threadReference;
     
