@@ -356,13 +356,13 @@ public class RenderTileEntityExternalDeviceConsoleScreen extends TileEntitySpeci
         WorldRenderer worldRenderer = tessellator.getWorldRenderer();
         
         float red = (float)(frontColor >> 16 & 255) / 255.0F;
-        float blue = (float)(frontColor >> 8 & 255) / 255.0F;
-        float green = (float)(frontColor & 255) / 255.0F;
+        float green = (float)(frontColor >> 8 & 255) / 255.0F;
+        float blue = (float)(frontColor & 255) / 255.0F;
         float alpha = (float)(frontColor >> 24 & 255) / 255.0F;
         
         float backgroundRed = (float)(backgroundColor >> 16 & 255) / 255.0F;
-        float backgroundBlue = (float)(backgroundColor >> 8 & 255) / 255.0F;
-        float backgroundGreen = (float)(backgroundColor & 255) / 255.0F;
+        float backgroundGreen = (float)(backgroundColor >> 8 & 255) / 255.0F;
+        float backgroundBlue = (float)(backgroundColor & 255) / 255.0F;
         float backgroundAlpha = (float)(backgroundColor >> 24 & 255) / 255.0F;
         
         int imageIndex = theChar / 256;
@@ -433,9 +433,9 @@ public class RenderTileEntityExternalDeviceConsoleScreen extends TileEntitySpeci
                 bottomCut -= 1;
             }
             
-            GlStateManager.color(red, blue, green, alpha);
+            GlStateManager.color(red, green, blue, alpha);
             
-            worldRenderer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION);
+            worldRenderer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
             
             worldRenderer.pos
             (
